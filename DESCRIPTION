@@ -1,0 +1,18 @@
+Package: drSpaceTime
+Title: Spatial-Temporal data analysis using divide and recombined
+Version: 0.1
+Authors@R: person("Xiaosu", "Tong", email = "xiaosutong@gmail.com", role = c("aut", "cre"))
+Description: What the package does (one paragraph).
+Depends: 
+    R (>= 3.1.2)
+Imports: 
+    Spaloess,
+    stlplus,
+    roxygen2,
+    plyr
+License: What license is it under?
+LazyData: true
+RoxygenNote: 5.0.1
+Suggests: knitr,
+    rmarkdown
+VignetteBuilder: knitr
