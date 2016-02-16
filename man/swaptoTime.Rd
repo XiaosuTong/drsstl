@@ -4,7 +4,8 @@
 \alias{swaptoTime}
 \title{Swap to division by time}
 \usage{
-swaptoTime(input, output, elevFlag = TRUE, reduceTask)
+swaptoTime(input, output, elevFlag = TRUE, reduceTask,
+  control = spacetime.control())
 }
 \arguments{
 \item{input}{The path of input sequence file on HDFS. It should be by location division.}
@@ -15,6 +16,8 @@ swaptoTime(input, output, elevFlag = TRUE, reduceTask)
 If FALSE, a log2 transformation is added to the elevation attribute.}
 
 \item{reduceTask}{The number of the reduce tasks.}
+
+\item{control}{all parameters that are needed for space-time fitting}
 }
 \description{
 Switch input key-value pairs which is division by location
