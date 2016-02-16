@@ -4,8 +4,8 @@
 \alias{spacetime.control}
 \title{Set parameter for drSpaceTime fitting}
 \usage{
-spacetime.control(inner, outer, surface = c("interpolate", "direct"),
-  lib.loc = NULL, iterations = 1L)
+spacetime.control(inner = 4, outer = 1, surface = c("interpolate",
+  "direct"), lib.loc = NULL, iterations = 1L)
 }
 \arguments{
 \item{inner}{The iteration time for inner loop of stlplus for time dimension fitting}
@@ -27,11 +27,7 @@ A list with space-time fitting parameters.
 Set control parameters for drSpaceTime fits
 }
 \examples{
-    FileInput <- "/ln/tongx/Spatial/a1950/bystation"
-    FileOutput <- "/ln/tongx/Spatial/a1950/bymonth"
-    \dontrun{
-      swaptoTime(FileInput, FileOutput, elevFlag=TRUE)
-    }
+    spacetime.control()
 }
 \author{
 Xiaosu Tong

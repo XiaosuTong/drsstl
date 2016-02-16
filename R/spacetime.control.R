@@ -20,11 +20,7 @@
 #'     Xiaosu Tong 
 #' @export
 #' @examples
-#'     FileInput <- "/ln/tongx/Spatial/a1950/bystation"
-#'     FileOutput <- "/ln/tongx/Spatial/a1950/bymonth"
-#'     \dontrun{
-#'       swaptoTime(FileInput, FileOutput, elevFlag=TRUE)
-#'     }
+#'     spacetime.control()
 
 
 spacetime.control <- function(inner=4, outer=1, surface = c("interpolate", "direct"), lib.loc=NULL, iterations = 1L) {
