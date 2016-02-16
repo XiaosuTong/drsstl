@@ -12,6 +12,10 @@
 #' @param elevFlag
 #'     Logical argument, if TRUE, then the elevation attribute from input value data.frame is log2 transformation
 #'     If FALSE, a log2 transformation is added to the elevation attribute.
+#' @param libLoc
+#'     the library searching path, sepcifically the path including Spaloess and 
+#'     stlplus package on the front end server. If all packages have been pushed
+#'     the the tar.gz file on hdfs, then this argument is set to be NULL.
 #' @details
 #'     swaptoTime is used for switch division by location to division by time.
 #' @author 
@@ -24,7 +28,7 @@
 #'       swaptoTime(FileInput, FileOutput, elevFlag=TRUE)
 #'     }
 
-swaptoTime <- function(input, output, elevFlag=TRUE, reduceTask) {
+swaptoTime <- function(input, output, elevFlag=TRUE, reduceTask, libLoc = spacetime.control()$lib.loc) {
 
   job <- list()
   job$map <- expression({
@@ -59,7 +63,7 @@ swaptoTime <- function(input, output, elevFlag=TRUE, reduceTask) {
     }
   )
   job$setup <- expression(
-    map = {library(dplyr, lib.loc=lib.loc)}
+    map = {library(dplyr, lib.loc=libLoc)}
   )
   job$mapred <- list(
     mapred.reduce.tasks = reduceTask,  #cdh3,4

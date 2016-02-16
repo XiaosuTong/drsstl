@@ -26,8 +26,8 @@
 spacetime.control <- function(inner=4, outer=1, surface = c("interpolate", "direct"), lib.loc=NULL, iterations = 1L) {
   
   list(
-  	inner = match.arg(inner), outer = match.arg(outer), surface = match.arg(surface), 
-  	lib.loc = match.arg(lib.loc), iterations = match.arg(iterations)
+  	inner = inner, outer = outer, surface = match.arg(surface), 
+  	lib.loc = lib.loc, iterations = iterations
   )
 
 }
