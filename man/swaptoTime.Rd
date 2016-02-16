@@ -2,7 +2,7 @@
 % Please edit documentation in R/swaptoTime.R
 \name{swaptoTime}
 \alias{swaptoTime}
-\title{Spatially Local Polynomial Regression Fitting}
+\title{Swap to division by time}
 \usage{
 swaptoTime(input, output, elevFlag = TRUE, reduceTask)
 }
@@ -17,8 +17,8 @@ If FALSE, a log2 transformation is added to the elevation attribute.}
 \item{reduceTask}{The number of the reduce tasks.}
 }
 \description{
-The first layer of the Spatial locally weighted regression, using local fitting with different 
-type of distance calculation.
+Switch input key-value pairs which is division by location
+to the key-value pairs which is division by time.
 }
 \details{
 swaptoTime is used for switch division by location to division by time.

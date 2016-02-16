@@ -1,7 +1,7 @@
-#' Spatially Local Polynomial Regression Fitting
+#' Swap to division by time
 #'
-#' The first layer of the Spatial locally weighted regression, using local fitting with different 
-#' type of distance calculation.
+#' Switch input key-value pairs which is division by location
+#' to the key-value pairs which is division by time.
 #'
 #' @param input
 #'     The path of input sequence file on HDFS. It should be by location division.
