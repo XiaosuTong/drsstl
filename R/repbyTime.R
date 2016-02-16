@@ -24,8 +24,9 @@ repbyTime <- function(input, output, Rep=8000, buffSize=7, reduceTask, control=s
   job <- list()
   job$map <- expression({
     lapply(seq_along(map.keys), function(r) {
-      value <- rdply(Rep, arrange(map.values[[r]], year, match(month, month.abb)), .id=NULL)
+      value <- rdply(Rep, arrange(map.values[[r]], year, match(month, month.abb)), .id=NA)
       value$date <- 1:nrow(value)
+      value <- subset(value, select=-c(.n))
       rhcollect(map.keys[[r]], value)
     })
   })
