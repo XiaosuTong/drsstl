@@ -11,15 +11,13 @@
 #'     The number of the reduce tasks.
 #' @param Rep
 #'     The replication time for the time series of each location
-#' @param buffSize
-#'     To control how many location will be send to one mapper
 #' @details
 #'     swaptoTime is used for switch division by location to division by time.
 #' @author 
 #'     Xiaosu Tong 
 #' @export
 
-repbyTime <- function(input, output, Rep=8000, buffSize=7, reduceTask, control=spacetime.control()){
+repbyTime <- function(input, output, Rep=8000, reduceTask, control=spacetime.control()){
 
   job <- list()
   job$map <- expression({
@@ -42,7 +40,7 @@ repbyTime <- function(input, output, Rep=8000, buffSize=7, reduceTask, control=s
   job$mapred <- list(
     mapred.reduce.tasks = reduceTask,  #cdh3,4
     mapreduce.job.reduces = reduceTask,  #cdh5
-    rhipe_map_buff_size = buffSize
+    #rhipe_map_buff_size = buffSize
   )
   job$mon.sec <- 20
   job$jobname <- output  
