@@ -61,6 +61,9 @@ swaptoTime <- function(input, output, elevFlag=TRUE, reduceTask, control=spaceti
       rhcollect(reduce.key, combine)
     }
   )
+  job$parameters <- list(
+    control = control
+  )
   job$setup <- expression(
     map = {library(plyr, lib.loc=control$libLoc)}
   )
