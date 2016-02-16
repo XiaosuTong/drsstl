@@ -35,8 +35,8 @@ repbyTime <- function(input, output, Rep=8000, buffSize=7, reduceTask, control=s
   job$parameters <- list(
     control = control
   )
-  job$input <- rhfmt(Input, type = "sequence")
-  job$output <- rhfmt(Output, type = "sequence")
+  job$input <- rhfmt(input, type = "sequence")
+  job$output <- rhfmt(output, type = "sequence")
   job$mapred <- list(
     mapred.reduce.tasks = reduceTask,  #cdh3,4
     mapreduce.job.reduces = reduceTask,  #cdh5
