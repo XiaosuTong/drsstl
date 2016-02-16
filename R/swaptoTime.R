@@ -28,7 +28,6 @@
 
 swaptoTime <- function(input, output, elevFlag=TRUE, reduceTask, control=spacetime.control()) {
 
-  print(control$libLoc)
   job <- list()
   job$map <- expression({
     lapply(seq_along(map.values), function(r) {
