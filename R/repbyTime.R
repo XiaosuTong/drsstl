@@ -33,7 +33,8 @@ repbyTime <- function(input, output, Rep=8000, buffSize=7, reduceTask, control=s
     map = {library(plyr, lib.loc=control$libLoc)}
   )
   job$parameters <- list(
-    control = control
+    control = control,
+    Rep = Rep
   )
   job$input <- rhfmt(input, type = "sequence")
   job$output <- rhfmt(output, type = "sequence")
