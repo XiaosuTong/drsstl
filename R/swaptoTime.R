@@ -26,8 +26,9 @@
 #'       swaptoTime(FileInput, FileOutput, elevFlag=TRUE)
 #'     }
 
-swaptoTime <- function(input, output, elevFlag=TRUE, reduceTask, control = spacetime.control()) {
+swaptoTime <- function(input, output, elevFlag=TRUE, reduceTask, control=spacetime.control()) {
 
+  print(control$libLoc)
   job <- list()
   job$map <- expression({
     lapply(seq_along(map.values), function(r) {
@@ -61,7 +62,7 @@ swaptoTime <- function(input, output, elevFlag=TRUE, reduceTask, control = space
     }
   )
   job$setup <- expression(
-    map = {library(dplyr, lib.loc=control$libLoc)}
+    map = {library(plyr, lib.loc=control$libLoc)}
   )
   job$mapred <- list(
     mapred.reduce.tasks = reduceTask,  #cdh3,4
@@ -72,7 +73,7 @@ swaptoTime <- function(input, output, elevFlag=TRUE, reduceTask, control = space
   job$combiner <- TRUE
   job$input <- rhfmt(input, type="sequence")
   job$output <- rhfmt(output, type="sequence")
-  job$mon.sec <- 20
+  job$mon.sec <- 5
   job$jobname <- output
   job$readback <- FALSE  
 
