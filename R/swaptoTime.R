@@ -61,7 +61,7 @@ swaptoTime <- function(input, output, elevFlag=TRUE, reduceTask, control = space
     }
   )
   job$setup <- expression(
-    map = {library(dplyr, lib.loc=spacetime.control()$libLoc)}
+    map = {library(dplyr, lib.loc=control$libLoc)}
   )
   job$mapred <- list(
     mapred.reduce.tasks = reduceTask,  #cdh3,4
