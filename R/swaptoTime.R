@@ -70,7 +70,8 @@ swaptoTime <- function(input, output, elevFlag=TRUE, reduceTask, control=spaceti
   job$mapred <- list(
     mapred.reduce.tasks = reduceTask,  #cdh3,4
     mapreduce.job.reduces = reduceTask,  #cdh5
-    mapred.tasktimeout = 0,
+    mapred.tasktimeout = 0, #cdh3,4
+    mapreduce.task.timeout = 0, #cdh5
     rhipe_reduce_buff_size = 10000
   )
   job$combiner <- TRUE
