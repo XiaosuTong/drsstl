@@ -23,11 +23,11 @@
 #'     spacetime.control()
 
 
-spacetime.control <- function(inner=4, outer=1, surface = c("interpolate", "direct"), lib.loc=NULL, iterations = 1L) {
+spacetime.control <- function(inner=4, outer=1, surface = c("interpolate", "direct"), libLoc=NULL, iterations = 1L) {
   
   list(
   	inner = inner, outer = outer, surface = match.arg(surface), 
-  	lib.loc = lib.loc, iterations = iterations
+  	libLoc = libLoc, iterations = iterations
   )
 
 }

@@ -5,20 +5,20 @@
 \title{Set parameter for drSpaceTime fitting}
 \usage{
 spacetime.control(inner = 4, outer = 1, surface = c("interpolate",
-  "direct"), lib.loc = NULL, iterations = 1L)
+  "direct"), libLoc = NULL, iterations = 1L)
 }
 \arguments{
 \item{inner}{The iteration time for inner loop of stlplus for time dimension fitting}
 
 \item{surface}{should the fitted surface be computed exactly or via interpolation from a kd tree?}
 
-\item{lib.loc}{the library searching path, sepcifically the path including Spaloess and 
-stlplus package on the front end server. If all packages have been pushed
-the the tar.gz file on hdfs, then this argument is set to be NULL.}
-
 \item{iterations}{the number of iterations used for the space-time back-fitting.}
 
 \item{output}{The iteration time for outer loop of stlplus for time dimension fitting}
+
+\item{lib.loc}{the library searching path, sepcifically the path including Spaloess and 
+stlplus package on the front end server. If all packages have been pushed
+the the tar.gz file on hdfs, then this argument is set to be NULL.}
 }
 \value{
 A list with space-time fitting parameters.
