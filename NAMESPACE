@@ -2,4 +2,5 @@
 
 export(repbyTime)
 export(spacetime.control)
+export(swaptoSeason)
 export(swaptoTime)

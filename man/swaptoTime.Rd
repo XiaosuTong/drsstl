@@ -4,7 +4,7 @@
 \alias{swaptoTime}
 \title{Swap to division by time}
 \usage{
-swaptoTime(input, output, elevFlag = TRUE, reduceTask,
+swaptoTime(input, output, elevFlag = TRUE, reduceTask = 1,
   control = spacetime.control())
 }
 \arguments{

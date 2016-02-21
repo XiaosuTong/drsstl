@@ -4,7 +4,7 @@
 \alias{repbyTime}
 \title{Swap to division by time}
 \usage{
-repbyTime(input, output, Rep = 8000, buffSize = 7, reduceTask,
+repbyTime(input, output, Rep = 8000, reduceTask,
   control = spacetime.control())
 }
 \arguments{
@@ -13,8 +13,6 @@ repbyTime(input, output, Rep = 8000, buffSize = 7, reduceTask,
 \item{output}{The path of output sequence file on HDFS. It is by location division but duplicate the time series to be longer.}
 
 \item{Rep}{The replication time for the time series of each location}
-
-\item{buffSize}{To control how many location will be send to one mapper}
 
 \item{reduceTask}{The number of the reduce tasks.}
 }

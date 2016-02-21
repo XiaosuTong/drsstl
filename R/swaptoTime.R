@@ -26,7 +26,7 @@
 #'       swaptoTime(FileInput, FileOutput, elevFlag=TRUE)
 #'     }
 
-swaptoTime <- function(input, output, elevFlag=TRUE, reduceTask, control=spacetime.control()) {
+swaptoTime <- function(input, output, elevFlag=TRUE, reduceTask=1, control=spacetime.control()) {
 
   job <- list()
   job$map <- expression({
@@ -43,7 +43,7 @@ swaptoTime <- function(input, output, elevFlag=TRUE, reduceTask, control=spaceti
           if (!elevFlag) {
             value$elev2 <- as.numeric(attributes(map.values[[r]])$loc[3])
           } else {
-          	value$elev2 <- log2(as.numeric(attributes(map.values[[r]])$loc[3]) + 128)
+            value$elev2 <- log2(as.numeric(attributes(map.values[[r]])$loc[3]) + 128)
           }
           rhcollect(key, value)
       })
