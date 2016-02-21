@@ -1,0 +1,48 @@
+#' Seasonal Decomposition of Time Series by Loess
+#'
+#' Decompose a time series into seasonal, trend and irregular components using \code{loess}, acronym STL. A new implementation of STL. Allows for NA values, local quadratic smoothing, post-trend smoothing, and endpoint blending. The usage is very similar to that of R's built-in \code{stl()}.
+#'
+#' @param x vector of time series values, in order of time. If \code{x} is a time series object, then \code{t} and \code{n.p} do not need to be specified, although they still can be.
+#' @param t times at which the time series values were observed.
+#' @param s.window either the character string \code{"periodic"} or the span (in lags) of the loess window for seasonal extraction, which should be odd. This has no default.
+#' @param s.degree degree of locally-fitted polynomial in seasonal extraction. Should be 0, 1, or 2.
+#' @param sub.labels optional vector of length n.p that contains the labels of the subseries in their natural order (such as month name, day of week, etc.), used for strip labels when plotting. All entries must be unique.
+#' @param sub.start which element of sub.labels does the series begin with. See details.
+#' @param zero.weight value to use as zero for zero weighting
+#' @param details if \code{TRUE}, returns a list of the results of all the intermediate iterations.
+#' @param s.jump integers at least one to increase speed of the respective smoother. Linear interpolation happens between every \code{*.jump}th value.
+#' @param s.blend vectors of proportion of blending to degree 0 polynomials at the endpoints of the series.
+#' @param \ldots additional parameters
+#' @details The seasonal component is found by \emph{loess} smoothing the seasonal sub-series (the series of all January values, \ldots); if \code{s.window = "periodic"} smoothing is effectively replaced by taking the mean. The seasonal values are removed, and the remainder smoothed to find the trend. The overall level is removed from the seasonal component and added to the trend component. This process is iterated a few times. The \code{remainder} component is the residuals from the seasonal plus trend fit.
+#'
+#' Cycle-subseries labels are useful for plotting and can be specified through the sub.labels argument. Here is an example for how the sub.labels and sub.start parameters might be set for one situation. Suppose we have a daily series with n.p=7 (fitting a day-of-week component). Here, sub.labels could be set to c("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"). Now, if the series starts with a Wednesday value, then one would specify sub.labels=4, since Wednesday is the fourth element of sub.labels. This ensures that the labels in the plots to start the plotting with Sunday cycle-subseries instead of Wednesday.
+#' @return
+#' returns an object of class \code{"stlplus"}, containing
+#' \item{data}{data frame containing all of the components: \code{raw}, \code{seasonal}, \code{trend}, \code{remainder}, \code{weights}.}
+#' \item{pars}{list of parameters used in the procedure.}
+#' \item{fc.number}{number of post-trend frequency components fitted.}
+#' \item{fc}{data frame of the post-trend frequency components.}
+#' \item{time}{vector of time values corresponding to the raw values, if specified.}
+#' \item{n}{the number of observations.}
+#' \item{sub.labels}{the cycle-subseries labels.}
+#' @references R. B. Cleveland, W. S. Cleveland, J. E. McRae, and I. Terpenning (1990) STL: A Seasonal-Trend Decomposition Procedure Based on Loess. \emph{Journal of Official Statistics}, \bold{6}, 3--73.
+#' @author Ryan Hafen
+#' @note This is a complete re-implementation of the STL algorithm, with the loess part in C and the rest in R. Moving a lot of the code to R makes it easier to experiment with the method at a very minimal speed cost. Recoding in C instead of using R's built-in loess results in better performance, especially for larger series.
+#' @examples
+#'     \dontrun{
+#'       drseasonal(x=rnorm(50), t=1:50, s.window=13, s.degree=1)
+#'     }
+#' @importFrom stats frequency loess median predict quantile weighted.mean time
+#' @importFrom utils head stack tail
+#' @export
+#' @rdname drseasonal
+drseasonal <- function(x, t, s.window, s.degree = 1,
+s.jump = ceiling(s.window / 10),
+critfreq = 0.05,
+s.blend = 0, 
+sub.labels = NULL, sub.start = 1, zero.weight = 1e-6,
+details = FALSE, ...) {
+	
+
+
+}
