@@ -27,7 +27,7 @@ swaptoSeason is used for switch division by location to division by season.
     FileInput <- "/ln/tongx/Spatial/a1950/bystation"
     FileOutput <- "/ln/tongx/Spatial/a1950/byseason"
     \dontrun{
-      swaptoSeason(FileInput, FileOutput, elevFlag=TRUE, control=spacetime.control(libLoc=.libPaths()))
+      swaptoSeason(FileInput, FileOutput, control=spacetime.control(libLoc=.libPaths()))
     }
 }
 \author{

@@ -40,17 +40,6 @@ swaptoSeason <- function(input, output, reduceTask=0, control=spacetime.control(
       })
     })
   })
-#  job$reduce <- expression(
-#    pre = {
-#      combine <- data.frame()
-#    },
-#    reduce = {
-#      combine <- rbind(combine, do.call(rbind, reduce.values))
-#    },
-#    post = {
-#      rhcollect(reduce.key, combine)
-#    }
-#  )
   job$parameters <- list(
     control = control
   )
@@ -67,7 +56,7 @@ swaptoSeason <- function(input, output, reduceTask=0, control=spacetime.control(
   job$combiner <- TRUE
   job$input <- rhfmt(input, type="sequence")
   job$output <- rhfmt(output, type="sequence")
-  job$mon.sec <- 5
+  job$mon.sec <- 20
   job$jobname <- output
   job$readback <- FALSE  
 
