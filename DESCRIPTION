@@ -9,7 +9,8 @@ Imports:
     Spaloess,
     roxygen2,
     plyr,
-    Rcpp
+    Rcpp,
+    yaImpute
 License: What license is it under?
 LazyData: true
 RoxygenNote: 5.0.1
