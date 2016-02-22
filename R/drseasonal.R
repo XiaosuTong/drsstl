@@ -107,7 +107,7 @@ crtouter = 1, details = FALSE, reduceTask=0, control=spacetime.control(), ...) {
   job$map <- expression({
     lapply(seq_along(map.keys), function(r) {
       index <- match(map.keys[[r]][2], month.abb)
-      value <- plyr::arrange(map.values[[r]], get(.t))
+      value <- plyr::arrange(map.values[[r]], year)
       value[, .season] <- index
       cycleSub.length <- nrow(value)
       cycleSub <- value[, .vari]
