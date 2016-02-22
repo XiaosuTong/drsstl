@@ -34,8 +34,8 @@
 #' @author Ryan Hafen
 #' @note This is a complete re-implementation of the STL algorithm, with the loess part in C and the rest in R. Moving a lot of the code to R makes it easier to experiment with the method at a very minimal speed cost. Recoding in C instead of using R's built-in loess results in better performance, especially for larger series.
 #' @examples
-#'     FileInput <- "/ln/tongx/Spatial/a1950/byseason"
-#'     FileOutput <- "/ln/tongx/Spatial/a1950/byseason.season"
+#'     FileInput <- "/ln/tongx/Spatial/tmp/tmax/a1950/byseason"
+#'     FileOutput <- "/ln/tongx/Spatial/tmp/tmax/a1950/byseason.season"
 #'     \dontrun{
 #'       drseasonal(input=FileInput, output=FileOutput, .vari="resp", .t="year", .season = "month", n=576, n.p=12, s.window=13, s.degree=1, reduceTask=10, control=spacetime.control(libLoc=.libPaths()))
 #'     }
@@ -102,7 +102,7 @@ crtouter = 1, details = FALSE, reduceTask=0, control=spacetime.control(), ...) {
   	periodic = periodic, l.window = l.window, l.degree = l.degree, l.jump = l.jump
   )
 
-  print(pars)
+  print(paras)
   
   job <- list()
   job$map <- expression({
