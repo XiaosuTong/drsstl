@@ -108,17 +108,17 @@ crtouter = 1, details = FALSE, reduceTask=0, control=spacetime.control(), ...) {
   job$map <- expression({
     lapply(seq_along(map.keys), function(r) {
       index <- match(map.keys[[r]][2], month.abb)
-      value <- plyr::arrange(map.values[[r]], get(.t))
-      value[, .season] <- index
-      cycleSub.length <- nrow(value)
-      cycleSub <- value[, .vari]
-      if (crtinner == 1) {
-        value$trend <- 0
-        value$weight <- 1
-      }
-      
-      cs1 <- as.numeric(head(value[, .t], 1)) - 1
-      cs2 <- as.numeric(tail(value[, .t], 1)) + 1
+#      value <- plyr::arrange(map.values[[r]], get(.t))
+#      value[, .season] <- index
+#      cycleSub.length <- nrow(value)
+#      cycleSub <- value[, .vari]
+#      if (crtinner == 1) {
+#        value$trend <- 0
+#        value$weight <- 1
+#      }
+#      
+#      cs1 <- as.numeric(head(value[, .t], 1)) - 1
+#      cs2 <- as.numeric(tail(value[, .t], 1)) + 1
 
 #      if (periodic) {
 #        C <- rep(weighted.mean(cycleSub, w = value$weight, na.rm = TRUE), cycleSub.length + 2)
@@ -134,7 +134,7 @@ crtouter = 1, details = FALSE, reduceTask=0, control=spacetime.control(), ...) {
 #      }
 #      Cdf <- data.frame(C = C, t = as.numeric(paste(c(cs1, value[, .t], cs2), index, sep=".")))
 #      rhcollect(map.keys[[r]][1], list(value, Cdf))
-      rhcollect(map.keys[[r]][1], value)
+      rhcollect(map.keys[[r]][1], index)
     })
   })
 #  job$reduce <- expression(
