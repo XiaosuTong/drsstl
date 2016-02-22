@@ -97,9 +97,9 @@ crtouter = 1, details = FALSE, reduceTask=0, control=spacetime.control(), ...) {
 
   # package the parameters into list
   paras <- list(
-  	input = input, output = output, .vari = .vari, .t = .t, .season = .season, n.p = n.p, 
-  	n = n, st = st, nd = nd, s.window = s.window, s.degree = s.degree, s.jump = s.jump, 
-  	periodic = periodic, l.window = l.window, l.degree = l.degree, l.jump = l.jump
+  	.vari = .vari, .t = .t, .season = .season, n.p = n.p, n = n, st = st, nd = nd, 
+  	s.window = s.window, s.degree = s.degree, s.jump = s.jump, periodic = periodic, 
+  	l.window = l.window, l.degree = l.degree, l.jump = l.jump, crtinner=crtinner
   )
 
   print(paras)
@@ -120,20 +120,21 @@ crtouter = 1, details = FALSE, reduceTask=0, control=spacetime.control(), ...) {
       cs1 <- as.numeric(head(value[, .t], 1)) - 1
       cs2 <- as.numeric(tail(value[, .t], 1)) + 1
 
-      if (periodic) {
-        C <- rep(weighted.mean(cycleSub, w = value$weight, na.rm = TRUE), cycleSub.length + 2)
-      } else {
-        cs.ev <- seq(1, cycleSub.length, by = s.jump)
-        if(tail(cs.ev, 1) != cycleSub.length) cs.ev <- c(cs.ev, cycleSub.length)
-        cs.ev <- c(0, cs.ev, cycleSub.length + 1)
-        C <- drSpaceTime::.loess_stlplus(
-          y = cycleSub, span = s.window, degree = s.degree,
-          m = cs.ev, weights = value$weight, blend = s.blend,
-          jump = s.jump, at = c(0:(cycleSub.length + 1))
-        ) 
-      }
-      Cdf <- data.frame(C = C, t = as.numeric(paste(c(cs1, value[, .t], cs2), index, sep=".")))
-      rhcollect(map.keys[[r]][1], list(value, Cdf))
+#      if (periodic) {
+#        C <- rep(weighted.mean(cycleSub, w = value$weight, na.rm = TRUE), cycleSub.length + 2)
+#      } else {
+#        cs.ev <- seq(1, cycleSub.length, by = s.jump)
+#        if(tail(cs.ev, 1) != cycleSub.length) cs.ev <- c(cs.ev, cycleSub.length)
+#        cs.ev <- c(0, cs.ev, cycleSub.length + 1)
+#        C <- drSpaceTime::.loess_stlplus(
+#          y = cycleSub, span = s.window, degree = s.degree,
+#          m = cs.ev, weights = value$weight, blend = s.blend,
+#          jump = s.jump, at = c(0:(cycleSub.length + 1))
+#        ) 
+#      }
+#      Cdf <- data.frame(C = C, t = as.numeric(paste(c(cs1, value[, .t], cs2), index, sep=".")))
+#      rhcollect(map.keys[[r]][1], list(value, Cdf))
+      rhcollect(map.keys[[r]][1], value)
     })
   })
 #  job$reduce <- expression(
