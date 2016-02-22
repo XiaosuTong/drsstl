@@ -181,10 +181,8 @@ crtouter = 1, details = FALSE, reduceTask=0, control=spacetime.control(), ...) {
     mapreduce.job.reduces = reduceTask  #cdh5
   )
   job$readback <- FALSE
-  job$combiner <- TRUE
-  job$jobname <- file.path(rh.root, par$dataset, "a1950", "bystation")
+  job$jobname <- output
   job.mr <- do.call("rhwatch", job)
-
 
 
 }
