@@ -102,7 +102,8 @@ crtouter = 1, details = FALSE, reduceTask=0, control=spacetime.control(), ...) {
   	periodic = periodic, l.window = l.window, l.degree = l.degree, l.jump = l.jump
   )
 
-
+  print(pars)
+  
   job <- list()
   job$map <- expression({
     lapply(seq_along(map.keys), function(r) {
@@ -135,34 +136,34 @@ crtouter = 1, details = FALSE, reduceTask=0, control=spacetime.control(), ...) {
       rhcollect(map.keys[[r]][1], list(value, Cdf))
     })
   })
-  job$reduce <- expression(
-    pre = {
-      combined <- data.frame()
-      Ctotal <- data.frame()
-      ma3 <- 0
-      L <- 0
-      y_idx <- logical()
-      noNa <- logical()
-      l.ev <- seq(1, n, by = l.jump)
-      if(tail(l.ev, 1) != n) l.ev <- c(l.ev, n)
-    },
-    reduce = {
-      combined <- rbind(combined, do.call("rbind", lapply(redce.values, "[[", 1)))
-      Ctotal <- rbind(Ctotal, do.call("rbind", lapply(reduce.values, "[[", 2)))
-    },
-    post = {
-      combined <- plyr::arrange(combined, get(.t), get(.season))
-      Ctotal <- plyr::arrange(Ctotal, t)
-      y_idx <- !is.na(combined[, .vari])
-      noNA <- all(y_idx)
-      ma3 <- drSpaceTime::c_ma(Ctotal$C, n.p)
-      L <- drSpaceTime::.loess_stlplus(
-        y = ma3, span = l.window, degree = l.degree, m = l.ev, weights = combined$weight, 
-        y_idx = y_idx, noNA = noNA, blend = l.blend, jump = l.jump, at = c(1:n)
-      )
-      combined$seasonal <- Ctotal[st:nd] - L
-    }
-  )
+#  job$reduce <- expression(
+#    pre = {
+#      combined <- data.frame()
+#      Ctotal <- data.frame()
+#      ma3 <- 0
+#      L <- 0
+#      y_idx <- logical()
+#      noNa <- logical()
+#      l.ev <- seq(1, n, by = l.jump)
+#      if(tail(l.ev, 1) != n) l.ev <- c(l.ev, n)
+#    },
+#    reduce = {
+#      combined <- rbind(combined, do.call("rbind", lapply(redce.values, "[[", 1)))
+#      Ctotal <- rbind(Ctotal, do.call("rbind", lapply(reduce.values, "[[", 2)))
+#    },
+#    post = {
+#      combined <- plyr::arrange(combined, get(.t), get(.season))
+#      Ctotal <- plyr::arrange(Ctotal, t)
+#      y_idx <- !is.na(combined[, .vari])
+#      noNA <- all(y_idx)
+#      ma3 <- drSpaceTime::c_ma(Ctotal$C, n.p)
+#      L <- drSpaceTime::.loess_stlplus(
+#        y = ma3, span = l.window, degree = l.degree, m = l.ev, weights = combined$weight, 
+#        y_idx = y_idx, noNA = noNA, blend = l.blend, jump = l.jump, at = c(1:n)
+#      )
+#      combined$seasonal <- Ctotal[st:nd] - L
+#    }
+#  )
   job$setup <- expression(
     map = {
       library(plyr, lib.loc=control$libLoc)
