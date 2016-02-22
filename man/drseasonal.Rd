@@ -4,20 +4,35 @@
 \alias{drseasonal}
 \title{Seasonal Decomposition of Time Series by Loess}
 \usage{
-drseasonal(input, output, .vari, .t, n, n.p, s.window, s.degree = 1,
-  s.jump = ceiling(s.window/10), l.window = NULL, l.degree = t.degree,
+drseasonal(input, output, .vari, .t, .season, n, n.p, s.window, s.degree = 1,
+  s.jump = ceiling(s.window/10), l.window = NULL, l.degree = 1,
   l.jump = ceiling(l.window/10), critfreq = 0.05, s.blend = 0,
   sub.labels = NULL, sub.start = 1, zero.weight = 1e-06, crtinner = 1,
-  crtouter = 1, details = FALSE, ...)
+  crtouter = 1, details = FALSE, reduceTask = 0,
+  control = spacetime.control(), ...)
 }
 \arguments{
+\item{input}{the HDFS path of input files}
+
+\item{output}{the HDFS path of output files}
+
+\item{.vari}{variable name in string of the response variable}
+
+\item{.t}{variable name in string of time index in each subseries}
+
+\item{.season}{variable name in string of the seasonal variable}
+
+\item{n}{the number of total observations}
+
+\item{n.p}{the number of observation in each subseries}
+
 \item{s.window}{either the character string \code{"periodic"} or the span (in lags) of the loess window for seasonal extraction, which should be odd. This has no default.}
 
 \item{s.degree}{degree of locally-fitted polynomial in seasonal extraction. Should be 0, 1, or 2.}
 
-\item{s.jump}{integers at least one to increase speed of the respective smoother. Linear interpolation happens between every \code{*.jump}th value.}
+\item{s.jump, l.jump}{integers at least one to increase speed of the respective smoother. Linear interpolation happens between every \code{*.jump}th value.}
 
-\item{s.blend}{vectors of proportion of blending to degree 0 polynomials at the endpoints of the series.}
+\item{s.blend, l.blend}{vectors of proportion of blending to degree 0 polynomials at the endpoints of the series.}
 
 \item{sub.labels}{optional vector of length n.p that contains the labels of the subseries in their natural order (such as month name, day of week, etc.), used for strip labels when plotting. All entries must be unique.}
 
@@ -26,10 +41,6 @@ drseasonal(input, output, .vari, .t, n, n.p, s.window, s.degree = 1,
 \item{zero.weight}{value to use as zero for zero weighting}
 
 \item{details}{if \code{TRUE}, returns a list of the results of all the intermediate iterations.}
-
-\item{x}{vector of time series values, in order of time. If \code{x} is a time series object, then \code{t} and \code{n.p} do not need to be specified, although they still can be.}
-
-\item{t}{times at which the time series values were observed.}
 
 \item{\ldots}{additional parameters}
 }
@@ -58,7 +69,7 @@ This is a complete re-implementation of the STL algorithm, with the loess part i
     FileInput <- "/ln/tongx/Spatial/a1950/byseason"
     FileOutput <- "/ln/tongx/Spatial/a1950/byseason.season"
     \dontrun{
-      drseasonal(.vari="resp", .t="year", s.window=13, s.degree=1)
+      drseasonal(.vari="resp", .t="year", .season = "month", s.window=13, s.degree=1)
     }
 }
 \author{

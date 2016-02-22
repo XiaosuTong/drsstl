@@ -2,16 +2,21 @@
 #'
 #' Decompose a time series into seasonal, trend and irregular components using \code{loess}, acronym STL. A new implementation of STL. Allows for NA values, local quadratic smoothing, post-trend smoothing, and endpoint blending. The usage is very similar to that of R's built-in \code{stl()}.
 #'
-#' @param x vector of time series values, in order of time. If \code{x} is a time series object, then \code{t} and \code{n.p} do not need to be specified, although they still can be.
-#' @param t times at which the time series values were observed.
+#' @param input the HDFS path of input files
+#' @param output the HDFS path of output files
+#' @param .vari variable name in string of the response variable
+#' @param .t variable name in string of time index in each subseries
+#' @param .season variable name in string of the seasonal variable
+#' @param n the number of total observations
+#' @param n.p the number of observation in each subseries
 #' @param s.window either the character string \code{"periodic"} or the span (in lags) of the loess window for seasonal extraction, which should be odd. This has no default.
 #' @param s.degree degree of locally-fitted polynomial in seasonal extraction. Should be 0, 1, or 2.
 #' @param sub.labels optional vector of length n.p that contains the labels of the subseries in their natural order (such as month name, day of week, etc.), used for strip labels when plotting. All entries must be unique.
 #' @param sub.start which element of sub.labels does the series begin with. See details.
 #' @param zero.weight value to use as zero for zero weighting
 #' @param details if \code{TRUE}, returns a list of the results of all the intermediate iterations.
-#' @param s.jump integers at least one to increase speed of the respective smoother. Linear interpolation happens between every \code{*.jump}th value.
-#' @param s.blend vectors of proportion of blending to degree 0 polynomials at the endpoints of the series.
+#' @param s.jump,l.jump integers at least one to increase speed of the respective smoother. Linear interpolation happens between every \code{*.jump}th value.
+#' @param s.blend,l.blend vectors of proportion of blending to degree 0 polynomials at the endpoints of the series.
 #' @param \ldots additional parameters
 #' @details The seasonal component is found by \emph{loess} smoothing the seasonal sub-series (the series of all January values, \ldots); if \code{s.window = "periodic"} smoothing is effectively replaced by taking the mean. The seasonal values are removed, and the remainder smoothed to find the trend. The overall level is removed from the seasonal component and added to the trend component. This process is iterated a few times. The \code{remainder} component is the residuals from the seasonal plus trend fit.
 #'
@@ -39,9 +44,9 @@
 #' @export
 #' @rdname drseasonal
 drseasonal <- function(input, output, .vari, .t, .season, n, n.p, s.window, s.degree = 1, s.jump = ceiling(s.window / 10),
-l.window = NULL, l.degree = 1, l.jump = ceiling(l.window / 10),
-critfreq = 0.05, s.blend = 0, sub.labels = NULL, sub.start = 1, zero.weight = 1e-6,
-crtinner = 1, crtouter = 1, details = FALSE, ...) {
+l.window = NULL, l.degree = 1, l.jump = ceiling(l.window / 10), critfreq = 0.05, 
+s.blend = 0, sub.labels = NULL, sub.start = 1, zero.weight = 1e-6, crtinner = 1, 
+crtouter = 1, details = FALSE, reduceTask=0, control=spacetime.control(), ...) {
 
   nextodd <- function(x) {
     x <- round(x)
@@ -101,9 +106,9 @@ crtinner = 1, crtouter = 1, details = FALSE, ...) {
   job <- list()
   job$map <- expression({
     lapply(seq_along(map.keys), function(r) {
-    	index <- match(map.keys[[r]][2], month.abb)
-    	value <- pylr::arrange(map.values[[r]], get(.t))
-    	value[, .season] <- index
+      index <- match(map.keys[[r]][2], month.abb)
+      value <- pylr::arrange(map.values[[r]], get(.t))
+      value[, .season] <- index
       cycleSub.length <- nrow(value)
       cycleSub <- value[, .vari]
       if (crtinner == 1) {
@@ -121,7 +126,7 @@ crtinner = 1, crtouter = 1, details = FALSE, ...) {
         if(tail(cs.ev, 1) != cycleSub.length) cs.ev <- c(cs.ev, cycleSub.length)
         cs.ev <- c(0, cs.ev, cycleSub.length + 1)
         C <- drSpaceTime::.loess_stlplus(
-        	y = cycleSub, span = s.window, degree = s.degree,
+          y = cycleSub, span = s.window, degree = s.degree,
           m = cs.ev, weights = value$weight, blend = s.blend,
           jump = s.jump, at = c(0:(cycleSub.length + 1))
         ) 
@@ -142,22 +147,44 @@ crtinner = 1, crtouter = 1, details = FALSE, ...) {
       if(tail(l.ev, 1) != n) l.ev <- c(l.ev, n)
     },
     reduce = {
-    	combined <- rbind(combined, do.call("rbind", lapply(redce.values, "[[", 1)))
-    	Ctotal <- rbind(Ctotal, do.call("rbind", lapply(reduce.values, "[[", 2)))
+      combined <- rbind(combined, do.call("rbind", lapply(redce.values, "[[", 1)))
+      Ctotal <- rbind(Ctotal, do.call("rbind", lapply(reduce.values, "[[", 2)))
     },
     post = {
-    	combined <- plyr::arrange(combined, get(.t), get(.season))
-    	Ctotal <- plyr::arrange(Ctotal, t)
+      combined <- plyr::arrange(combined, get(.t), get(.season))
+      Ctotal <- plyr::arrange(Ctotal, t)
       y_idx <- !is.na(combined[, .vari])
       noNA <- all(y_idx)
       ma3 <- drSpaceTime::c_ma(Ctotal$C, n.p)
       L <- drSpaceTime::.loess_stlplus(
-      	y = ma3, span = l.window, degree = l.degree, m = l.ev, weights = combined$weight, 
-      	y_idx = y_idx, noNA = noNA, blend = l.blend, jump = l.jump, at = c(1:n)
+        y = ma3, span = l.window, degree = l.degree, m = l.ev, weights = combined$weight, 
+        y_idx = y_idx, noNA = noNA, blend = l.blend, jump = l.jump, at = c(1:n)
       )
       combined$seasonal <- Ctotal[st:nd] - L
     }
   )
+  job$setup <- expression(
+    map = {
+      library(plyr, lib.loc=control$libLoc)
+      library(drSpaceTime, lib.loc=control$libLoc)
+    },
+    reduce = {
+      library(plyr, lib.loc=control$libLoc)
+      library(drSpaceTime, lib.loc=control$libLoc)
+    }
+  )
   job$parameters <- paras
+  job$input <- rhfmt(input, type = "sequence")
+  job$output <- rhfmt(output, type = "sequence")
+  job$mapred <- list(
+    mapred.reduce.tasks = reduceTask,  #cdh3,4
+    mapreduce.job.reduces = reduceTask  #cdh5
+  )
+  job$readback <- FALSE
+  job$combiner <- TRUE
+  job$jobname <- file.path(rh.root, par$dataset, "a1950", "bystation")
+  job.mr <- do.call("rhwatch", job)
+
+
 
 }
