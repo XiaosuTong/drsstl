@@ -29,20 +29,127 @@
 #' @author Ryan Hafen
 #' @note This is a complete re-implementation of the STL algorithm, with the loess part in C and the rest in R. Moving a lot of the code to R makes it easier to experiment with the method at a very minimal speed cost. Recoding in C instead of using R's built-in loess results in better performance, especially for larger series.
 #' @examples
+#'     FileInput <- "/ln/tongx/Spatial/a1950/byseason"
+#'     FileOutput <- "/ln/tongx/Spatial/a1950/byseason.season"
 #'     \dontrun{
-#'       drseasonal(x=rnorm(50), t=1:50, s.window=13, s.degree=1)
+#'       drseasonal(.vari="resp", .t="year", s.window=13, s.degree=1)
 #'     }
 #' @importFrom stats frequency loess median predict quantile weighted.mean time
 #' @importFrom utils head stack tail
 #' @export
 #' @rdname drseasonal
-drseasonal <- function(x, t, s.window, s.degree = 1,
-s.jump = ceiling(s.window / 10),
-critfreq = 0.05,
-s.blend = 0, 
-sub.labels = NULL, sub.start = 1, zero.weight = 1e-6,
-details = FALSE, ...) {
-	
+drseasonal <- function(input, output, .vari, .t, n, n.p, s.window, s.degree = 1, s.jump = ceiling(s.window / 10),
+l.window = NULL, l.degree = t.degree, l.jump = ceiling(l.window / 10),
+critfreq = 0.05, s.blend = 0, sub.labels = NULL, sub.start = 1, zero.weight = 1e-6,
+crtinner = 1, crtouter = 1, details = FALSE, ...) {
 
+  nextodd <- function(x) {
+    x <- round(x)
+    x2 <- ifelse(x %% 2 == 0, x + 1, x)
+    # if(any(x != x2))
+    # warning("A smoothing span was not odd, was rounded to nearest odd. Check final object parameters to see which spans were used.")
+    as.integer(x2)
+  }
+
+  wincheck <- function(x) {
+    x <- nextodd(x)
+    if(any(x <= 0)) stop("Window lengths must be positive.")
+    x
+  }
+
+  degcheck <- function(x) {
+    if(! all(x == 0 | x == 1 | x == 2)) stop("Smoothing degree must be 0, 1, or 2")
+  }
+
+  periodic <- FALSE
+  if (is.character(s.window)) {
+    if (is.na(pmatch(s.window, "periodic")))
+      stop("unknown string value for s.window")
+    else {
+      periodic <- TRUE
+      s.window <- 10 * n + 1
+      s.degree <- 0
+      s.jump <- ceiling(s.window / 10)
+    }
+  } else {
+    s.window <- wincheck(s.window)
+  }
+
+  if(is.null(l.window)) {
+    l.window <- nextodd(n.p)
+  } else {
+    l.window <- wincheck(l.window)
+  }
+
+  degcheck(s.degree)
+  degcheck(l.degree)
+
+  if(is.null(s.jump) || length(s.jump)==0) s.jump <- ceiling(s.window / 10)
+  if(is.null(l.jump) || length(l.jump)==0) l.jump <- ceiling(l.window / 10)
+  # start and end indices for after adding in extra n.p before and after 
+  st <- n.p + 1
+  nd <- n + n.p
+
+  # package the parameters into list
+  paras <- list(
+  	input = input, output = output, .vari = .vari, .t = .t, n.p = n.p, n = n,
+  	s.window = s.window, s.degree = s.degree, s.jump = s.jump, periodic = periodic
+  )
+
+
+  job <- list()
+  job$map <- expression({
+    lapply(seq_along(map.keys), function(r) {
+    	index <- match(map.keys[[r]][2], month.abb)
+    	value <- pylr::arrange(map.values[[r]], get(.t))
+      cycleSub.length <- nrow(value)
+      cycleSub <- value[, .vari]
+      if (crtinner == 1) {
+        value$trend <- 0
+        value$weight <- 1
+      }
+      
+      cs1 <- head(value[, .t], 1) - 1
+      cs2 <- tail(value[, .t], 1) + 1
+
+      if (periodic) {
+        C <- rep(weighted.mean(cycleSub, w = value$weight, na.rm = TRUE), cycleSub.length + 2)
+      } else {
+        cs.ev <- seq(1, cycleSub.length, by = s.jump)
+        if(tail(cs.ev, 1) != cycleSub.length) cs.ev <- c(cs.ev, cycleSub.length)
+        cs.ev <- c(0, cs.ev, cycleSub.length + 1)
+        C <- .loess_stlplus(
+        	y = cycleSub, span = s.window, degree = s.degree,
+          m = cs.ev, weights = value$weight, blend = s.blend,
+          jump = s.jump, at = c(0:(cycleSub.length + 1))
+        ) 
+      }
+      Cdf <- data.frame(C = C, t = as.numeric(paste(c(cs1, value[, .t], cs2), index, sep=".")))
+      rhcollect(map.keys[[r]], list(value, Cdf))
+    })
+  })
+  job$reduce <- expression(
+    pre = {
+      combined <- data.frame()
+      Ctotal <- data.frame()
+      ma3 <- 0
+      L <- 0
+      l.ev <- seq(1, n, by = l.jump)
+      if(tail(l.ev, 1) != n) l.ev <- c(l.ev, n)
+    },
+    reduce = {
+    	combined <- rbind(combined, do.call("rbind", lapply(redce.values, "[[", 1)))
+    	Ctotal <- rbind(Ctotal, do.call("rbind", lapply(reduce.values, "[[", 2)))
+    },
+    post = {
+    	Ctotal <- plyr::arrange(Ctotal, t)
+      ma3 <- drSpaceTime::c_ma(Ctotal$C, n.p)
+      L <- .loess_stlplus(
+      	y = ma3, span = l.window, degree = l.degree, m = l.ev, weights = w, 
+      	y_idx = y_idx, noNA = noNA, blend = l.blend, jump = l.jump, at = c(1:n)
+      )
+    }
+  )
+  job$parameters <- paras
 
 }

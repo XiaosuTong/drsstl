@@ -4,15 +4,13 @@
 \alias{drseasonal}
 \title{Seasonal Decomposition of Time Series by Loess}
 \usage{
-drseasonal(x, t, s.window, s.degree = 1, s.jump = ceiling(s.window/10),
-  critfreq = 0.05, s.blend = 0, sub.labels = NULL, sub.start = 1,
-  zero.weight = 1e-06, details = FALSE, ...)
+drseasonal(input, output, .vari, .t, n, n.p, s.window, s.degree = 1,
+  s.jump = ceiling(s.window/10), l.window = NULL, l.degree = t.degree,
+  l.jump = ceiling(l.window/10), critfreq = 0.05, s.blend = 0,
+  sub.labels = NULL, sub.start = 1, zero.weight = 1e-06, crtinner = 1,
+  crtouter = 1, details = FALSE, ...)
 }
 \arguments{
-\item{x}{vector of time series values, in order of time. If \code{x} is a time series object, then \code{t} and \code{n.p} do not need to be specified, although they still can be.}
-
-\item{t}{times at which the time series values were observed.}
-
 \item{s.window}{either the character string \code{"periodic"} or the span (in lags) of the loess window for seasonal extraction, which should be odd. This has no default.}
 
 \item{s.degree}{degree of locally-fitted polynomial in seasonal extraction. Should be 0, 1, or 2.}
@@ -28,6 +26,10 @@ drseasonal(x, t, s.window, s.degree = 1, s.jump = ceiling(s.window/10),
 \item{zero.weight}{value to use as zero for zero weighting}
 
 \item{details}{if \code{TRUE}, returns a list of the results of all the intermediate iterations.}
+
+\item{x}{vector of time series values, in order of time. If \code{x} is a time series object, then \code{t} and \code{n.p} do not need to be specified, although they still can be.}
+
+\item{t}{times at which the time series values were observed.}
 
 \item{\ldots}{additional parameters}
 }
@@ -53,8 +55,10 @@ Cycle-subseries labels are useful for plotting and can be specified through the 
 This is a complete re-implementation of the STL algorithm, with the loess part in C and the rest in R. Moving a lot of the code to R makes it easier to experiment with the method at a very minimal speed cost. Recoding in C instead of using R's built-in loess results in better performance, especially for larger series.
 }
 \examples{
+    FileInput <- "/ln/tongx/Spatial/a1950/byseason"
+    FileOutput <- "/ln/tongx/Spatial/a1950/byseason.season"
     \dontrun{
-      drseasonal(x=rnorm(50), t=1:50, s.window=13, s.degree=1)
+      drseasonal(.vari="resp", .t="year", s.window=13, s.degree=1)
     }
 }
 \author{
