@@ -101,8 +101,6 @@ crtouter = 1, details = FALSE, reduceTask=0, control=spacetime.control(), ...) {
   	s.window = s.window, s.degree = s.degree, s.jump = s.jump, periodic = periodic, 
   	l.window = l.window, l.degree = l.degree, l.jump = l.jump, crtinner=crtinner
   )
-
-  print(paras)
   
   job <- list()
   job$map <- expression({
@@ -175,7 +173,7 @@ crtouter = 1, details = FALSE, reduceTask=0, control=spacetime.control(), ...) {
       library(drSpaceTime, lib.loc=control$libLoc)
     }
   )
-  job$parameters <- paras
+#  job$parameters <- paras
   job$input <- rhfmt(input, type = "sequence")
   job$output <- rhfmt(output, type = "sequence")
   job$mapred <- list(

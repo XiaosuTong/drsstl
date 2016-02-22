@@ -31,7 +31,7 @@ swaptoTime <- function(input, output, elevFlag=TRUE, reduceTask=1, control=space
   job <- list()
   job$map <- expression({
     lapply(seq_along(map.values), function(r) {
-      d_ply(
+      plyr::d_ply(
         .data = map.values[[r]],
         .variable = c("year","month"),
         .fun = function(k, station = map.keys[[r]]) {
