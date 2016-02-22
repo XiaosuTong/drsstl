@@ -98,8 +98,8 @@ crtouter = 1, details = FALSE, reduceTask=0, control=spacetime.control(), ...) {
   # package the parameters into list
   paras <- list(
   	vari = vari, cyctime = cyctime, seaname=seaname, n.p = n.p, n = n, st = st, nd = nd, 
-  	s.window = s.window, s.degree = s.degree, s.jump = s.jump, periodic = periodic, 
-  	l.window = l.window, l.degree = l.degree, l.jump = l.jump, crtinner=crtinner,
+  	s.window = s.window, s.degree = s.degree, s.jump = s.jump, s.blend = s.blend, periodic = periodic, 
+  	l.window = l.window, l.degree = l.degree, l.jump = l.jump, l.blend = l.blend, crtinner=crtinner,
   	control = control
   )
   
