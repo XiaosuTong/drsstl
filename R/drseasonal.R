@@ -166,10 +166,12 @@ crtouter = 1, details = FALSE, reduceTask=0, control=spacetime.control(), ...) {
   job$setup <- expression(
     map = {
       library(plyr, lib.loc=control$libLoc)
+      library(yaImpute, lib.loc=control$libLoc)
       library(drSpaceTime, lib.loc=control$libLoc)
     },
     reduce = {
       library(plyr, lib.loc=control$libLoc)
+      library(yaImpute, lib.loc=control$libLoc)
       library(drSpaceTime, lib.loc=control$libLoc)
     }
   )
