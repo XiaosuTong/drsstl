@@ -69,7 +69,7 @@ This is a complete re-implementation of the STL algorithm, with the loess part i
     FileInput <- "/ln/tongx/Spatial/a1950/byseason"
     FileOutput <- "/ln/tongx/Spatial/a1950/byseason.season"
     \dontrun{
-      drseasonal(.vari="resp", .t="year", .season = "month", s.window=13, s.degree=1)
+      drseasonal(input=FileInput, output=FileOutput, .vari="resp", .t="year", .season = "month", n=576, n.p=12, s.window=13, s.degree=1, reduceTask=10, control=spacetime.control(libLoc=.libPaths()))
     }
 }
 \author{

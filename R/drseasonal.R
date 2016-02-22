@@ -37,7 +37,7 @@
 #'     FileInput <- "/ln/tongx/Spatial/a1950/byseason"
 #'     FileOutput <- "/ln/tongx/Spatial/a1950/byseason.season"
 #'     \dontrun{
-#'       drseasonal(.vari="resp", .t="year", .season = "month", s.window=13, s.degree=1)
+#'       drseasonal(input=FileInput, output=FileOutput, .vari="resp", .t="year", .season = "month", n=576, n.p=12, s.window=13, s.degree=1, reduceTask=10, control=spacetime.control(libLoc=.libPaths()))
 #'     }
 #' @importFrom stats frequency loess median predict quantile weighted.mean time
 #' @importFrom utils head stack tail
@@ -107,7 +107,7 @@ crtouter = 1, details = FALSE, reduceTask=0, control=spacetime.control(), ...) {
   job$map <- expression({
     lapply(seq_along(map.keys), function(r) {
       index <- match(map.keys[[r]][2], month.abb)
-      value <- pylr::arrange(map.values[[r]], get(.t))
+      value <- plyr::arrange(map.values[[r]], get(.t))
       value[, .season] <- index
       cycleSub.length <- nrow(value)
       cycleSub <- value[, .vari]
@@ -116,8 +116,8 @@ crtouter = 1, details = FALSE, reduceTask=0, control=spacetime.control(), ...) {
         value$weight <- 1
       }
       
-      cs1 <- head(value[, .t], 1) - 1
-      cs2 <- tail(value[, .t], 1) + 1
+      cs1 <- as.numeric(head(value[, .t], 1)) - 1
+      cs2 <- as.numeric(tail(value[, .t], 1)) + 1
 
       if (periodic) {
         C <- rep(weighted.mean(cycleSub, w = value$weight, na.rm = TRUE), cycleSub.length + 2)
