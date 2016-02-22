@@ -4,9 +4,9 @@
 #'
 #' @param input the HDFS path of input files
 #' @param output the HDFS path of output files
-#' @param .vari variable name in string of the response variable
-#' @param .t variable name in string of time index in each subseries
-#' @param .season variable name in string of the seasonal variable
+#' @param vari variable name in string of the response variable
+#' @param cyctime variable name in string of time index in each subseries
+#' @param seaname variable name in string of the seasonal variable
 #' @param n the number of total observations
 #' @param n.p the number of observation in each subseries
 #' @param s.window either the character string \code{"periodic"} or the span (in lags) of the loess window for seasonal extraction, which should be odd. This has no default.
@@ -37,13 +37,13 @@
 #'     FileInput <- "/ln/tongx/Spatial/tmp/tmax/a1950/byseason"
 #'     FileOutput <- "/ln/tongx/Spatial/tmp/tmax/a1950/byseason.season"
 #'     \dontrun{
-#'       drseasonal(input=FileInput, output=FileOutput, .vari="resp", .t="year", .season = "month", n=576, n.p=12, s.window=13, s.degree=1, reduceTask=10, control=spacetime.control(libLoc=.libPaths()))
+#'       drseasonal(input=FileInput, output=FileOutput, vari="resp", cyctime="year", seaname = "month", n=576, n.p=12, s.window=13, s.degree=1, reduceTask=10, control=spacetime.control(libLoc=.libPaths()))
 #'     }
 #' @importFrom stats frequency loess median predict quantile weighted.mean time
 #' @importFrom utils head stack tail
 #' @export
 #' @rdname drseasonal
-drseasonal <- function(input, output, .vari, .t, .season, n, n.p, s.window, s.degree = 1, s.jump = ceiling(s.window / 10),
+drseasonal <- function(input, output, vari, cyctime, seaname, n, n.p, s.window, s.degree = 1, s.jump = ceiling(s.window / 10),
 l.window = NULL, l.degree = 1, l.jump = ceiling(l.window / 10), critfreq = 0.05, 
 s.blend = 0, sub.labels = NULL, sub.start = 1, zero.weight = 1e-6, crtinner = 1, 
 crtouter = 1, details = FALSE, reduceTask=0, control=spacetime.control(), ...) {
@@ -97,7 +97,7 @@ crtouter = 1, details = FALSE, reduceTask=0, control=spacetime.control(), ...) {
 
   # package the parameters into list
   paras <- list(
-  	.vari = .vari, .t = .t, .season = .season, n.p = n.p, n = n, st = st, nd = nd, 
+  	vari = vari, cyctime = cyctime, seaname=seaname, n.p = n.p, n = n, st = st, nd = nd, 
   	s.window = s.window, s.degree = s.degree, s.jump = s.jump, periodic = periodic, 
   	l.window = l.window, l.degree = l.degree, l.jump = l.jump, crtinner=crtinner,
   	control = control
@@ -107,17 +107,17 @@ crtouter = 1, details = FALSE, reduceTask=0, control=spacetime.control(), ...) {
   job$map <- expression({
     lapply(seq_along(map.keys), function(r) {
       index <- match(map.keys[[r]][2], month.abb)
-      value <- plyr::arrange(map.values[[r]], year)
-      value[, .season] <- index
+      value <- plyr::arrange(map.values[[r]], get(cyctime))
+      value[, seaname] <- index
       cycleSub.length <- nrow(value)
-      cycleSub <- value[, .vari]
+      cycleSub <- value[, vari]
       if (crtinner == 1) {
         value$trend <- 0
         value$weight <- 1
       }
       
-      cs1 <- as.numeric(head(value[, .t], 1)) - 1
-      cs2 <- as.numeric(tail(value[, .t], 1)) + 1
+      cs1 <- as.numeric(head(value[, cyctime], 1)) - 1
+      cs2 <- as.numeric(tail(value[, cyctime], 1)) + 1
 
       if (periodic) {
         C <- rep(weighted.mean(cycleSub, w = value$weight, na.rm = TRUE), cycleSub.length + 2)
@@ -131,7 +131,7 @@ crtouter = 1, details = FALSE, reduceTask=0, control=spacetime.control(), ...) {
           jump = s.jump, at = c(0:(cycleSub.length + 1))
         ) 
       }
-      Cdf <- data.frame(C = C, t = as.numeric(paste(c(cs1, value[, .t], cs2), index, sep=".")))
+      Cdf <- data.frame(C = C, t = as.numeric(paste(c(cs1, value[, cyctime], cs2), index, sep=".")))
       rhcollect(map.keys[[r]][1], list(value, Cdf))
     })
   })
@@ -151,9 +151,9 @@ crtouter = 1, details = FALSE, reduceTask=0, control=spacetime.control(), ...) {
 #      Ctotal <- rbind(Ctotal, do.call("rbind", lapply(reduce.values, "[[", 2)))
 #    },
 #    post = {
-#      combined <- plyr::arrange(combined, get(.t), get(.season))
+#      combined <- plyr::arrange(combined, get(.t), get(seaname))
 #      Ctotal <- plyr::arrange(Ctotal, t)
-#      y_idx <- !is.na(combined[, .vari])
+#      y_idx <- !is.na(combined[, vari])
 #      noNA <- all(y_idx)
 #      ma3 <- drSpaceTime::c_ma(Ctotal$C, n.p)
 #      L <- drSpaceTime::.loess_stlplus(
