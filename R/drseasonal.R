@@ -115,7 +115,7 @@ crtouter = 1, details = FALSE, reduceTask=0, control=spacetime.control(), ...) {
         value$trend <- 0
         value$weight <- 1
       }
-      
+      rhcounter("Map", s.window, 1)
       cs1 <- as.numeric(head(value[, cyctime], 1)) - 1
       cs2 <- as.numeric(tail(value[, cyctime], 1)) + 1
 
