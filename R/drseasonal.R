@@ -44,7 +44,7 @@
 #' @export
 #' @rdname drseasonal
 drseasonal <- function(input, output, vari, cyctime, seaname, n, n.p, s.window, s.degree = 1, s.jump = ceiling(s.window / 10),
-l.window = NULL, l.degree = 1, l.jump = ceiling(l.window / 10), critfreq = 0.05, 
+l.window = NULL, l.degree = 1, l.jump = ceiling(l.window / 10), l.blend = 0, critfreq = 0.05, 
 s.blend = 0, sub.labels = NULL, sub.start = 1, zero.weight = 1e-6, crtinner = 1, 
 crtouter = 1, details = FALSE, reduceTask=0, control=spacetime.control(), ...) {
 
