@@ -32,14 +32,14 @@
 #'     FileInput <- "/ln/tongx/Spatial/a1950/byseason"
 #'     FileOutput <- "/ln/tongx/Spatial/a1950/byseason.season"
 #'     \dontrun{
-#'       drseasonal(.vari="resp", .t="year", s.window=13, s.degree=1)
+#'       drseasonal(.vari="resp", .t="year", .season = "month", s.window=13, s.degree=1)
 #'     }
 #' @importFrom stats frequency loess median predict quantile weighted.mean time
 #' @importFrom utils head stack tail
 #' @export
 #' @rdname drseasonal
-drseasonal <- function(input, output, .vari, .t, n, n.p, s.window, s.degree = 1, s.jump = ceiling(s.window / 10),
-l.window = NULL, l.degree = t.degree, l.jump = ceiling(l.window / 10),
+drseasonal <- function(input, output, .vari, .t, .season, n, n.p, s.window, s.degree = 1, s.jump = ceiling(s.window / 10),
+l.window = NULL, l.degree = 1, l.jump = ceiling(l.window / 10),
 critfreq = 0.05, s.blend = 0, sub.labels = NULL, sub.start = 1, zero.weight = 1e-6,
 crtinner = 1, crtouter = 1, details = FALSE, ...) {
 
@@ -92,8 +92,9 @@ crtinner = 1, crtouter = 1, details = FALSE, ...) {
 
   # package the parameters into list
   paras <- list(
-  	input = input, output = output, .vari = .vari, .t = .t, n.p = n.p, n = n,
-  	s.window = s.window, s.degree = s.degree, s.jump = s.jump, periodic = periodic
+  	input = input, output = output, .vari = .vari, .t = .t, .season = .season, n.p = n.p, 
+  	n = n, st = st, nd = nd, s.window = s.window, s.degree = s.degree, s.jump = s.jump, 
+  	periodic = periodic, l.window = l.window, l.degree = l.degree, l.jump = l.jump
   )
 
 
@@ -102,6 +103,7 @@ crtinner = 1, crtouter = 1, details = FALSE, ...) {
     lapply(seq_along(map.keys), function(r) {
     	index <- match(map.keys[[r]][2], month.abb)
     	value <- pylr::arrange(map.values[[r]], get(.t))
+    	value[, .season] <- index
       cycleSub.length <- nrow(value)
       cycleSub <- value[, .vari]
       if (crtinner == 1) {
@@ -118,14 +120,14 @@ crtinner = 1, crtouter = 1, details = FALSE, ...) {
         cs.ev <- seq(1, cycleSub.length, by = s.jump)
         if(tail(cs.ev, 1) != cycleSub.length) cs.ev <- c(cs.ev, cycleSub.length)
         cs.ev <- c(0, cs.ev, cycleSub.length + 1)
-        C <- .loess_stlplus(
+        C <- drSpaceTime::.loess_stlplus(
         	y = cycleSub, span = s.window, degree = s.degree,
           m = cs.ev, weights = value$weight, blend = s.blend,
           jump = s.jump, at = c(0:(cycleSub.length + 1))
         ) 
       }
       Cdf <- data.frame(C = C, t = as.numeric(paste(c(cs1, value[, .t], cs2), index, sep=".")))
-      rhcollect(map.keys[[r]], list(value, Cdf))
+      rhcollect(map.keys[[r]][1], list(value, Cdf))
     })
   })
   job$reduce <- expression(
@@ -134,6 +136,8 @@ crtinner = 1, crtouter = 1, details = FALSE, ...) {
       Ctotal <- data.frame()
       ma3 <- 0
       L <- 0
+      y_idx <- logical()
+      noNa <- logical()
       l.ev <- seq(1, n, by = l.jump)
       if(tail(l.ev, 1) != n) l.ev <- c(l.ev, n)
     },
@@ -142,12 +146,16 @@ crtinner = 1, crtouter = 1, details = FALSE, ...) {
     	Ctotal <- rbind(Ctotal, do.call("rbind", lapply(reduce.values, "[[", 2)))
     },
     post = {
+    	combined <- plyr::arrange(combined, get(.t), get(.season))
     	Ctotal <- plyr::arrange(Ctotal, t)
+      y_idx <- !is.na(combined[, .vari])
+      noNA <- all(y_idx)
       ma3 <- drSpaceTime::c_ma(Ctotal$C, n.p)
-      L <- .loess_stlplus(
-      	y = ma3, span = l.window, degree = l.degree, m = l.ev, weights = w, 
+      L <- drSpaceTime::.loess_stlplus(
+      	y = ma3, span = l.window, degree = l.degree, m = l.ev, weights = combined$weight, 
       	y_idx = y_idx, noNA = noNA, blend = l.blend, jump = l.jump, at = c(1:n)
       )
+      combined$seasonal <- Ctotal[st:nd] - L
     }
   )
   job$parameters <- paras
