@@ -125,14 +125,15 @@ crtouter = 1, details = FALSE, reduceTask=0, control=spacetime.control(), ...) {
         cs.ev <- seq(1, cycleSub.length, by = s.jump)
         if(tail(cs.ev, 1) != cycleSub.length) cs.ev <- c(cs.ev, cycleSub.length)
         cs.ev <- c(0, cs.ev, cycleSub.length + 1)
-        C <- .loess_stlplus(
-          y = cycleSub, span = s.window, degree = s.degree,
-          m = cs.ev, weights = value$weight, blend = s.blend,
-          jump = s.jump, at = c(0:(cycleSub.length + 1))
-        ) 
+#        C <- drSpaceTime::.loess_stlplus(
+#          y = cycleSub, span = s.window, degree = s.degree,
+#          m = cs.ev, weights = value$weight, blend = s.blend,
+#          jump = s.jump, at = c(0:(cycleSub.length + 1))
+#        ) 
       }
-      Cdf <- data.frame(C = C, t = as.numeric(paste(c(cs1, value[, cyctime], cs2), index, sep=".")))
-      rhcollect(map.keys[[r]][1], list(value, Cdf))
+#      Cdf <- data.frame(C = C, t = as.numeric(paste(c(cs1, value[, cyctime], cs2), index, sep=".")))
+#      rhcollect(map.keys[[r]][1], list(value, Cdf))
+       rhcollect(map.keys[[r]][1], s.window)
     })
   })
 #  job$reduce <- expression(
