@@ -177,6 +177,7 @@ drseasonal <- function(input, output, infill = TRUE, vari, cyctime, seaname, n, 
         y_idx = y_idx, noNA = noNA, blend = l.blend, jump = l.jump, at = c(1:n)
       )
       combined$seasonal <- Ctotal$C[st:nd] - L
+      rhcollect(reduce.key, combined)
     }
   )
   job$setup <- expression(
