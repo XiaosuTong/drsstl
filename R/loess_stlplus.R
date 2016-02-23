@@ -26,6 +26,7 @@
 
   s2 <- (span + 1) / 2
   # set up indices in R - easier
+  print(noNA)
   if(noNA) {
     if((diff(range(x))) < span) {
       l_idx <- rep(1, n_m)
