@@ -108,8 +108,14 @@ drseasonal <- function(input, output, infill = TRUE, vari, cyctime, seaname, n, 
   job$map <- expression({
     lapply(seq_along(map.keys), function(r) {
 
+      if(infill) {
+        Index <- which(is.na(value[, vari]))
+        value[Index, vari] <- value$fitted[Index]
+        value$flag <- 1
+        value$flag[Index] <- 0
+        value <- subset(value, select=-c(fitted))
+      } 
       notEnoughData <- sum(!is.na(map.values[[r]][, vari])) < s.window 
-
       if (notEnoughData) {
         stop("at least one of subseries does not have enough observations")
       }else {
@@ -121,13 +127,6 @@ drseasonal <- function(input, output, infill = TRUE, vari, cyctime, seaname, n, 
           value$weight <- 1
         }  
         cycleSub.length <- nrow(value)
-        if(infill) {
-          Index <- which(is.na(value[, vari]))
-          value[Index, vari] <- value$fitted[Index]
-          value$flag <- 1
-          value$flag[Index] <- 0
-          value <- subset(value, select=-c(fitted))
-        } 
         cycleSub <- value[, vari]
 
         # detrending
