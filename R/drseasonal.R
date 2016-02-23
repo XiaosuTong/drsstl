@@ -163,7 +163,7 @@ drseasonal <- function(input, output, infill = TRUE, vari, cyctime, seaname, n, 
       if(tail(l.ev, 1) != n) l.ev <- c(l.ev, n)
     },
     reduce = {
-      combined <- rbind(combined, do.call("rbind", lapply(redce.values, "[[", 1)))
+      combined <- rbind(combined, do.call("rbind", lapply(reduce.values, "[[", 1)))
       Ctotal <- rbind(Ctotal, do.call("rbind", lapply(reduce.values, "[[", 2)))
     },
     post = {
