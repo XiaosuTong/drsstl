@@ -116,6 +116,10 @@ drseasonal <- function(input, output, infill = TRUE, vari, cyctime, seaname, n, 
         index <- match(map.keys[[r]][2], month.abb)
         value <- plyr::arrange(map.values[[r]], get(cyctime))
         value[, seaname] <- index
+        if (crtinner == 1) {
+          value$trend <- 0
+          value$weight <- 1
+        }  
         cycleSub.length <- nrow(value)
         if(infill) {
           Index <- which(is.na(value[, vari]))
@@ -127,10 +131,8 @@ drseasonal <- function(input, output, infill = TRUE, vari, cyctime, seaname, n, 
         } else {
           cycleSub <- value[, vari]
         }
-        if (crtinner == 1) {
-          value$trend <- 0
-          value$weight <- 1
-        }  
+        # detrending
+        cycleSub <- cycleSub - value$trend
 
         cs1 <- as.numeric(head(value[, cyctime], 1)) - 1
         cs2 <- as.numeric(tail(value[, cyctime], 1)) + 1  
@@ -147,7 +149,7 @@ drseasonal <- function(input, output, infill = TRUE, vari, cyctime, seaname, n, 
             jump = s.jump, at = c(0:(cycleSub.length + 1))
           ) 
         }
-        Cdf <- data.frame(C = C, t = as.numeric(paste(c(cs1, value[, cyctime], cs2), index, sep=".")))
+        Cdf <- data.frame(C = C, t = as.numeric(c(cs1, value[, cyctime], cs2)) + index/12.5)
         rhcollect(map.keys[[r]][1], list(value, Cdf))
       }
     })
