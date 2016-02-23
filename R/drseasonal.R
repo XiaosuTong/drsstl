@@ -47,7 +47,7 @@ drseasonal <- function(input, output, infill = TRUE, vari, cyctime, seaname, n, 
   s.degree = 1, s.jump = ceiling(s.window / 10), l.window = NULL, l.degree = 1, 
   l.jump = ceiling(l.window / 10), l.blend = 0, critfreq = 0.05, s.blend = 0, 
   sub.labels = NULL, sub.start = 1, zero.weight = 1e-6, crtinner = 1, crtouter = 1, 
-  details = FALSE, reduceTask=0, control=spacetime.control(), ...) {
+  details = FALSE, reduceTask=0, spill.percent = 0.8, control=spacetime.control(), ...) {
 
   nextodd <- function(x) {
     x <- round(x)
@@ -199,7 +199,7 @@ drseasonal <- function(input, output, infill = TRUE, vari, cyctime, seaname, n, 
     mapred.reduce.tasks = reduceTask,  #cdh3,4
     mapreduce.job.reduces = reduceTask,  #cdh5
     io.sort.mb = 256,
-    io.sort.spill.percent = 0.95
+    io.sort.spill.percent = spill.percent 
   )
   job$readback <- FALSE
   job$jobname <- output
