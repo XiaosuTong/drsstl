@@ -107,7 +107,7 @@ drseasonal <- function(input, output, infill = TRUE, vari, cyctime, seaname, n, 
   job <- list()
   job$map <- expression({
     lapply(seq_along(map.keys), function(r) {
-
+      value <- plyr::arrange(map.values[[r]], get(cyctime))
       if(infill) {
         Index <- which(is.na(value[, vari]))
         value[Index, vari] <- value$fitted[Index]
@@ -120,7 +120,6 @@ drseasonal <- function(input, output, infill = TRUE, vari, cyctime, seaname, n, 
         stop("at least one of subseries does not have enough observations")
       }else {
         index <- match(map.keys[[r]][2], month.abb)
-        value <- plyr::arrange(map.values[[r]], get(cyctime))
         value[, seaname] <- index
         if (crtinner == 1) {
           value$trend <- 0
