@@ -131,8 +131,9 @@ crtouter = 1, details = FALSE, reduceTask=0, control=spacetime.control(), ...) {
           jump = s.jump, at = c(0:(cycleSub.length + 1))
         ) 
       }
-      Cdf <- data.frame(C = C, t = as.numeric(paste(c(cs1, value[, cyctime], cs2), index, sep=".")))
-      rhcollect(map.keys[[r]][1], list(value, Cdf))
+      #Cdf <- data.frame(C = C, t = as.numeric(paste(c(cs1, value[, cyctime], cs2), index, sep=".")))
+      #rhcollect(map.keys[[r]][1], list(value, Cdf))
+      rhcollect(map.keys[[r]][1], C)
     })
   })
 #  job$reduce <- expression(
