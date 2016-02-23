@@ -26,7 +26,6 @@
 
   s2 <- (span + 1) / 2
   # set up indices in R - easier
-  print(noNA)
   if(noNA) {
     if((diff(range(x))) < span) {
       l_idx <- rep(1, n_m)
@@ -58,13 +57,13 @@
     max_dist <- max_dist + (span - n) / 2
 
   out <- c_loess(x[y_idx], y[y_idx], degree, span, weights[y_idx],
-    m, l_idx - 1, as.double(max_dist))#
+    m, l_idx - 1, as.double(max_dist))
 
   res1 <- out$result
   # do interpolation
   if(jump > 1)
     res1 <- .interp(m, out$result, out$slope, at)
-    # res1 <- approx(x = m, y = out$result, xout = at)$y#
+    # res1 <- approx(x = m, y = out$result, xout = at)$y
 
   if(blend > 0 && blend <= 1 && degree >= 1) {
     if(degree == 2)
@@ -97,7 +96,7 @@
 
     # speed this up later by only getting the loess smooth at the tails.
     # right now, a lot of unnecessary calculation is done at the interior
-    # where blending doesn't matter#
+    # where blending doesn't matter
 
     tmp <- c_loess(x[y_idx], y[y_idx], 0, sp0, weights[y_idx],
       m2, l_idx2-1, max_dist2)
@@ -132,6 +131,5 @@
   }
 
   res1
-  
 }
 

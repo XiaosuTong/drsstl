@@ -18,8 +18,8 @@
 #'     Xiaosu Tong 
 #' @export
 #' @examples
-#'     FileInput <- "/ln/tongx/Spatial/a1950/bystation"
-#'     FileOutput <- "/ln/tongx/Spatial/a1950/byseason"
+#'     FileInput <- "/ln/tongx/Spatial/tmp/tmax/a1950/bymonth.fit/symmetric/direct/2/sp0.015.bystation"
+#'     FileOutput <- "/ln/tongx/Spatial/tmp/tmax/a1950/byseason"
 #'     \dontrun{
 #'       swaptoSeason(FileInput, FileOutput, control=spacetime.control(libLoc=.libPaths()))
 #'     }

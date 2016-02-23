@@ -106,36 +106,40 @@ crtouter = 1, details = FALSE, reduceTask=0, control=spacetime.control(), ...) {
   job <- list()
   job$map <- expression({
     lapply(seq_along(map.keys), function(r) {
-    	if(!all(!is.na(map.values[[r]]$resp))) {
-      index <- match(map.keys[[r]][2], month.abb)
-      value <- plyr::arrange(map.values[[r]], get(cyctime))
-      value[, seaname] <- index
-      cycleSub.length <- nrow(value)
-      cycleSub <- value[, vari]
-      if (crtinner == 1) {
-        value$trend <- 0
-        value$weight <- 1
-      }
-      rhcounter("Map", s.window, 1)
-      cs1 <- as.numeric(head(value[, cyctime], 1)) - 1
-      cs2 <- as.numeric(tail(value[, cyctime], 1)) + 1
 
-      if (periodic) {
-        C <- rep(weighted.mean(cycleSub, w = value$weight, na.rm = TRUE), cycleSub.length + 2)
-      } else {
-        cs.ev <- seq(1, cycleSub.length, by = s.jump)
-        if(tail(cs.ev, 1) != cycleSub.length) cs.ev <- c(cs.ev, cycleSub.length)
-        cs.ev <- c(0, cs.ev, cycleSub.length + 1)
-        C <- drSpaceTime::.loess_stlplus(
-          y = cycleSub, span = s.window, degree = s.degree,
-          m = cs.ev, weights = value$weight, blend = s.blend,
-          jump = s.jump, at = c(0:(cycleSub.length + 1))
-        ) 
+      notEnoughData <- sum(!is.na(map.values[[r]][, vari])) < s.window 
+
+      if (notEnoughData) {
+        stop("at least one of subseries does not have enough observations")
+      }else {
+        index <- match(map.keys[[r]][2], month.abb)
+        value <- plyr::arrange(map.values[[r]], get(cyctime))
+        value[, seaname] <- index
+        cycleSub.length <- nrow(value)
+        cycleSub <- value[, vari]
+        if (crtinner == 1) {
+          value$trend <- 0
+          value$weight <- 1
+        }  
+
+        cs1 <- as.numeric(head(value[, cyctime], 1)) - 1
+        cs2 <- as.numeric(tail(value[, cyctime], 1)) + 1  
+
+        if (periodic) {
+          C <- rep(weighted.mean(cycleSub, w = value$weight, na.rm = TRUE), cycleSub.length + 2)
+        } else {
+          cs.ev <- seq(1, cycleSub.length, by = s.jump)
+          if(tail(cs.ev, 1) != cycleSub.length) cs.ev <- c(cs.ev, cycleSub.length)
+          cs.ev <- c(0, cs.ev, cycleSub.length + 1)
+          C <- drSpaceTime::.loess_stlplus(
+            y = cycleSub, span = s.window, degree = s.degree,
+            m = cs.ev, weights = value$weight, blend = s.blend,
+            jump = s.jump, at = c(0:(cycleSub.length + 1))
+          ) 
+        }
+        Cdf <- data.frame(C = C, t = as.numeric(paste(c(cs1, value[, cyctime], cs2), index, sep=".")))
+        rhcollect(map.keys[[r]][1], list(value, Cdf))
       }
-      #Cdf <- data.frame(C = C, t = as.numeric(paste(c(cs1, value[, cyctime], cs2), index, sep=".")))
-      #rhcollect(map.keys[[r]][1], list(value, Cdf))
-      rhcollect(map.keys[[r]][1], C)
-    }
     })
   })
 #  job$reduce <- expression(
