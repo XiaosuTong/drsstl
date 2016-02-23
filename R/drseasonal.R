@@ -176,7 +176,7 @@ drseasonal <- function(input, output, infill = TRUE, vari, cyctime, seaname, n, 
         y = ma3, span = l.window, degree = l.degree, m = l.ev, weights = combined$weight, 
         y_idx = y_idx, noNA = noNA, blend = l.blend, jump = l.jump, at = c(1:n)
       )
-      combined$seasonal <- Ctotal[st:nd] - L
+      combined$seasonal <- Ctotal$C[st:nd] - L
     }
   )
   job$setup <- expression(
