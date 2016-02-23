@@ -106,7 +106,7 @@ crtouter = 1, details = FALSE, reduceTask=0, control=spacetime.control(), ...) {
   job <- list()
   job$map <- expression({
     lapply(seq_along(map.keys), function(r) {
-    	if(all(!is.na(map.values[[r]]$resp))) {
+    	if(!all(!is.na(map.values[[r]]$resp))) {
       index <- match(map.keys[[r]][2], month.abb)
       value <- plyr::arrange(map.values[[r]], get(cyctime))
       value[, seaname] <- index
