@@ -115,7 +115,7 @@ drseasonal <- function(input, output, infill = TRUE, vari, cyctime, seaname, n, 
         value$flag[Index] <- 0
         value <- subset(value, select=-c(fitted))
       } 
-      notEnoughData <- sum(!is.na(map.values[[r]][, vari])) < s.window 
+      notEnoughData <- sum(!is.na(value[, vari])) < s.window 
       if (notEnoughData) {
         stop("at least one of subseries does not have enough observations")
       }else {
