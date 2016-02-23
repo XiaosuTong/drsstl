@@ -197,7 +197,8 @@ drseasonal <- function(input, output, infill = TRUE, vari, cyctime, seaname, n, 
   job$output <- rhfmt(output, type = "sequence")
   job$mapred <- list(
     mapred.reduce.tasks = reduceTask,  #cdh3,4
-    mapreduce.job.reduces = reduceTask  #cdh5
+    mapreduce.job.reduces = reduceTask,  #cdh5
+    io.sort.mb = 256
   )
   job$readback <- FALSE
   job$jobname <- output
