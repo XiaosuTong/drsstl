@@ -37,7 +37,7 @@
 #'     FileInput <- "/ln/tongx/Spatial/tmp/tmax/a1950/byseason"
 #'     FileOutput <- "/ln/tongx/Spatial/tmp/tmax/a1950/byseason.season"
 #'     \dontrun{
-#'       drseasonal(input=FileInput, output=FileOutput, vari="fitted", cyctime="year", seaname = "month", n=576, n.p=12, s.window=13, s.degree=1, reduceTask=10, control=spacetime.control(libLoc=.libPaths()))
+#'       drseasonal(input=FileInput, output=FileOutput, vari="resp", cyctime="year", seaname = "month", n=576, n.p=12, s.window=13, s.degree=1, reduceTask=10, control=spacetime.control(libLoc=.libPaths()))
 #'     }
 #' @importFrom stats frequency loess median predict quantile weighted.mean time
 #' @importFrom utils head stack tail
@@ -123,14 +123,13 @@ drseasonal <- function(input, output, infill = TRUE, vari, cyctime, seaname, n, 
         cycleSub.length <- nrow(value)
         if(infill) {
           Index <- which(is.na(value[, vari]))
-          cycleSub <- value[, vari]
+          value[Index, vari] <- value$fitted[Index]
           value$flag <- 1
           value$flag[Index] <- 0
           value <- subset(value, select=-c(fitted))
-          cycleSub[Index] <- value$fitted[Index]          
-        } else {
-          cycleSub <- value[, vari]
-        }
+        } 
+        cycleSub <- value[, vari]
+
         # detrending
         cycleSub <- cycleSub - value$trend
 
@@ -154,34 +153,34 @@ drseasonal <- function(input, output, infill = TRUE, vari, cyctime, seaname, n, 
       }
     })
   })
-#  job$reduce <- expression(
-#    pre = {
-#      combined <- data.frame()
-#      Ctotal <- data.frame()
-#      ma3 <- 0
-#      L <- 0
-#      y_idx <- logical()
-#      noNa <- logical()
-#      l.ev <- seq(1, n, by = l.jump)
-#      if(tail(l.ev, 1) != n) l.ev <- c(l.ev, n)
-#    },
-#    reduce = {
-#      combined <- rbind(combined, do.call("rbind", lapply(redce.values, "[[", 1)))
-#      Ctotal <- rbind(Ctotal, do.call("rbind", lapply(reduce.values, "[[", 2)))
-#    },
-#    post = {
-#      combined <- plyr::arrange(combined, get(.t), get(seaname))
-#      Ctotal <- plyr::arrange(Ctotal, t)
-#      y_idx <- !is.na(combined[, vari])
-#      noNA <- all(y_idx)
-#      ma3 <- drSpaceTime::c_ma(Ctotal$C, n.p)
-#      L <- drSpaceTime::.loess_stlplus(
-#        y = ma3, span = l.window, degree = l.degree, m = l.ev, weights = combined$weight, 
-#        y_idx = y_idx, noNA = noNA, blend = l.blend, jump = l.jump, at = c(1:n)
-#      )
-#      combined$seasonal <- Ctotal[st:nd] - L
-#    }
-#  )
+  job$reduce <- expression(
+    pre = {
+      combined <- data.frame()
+      Ctotal <- data.frame()
+      ma3 <- 0
+      L <- 0
+      y_idx <- logical()
+      noNa <- logical()
+      l.ev <- seq(1, n, by = l.jump)
+      if(tail(l.ev, 1) != n) l.ev <- c(l.ev, n)
+    },
+    reduce = {
+      combined <- rbind(combined, do.call("rbind", lapply(redce.values, "[[", 1)))
+      Ctotal <- rbind(Ctotal, do.call("rbind", lapply(reduce.values, "[[", 2)))
+    },
+    post = {
+      combined <- plyr::arrange(combined, get(cyctime), get(seaname))
+      Ctotal <- plyr::arrange(Ctotal, t)
+      y_idx <- !is.na(combined[, vari])
+      noNA <- all(y_idx)
+      ma3 <- drSpaceTime::c_ma(Ctotal$C, n.p)
+      L <- drSpaceTime::.loess_stlplus(
+        y = ma3, span = l.window, degree = l.degree, m = l.ev, weights = combined$weight, 
+        y_idx = y_idx, noNA = noNA, blend = l.blend, jump = l.jump, at = c(1:n)
+      )
+      combined$seasonal <- Ctotal[st:nd] - L
+    }
+  )
   job$setup <- expression(
     map = {
       library(plyr, lib.loc=control$libLoc)
