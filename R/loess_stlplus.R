@@ -44,13 +44,13 @@
     x2 <- x[y_idx]
 
     # another approach
-#    a <- yaImpute::ann(ref = as.matrix(x2), target = as.matrix(m), tree.type = "kd",
-#      k = span3, eps = 0, verbose = FALSE)$knnIndexDist[,1:span3]#
+    a <- yaImpute::ann(ref = as.matrix(x2), target = as.matrix(m), tree.type = "kd",
+      k = span3, eps = 0, verbose = FALSE)$knnIndexDist[,1:span3]
 
-#    l_idx <- apply(a, 1, min)
-#    r_idx <- apply(a, 1, max)#
+    l_idx <- apply(a, 1, min)
+    r_idx <- apply(a, 1, max)
 
-#    max_dist <- apply(cbind(abs(m - x2[l_idx]), abs(x2[r_idx] - m)), 1, max)
+    max_dist <- apply(cbind(abs(m - x2[l_idx]), abs(x2[r_idx] - m)), 1, max)
   }
 #  if(span >= n)
 #    # max_dist <- max_dist * (span / n)
@@ -131,6 +131,6 @@
 #  }
 
   #res1
-  return(span3)
+  return(a)
 }
 
