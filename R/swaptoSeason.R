@@ -21,7 +21,7 @@
 #'     FileInput <- "/ln/tongx/Spatial/tmp/tmax/a1950/bymonth.fit/symmetric/direct/2/sp0.015.bystation"
 #'     FileOutput <- "/ln/tongx/Spatial/tmp/tmax/a1950/byseason"
 #'     \dontrun{
-#'       swaptoSeason(FileInput, FileOutput, control=spacetime.control(libLoc=.libPaths()))
+#'       swaptoSeason(FileInput, FileOutput, reduceTask=10, control=spacetime.control(libLoc=.libPaths()))
 #'     }
 
 swaptoSeason <- function(input, output, reduceTask=0, control=spacetime.control()) {

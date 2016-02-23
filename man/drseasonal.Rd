@@ -4,12 +4,12 @@
 \alias{drseasonal}
 \title{Seasonal Decomposition of Time Series by Loess}
 \usage{
-drseasonal(input, output, vari, cyctime, seaname, n, n.p, s.window,
-  s.degree = 1, s.jump = ceiling(s.window/10), l.window = NULL,
-  l.degree = 1, l.jump = ceiling(l.window/10), critfreq = 0.05,
-  s.blend = 0, sub.labels = NULL, sub.start = 1, zero.weight = 1e-06,
-  crtinner = 1, crtouter = 1, details = FALSE, reduceTask = 0,
-  control = spacetime.control(), ...)
+drseasonal(input, output, infill = TRUE, vari, cyctime, seaname, n, n.p,
+  s.window, s.degree = 1, s.jump = ceiling(s.window/10), l.window = NULL,
+  l.degree = 1, l.jump = ceiling(l.window/10), l.blend = 0,
+  critfreq = 0.05, s.blend = 0, sub.labels = NULL, sub.start = 1,
+  zero.weight = 1e-06, crtinner = 1, crtouter = 1, details = FALSE,
+  reduceTask = 0, control = spacetime.control(), ...)
 }
 \arguments{
 \item{input}{the HDFS path of input files}
@@ -69,7 +69,7 @@ This is a complete re-implementation of the STL algorithm, with the loess part i
     FileInput <- "/ln/tongx/Spatial/tmp/tmax/a1950/byseason"
     FileOutput <- "/ln/tongx/Spatial/tmp/tmax/a1950/byseason.season"
     \dontrun{
-      drseasonal(input=FileInput, output=FileOutput, vari="resp", cyctime="year", seaname = "month", n=576, n.p=12, s.window=13, s.degree=1, reduceTask=10, control=spacetime.control(libLoc=.libPaths()))
+      drseasonal(input=FileInput, output=FileOutput, vari="fitted", cyctime="year", seaname = "month", n=576, n.p=12, s.window=13, s.degree=1, reduceTask=10, control=spacetime.control(libLoc=.libPaths()))
     }
 }
 \author{
