@@ -198,7 +198,8 @@ drseasonal <- function(input, output, infill = TRUE, vari, cyctime, seaname, n, 
   job$mapred <- list(
     mapred.reduce.tasks = reduceTask,  #cdh3,4
     mapreduce.job.reduces = reduceTask,  #cdh5
-    io.sort.mb = 256
+    io.sort.mb = 256,
+    io.sort.spill.percent = 0.95
   )
   job$readback <- FALSE
   job$jobname <- output
