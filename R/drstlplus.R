@@ -1,4 +1,4 @@
-#' Seasonal Decomposition of Time Series by Loess
+#' Seasonal Trend Decomposition of Time Series by Loess
 #'
 #' Decompose a time series into seasonal, trend and irregular components using \code{loess}, acronym STL. A new implementation of STL. Allows for NA values, local quadratic smoothing, post-trend smoothing, and endpoint blending. The usage is very similar to that of R's built-in \code{stl()}.
 #'
@@ -17,6 +17,10 @@
 #' @param details if \code{TRUE}, returns a list of the results of all the intermediate iterations.
 #' @param s.jump,l.jump integers at least one to increase speed of the respective smoother. Linear interpolation happens between every \code{*.jump}th value.
 #' @param s.blend,l.blend vectors of proportion of blending to degree 0 polynomials at the endpoints of the series.
+#' @param reduceTask the number of reduce tasks
+#' @param spill.percent the threshold of percentage of memory of JVM that will triger the map to spill the output from memory to disk as a new spilled file
+#' @param io.sort the number in MB which is the memory buffer size for the map to write the output to.
+#' @param control a list contains some other parameters need for stlplus fit.
 #' @param \ldots additional parameters
 #' @details The seasonal component is found by \emph{loess} smoothing the seasonal sub-series (the series of all January values, \ldots); if \code{s.window = "periodic"} smoothing is effectively replaced by taking the mean. The seasonal values are removed, and the remainder smoothed to find the trend. The overall level is removed from the seasonal component and added to the trend component. This process is iterated a few times. The \code{remainder} component is the residuals from the seasonal plus trend fit.
 #'
@@ -31,23 +35,23 @@
 #' \item{n}{the number of observations.}
 #' \item{sub.labels}{the cycle-subseries labels.}
 #' @references R. B. Cleveland, W. S. Cleveland, J. E. McRae, and I. Terpenning (1990) STL: A Seasonal-Trend Decomposition Procedure Based on Loess. \emph{Journal of Official Statistics}, \bold{6}, 3--73.
-#' @author Ryan Hafen
+#' @author Xiaosu Tong, Ryan Hafen
 #' @note This is a complete re-implementation of the STL algorithm, with the loess part in C and the rest in R. Moving a lot of the code to R makes it easier to experiment with the method at a very minimal speed cost. Recoding in C instead of using R's built-in loess results in better performance, especially for larger series.
 #' @examples
 #'     FileInput <- "/ln/tongx/Spatial/tmp/tmax/a1950/byseason"
 #'     FileOutput <- "/ln/tongx/Spatial/tmp/tmax/a1950/byseason.season"
 #'     \dontrun{
-#'       drseasonal(input=FileInput, output=FileOutput, vari="resp", cyctime="year", seaname = "month", n=576, n.p=12, s.window=13, s.degree=1, reduceTask=10, control=spacetime.control(libLoc=.libPaths()))
+#'       drseasonal(input=FileInput, output=FileOutput, vari="resp", cyctime="year", seaname = "month", n=576, n.p=12, s.window=13, s.degree=1, reduceTask=10, spill.percent = 0.9, io.sort = 256, control=spacetime.control(libLoc=.libPaths()))
 #'     }
 #' @importFrom stats frequency loess median predict quantile weighted.mean time
 #' @importFrom utils head stack tail
 #' @export
-#' @rdname drseasonal
-drseasonal <- function(input, output, infill = TRUE, vari, cyctime, seaname, n, n.p, s.window, 
+#' @rdname drstlplus
+drstlplus <- function(input, output, infill = TRUE, vari, cyctime, seaname, n, n.p, s.window, 
   s.degree = 1, s.jump = ceiling(s.window / 10), l.window = NULL, l.degree = 1, 
   l.jump = ceiling(l.window / 10), l.blend = 0, critfreq = 0.05, s.blend = 0, 
   sub.labels = NULL, sub.start = 1, zero.weight = 1e-6, crtinner = 1, crtouter = 1, 
-  details = FALSE, reduceTask=0, spill.percent = 0.8, control=spacetime.control(), ...) {
+  details = FALSE, reduceTask=0, spill.percent = 0.8, io.sort = 256, control=spacetime.control(), ...) {
 
   nextodd <- function(x) {
     x <- round(x)
@@ -156,7 +160,8 @@ drseasonal <- function(input, output, infill = TRUE, vari, cyctime, seaname, n, 
       combined <- data.frame()
       Ctotal <- data.frame()
       ma3 <- 0
-      L <- 0
+      L <- numeric()
+      D <- numeric()
       y_idx <- logical()
       noNa <- logical()
       l.ev <- seq(1, n, by = l.jump)
@@ -177,6 +182,7 @@ drseasonal <- function(input, output, infill = TRUE, vari, cyctime, seaname, n, 
         y_idx = y_idx, noNA = noNA, blend = l.blend, jump = l.jump, at = c(1:n)
       )
       combined$seasonal <- Ctotal$C[st:nd] - L
+      D <- combined[, vari] - combined$seasonal
       rhcollect(reduce.key, combined)
     }
   )
@@ -198,7 +204,7 @@ drseasonal <- function(input, output, infill = TRUE, vari, cyctime, seaname, n, 
   job$mapred <- list(
     mapred.reduce.tasks = reduceTask,  #cdh3,4
     mapreduce.job.reduces = reduceTask,  #cdh5
-    io.sort.mb = 256,
+    io.sort.mb = io.sort,
     io.sort.spill.percent = spill.percent 
   )
   job$readback <- FALSE
