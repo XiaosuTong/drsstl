@@ -9,8 +9,8 @@ drinner(input, output, infill = TRUE, vari, cyctime, seaname, n, n.p,
   t.degree = 1, t.jump = ceiling(t.window/10), t.blend = 0,
   l.window = NULL, l.degree = 1, l.jump = ceiling(l.window/10),
   l.blend = 0, critfreq = 0.05, s.blend = 0, sub.labels = NULL,
-  sub.start = 1, zero.weight = 1e-06, inner = 2, outer = 1,
-  details = FALSE, reduceTask = 0, spill.percent = 0.8, io.sort = 256,
+  sub.start = 1, zero.weight = 1e-06, inner = 1, details = FALSE,
+  reduceTask = 0, spill.percent = 0.8, io.sort = 256,
   control = spacetime.control(), ...)
 }
 \arguments{
@@ -79,7 +79,7 @@ This is a complete re-implementation of the STL algorithm, with the loess part i
     FileInput <- "/ln/tongx/Spatial/tmp/tmax/a1950/byseason"
     FileOutput <- "/ln/tongx/Spatial/tmp/tmax/a1950/byseason.season"
     \dontrun{
-      drinner(input=FileInput, output=FileOutput, vari="resp", cyctime="year", seaname = "month", n=576, n.p=12, s.window=13, s.degree=1, reduceTask=10, spill.percent = 0.9, io.sort = 256, control=spacetime.control(libLoc=.libPaths()))
+      drinner(input=FileInput, output=FileOutput, vari="resp", cyctime="year", seaname = "month", n=576, n.p=12, s.window=13, s.degree=1, t.window = 241, t.degree = 1, reduceTask=10, spill.percent = 0.85, io.sort = 256, control=spacetime.control(libLoc=.libPaths()))
     }
 }
 \author{

@@ -17,6 +17,12 @@
 #'     swaptoTime is used for switch division by location to division by time.
 #' @author 
 #'     Xiaosu Tong 
+#' @examples
+#'     FileInput <- "/ln/tongx/Spatial/tmp/tmax/a1950/byseason.season"
+#'     FileOutput <- "/ln/tongx/Spatial/tmp/tmax/a1950/byseason.outer"
+#'     \dontrun{
+#'        drrobust(FileInput, FileOutput, vari="resp", zero.weight=)
+#'     }
 #' @export
 
 drrobust <- function(input, output, vari, zero.weight) {
