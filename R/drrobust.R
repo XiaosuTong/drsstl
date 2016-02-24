@@ -21,11 +21,11 @@
 #'     FileInput <- "/ln/tongx/Spatial/tmp/tmax/a1950/byseason.season"
 #'     FileOutput <- "/ln/tongx/Spatial/tmp/tmax/a1950/byseason.outer"
 #'     \dontrun{
-#'        drrobust(FileInput, FileOutput, vari="resp", zero.weight=)
+#'        drrobust(FileInput, FileOutput, vari="resp")
 #'     }
 #' @export
 
-drrobust <- function(input, output, vari, zero.weight) {
+drrobust <- function(input, output, vari, zero.weight=1e-6) {
 
   jobW <- list()
   jobW$map <- expression({
