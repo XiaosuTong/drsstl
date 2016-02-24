@@ -51,8 +51,8 @@ drinner <- function(input, output, infill = TRUE, vari, cyctime, seaname, n, n.p
   s.degree = 1, s.jump = ceiling(s.window / 10), t.window = NULL, t.degree = 1, 
   t.jump = ceiling(t.window / 10), t.blend = 0, l.window = NULL, 
   l.degree = 1, l.jump = ceiling(l.window / 10), l.blend = 0, critfreq = 0.05, s.blend = 0, 
-  sub.labels = NULL, sub.start = 1, zero.weight = 1e-6, inner = 2, outer = 1, 
-  details = FALSE, reduceTask=0, spill.percent = 0.8, io.sort = 256, control=spacetime.control(), ...) {
+  sub.labels = NULL, sub.start = 1, zero.weight = 1e-6, inner = 1, details = FALSE, 
+  reduceTask=0, spill.percent = 0.8, io.sort = 256, control=spacetime.control(), ...) {
 
   nextodd <- function(x) {
     x <- round(x)
