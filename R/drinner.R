@@ -41,7 +41,7 @@
 #'     FileInput <- "/ln/tongx/Spatial/tmp/tmax/a1950/byseason"
 #'     FileOutput <- "/ln/tongx/Spatial/tmp/tmax/a1950/byseason.season"
 #'     \dontrun{
-#'       drinner(input=FileInput, output=FileOutput, vari="resp", cyctime="year", seaname = "month", n=576, n.p=12, s.window=13, s.degree=1, reduceTask=10, spill.percent = 0.9, io.sort = 256, control=spacetime.control(libLoc=.libPaths()))
+#'       drinner(input=FileInput, output=FileOutput, vari="resp", cyctime="year", seaname = "month", n=576, n.p=12, s.window=13, s.degree=1, reduceTask=10, spill.percent = 0.85, io.sort = 256, control=spacetime.control(libLoc=.libPaths()))
 #'     }
 #' @importFrom stats frequency loess median predict quantile weighted.mean time
 #' @importFrom utils head stack tail
@@ -105,7 +105,7 @@ drinner <- function(input, output, infill = TRUE, vari, cyctime, seaname, n, n.p
   paras <- list(
   	vari = vari, cyctime = cyctime, seaname=seaname, n.p = n.p, n = n, st = st, nd = nd, 
   	s.window = s.window, s.degree = s.degree, s.jump = s.jump, s.blend = s.blend, periodic = periodic, 
-  	l.window = l.window, l.degree = l.degree, l.jump = l.jump, l.blend = l.blend, crtinner=crtinner,
+  	l.window = l.window, l.degree = l.degree, l.jump = l.jump, l.blend = l.blend, inner = inner,
     t.window = t.window, t.degree = t.degree, t.jump = t.jump, t.blend = t.blend,
   	control = control, infill = infill
   )
@@ -128,7 +128,7 @@ drinner <- function(input, output, infill = TRUE, vari, cyctime, seaname, n, n.p
       }else {
         index <- match(map.keys[[r]][2], month.abb)
         value[, seaname] <- index
-        if (crtinner == 1) {
+        if (inner == 1) {
           value$trend <- 0
           value$weight <- 1
         }  
