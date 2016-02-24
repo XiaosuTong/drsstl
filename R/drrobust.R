@@ -25,7 +25,7 @@
 #'     }
 #' @export
 
-drrobust <- function(input, output, vari, zero.weight=1e-6) {
+drrobust <- function(input, output, vari, reduceTask=0, io.sort.mb=256, io.sort.spill.percent=0.85, zero.weight=1e-6) {
 
   jobW <- list()
   jobW$map <- expression({
