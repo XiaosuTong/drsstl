@@ -19,7 +19,7 @@
 #'     Xiaosu Tong 
 #' @export
 
-robustWeight <- function(n, Y, seasonal, trend, zero.weight) {
+drrobust <- function(n, Y, seasonal, trend, zero.weight) {
 
   mid1 <- floor(n / 2 + 1)
   mid2 <- n - mid1 + 1
