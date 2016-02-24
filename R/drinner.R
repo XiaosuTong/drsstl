@@ -41,16 +41,17 @@
 #'     FileInput <- "/ln/tongx/Spatial/tmp/tmax/a1950/byseason"
 #'     FileOutput <- "/ln/tongx/Spatial/tmp/tmax/a1950/byseason.season"
 #'     \dontrun{
-#'       drseasonal(input=FileInput, output=FileOutput, vari="resp", cyctime="year", seaname = "month", n=576, n.p=12, s.window=13, s.degree=1, reduceTask=10, spill.percent = 0.9, io.sort = 256, control=spacetime.control(libLoc=.libPaths()))
+#'       drinner(input=FileInput, output=FileOutput, vari="resp", cyctime="year", seaname = "month", n=576, n.p=12, s.window=13, s.degree=1, reduceTask=10, spill.percent = 0.9, io.sort = 256, control=spacetime.control(libLoc=.libPaths()))
 #'     }
 #' @importFrom stats frequency loess median predict quantile weighted.mean time
 #' @importFrom utils head stack tail
 #' @export
-#' @rdname drstlplus
-drstlplus <- function(input, output, infill = TRUE, vari, cyctime, seaname, n, n.p, s.window, 
-  s.degree = 1, s.jump = ceiling(s.window / 10), l.window = NULL, l.degree = 1, 
-  l.jump = ceiling(l.window / 10), l.blend = 0, critfreq = 0.05, s.blend = 0, 
-  sub.labels = NULL, sub.start = 1, zero.weight = 1e-6, crtinner = 1, crtouter = 1, 
+#' @rdname drinner
+drinner <- function(input, output, infill = TRUE, vari, cyctime, seaname, n, n.p, s.window, 
+  s.degree = 1, s.jump = ceiling(s.window / 10), t.window = NULL, t.degree = 1, 
+  t.jump = ceiling(t.window / 10), t.blend = 0, l.window = NULL, 
+  l.degree = 1, l.jump = ceiling(l.window / 10), l.blend = 0, critfreq = 0.05, s.blend = 0, 
+  sub.labels = NULL, sub.start = 1, zero.weight = 1e-6, inner = 2, outer = 1, 
   details = FALSE, reduceTask=0, spill.percent = 0.8, io.sort = 256, control=spacetime.control(), ...) {
 
   nextodd <- function(x) {
@@ -105,11 +106,13 @@ drstlplus <- function(input, output, infill = TRUE, vari, cyctime, seaname, n, n
   	vari = vari, cyctime = cyctime, seaname=seaname, n.p = n.p, n = n, st = st, nd = nd, 
   	s.window = s.window, s.degree = s.degree, s.jump = s.jump, s.blend = s.blend, periodic = periodic, 
   	l.window = l.window, l.degree = l.degree, l.jump = l.jump, l.blend = l.blend, crtinner=crtinner,
+    t.window = t.window, t.degree = t.degree, t.jump = t.jump, t.blend = t.blend,
   	control = control, infill = infill
   )
-  
-  job <- list()
-  job$map <- expression({
+
+  # inner loop
+  jobIn <- list()
+  jobIn$map <- expression({
     lapply(seq_along(map.keys), function(r) {
       value <- plyr::arrange(map.values[[r]], get(cyctime))
       if(infill) {
@@ -155,7 +158,7 @@ drstlplus <- function(input, output, infill = TRUE, vari, cyctime, seaname, n, n
       }
     })
   })
-  job$reduce <- expression(
+  jobIn$reduce <- expression(
     pre = {
       combined <- data.frame()
       Ctotal <- data.frame()
@@ -164,8 +167,10 @@ drstlplus <- function(input, output, infill = TRUE, vari, cyctime, seaname, n, n
       D <- numeric()
       y_idx <- logical()
       noNa <- logical()
+      t.ev <- seq(1, n, by = t.jump)
       l.ev <- seq(1, n, by = l.jump)
       if(tail(l.ev, 1) != n) l.ev <- c(l.ev, n)
+      if(tail(t.ev, 1) != n) t.ev <- c(t.ev, n)
     },
     reduce = {
       combined <- rbind(combined, do.call("rbind", lapply(reduce.values, "[[", 1)))
@@ -182,11 +187,16 @@ drstlplus <- function(input, output, infill = TRUE, vari, cyctime, seaname, n, n
         y_idx = y_idx, noNA = noNA, blend = l.blend, jump = l.jump, at = c(1:n)
       )
       combined$seasonal <- Ctotal$C[st:nd] - L
+      # Deseasonalize
       D <- combined[, vari] - combined$seasonal
+      combined$trend <- drSpaceTime::.loess_stlplus(
+        y = D, span = t.window, degree = t.degree, m = t.ev, weights = combined$weight, 
+        y_idx = y_idx, noNA = noNA, blend = t.blend, jump = t.jump, at = c(1:n)
+      )
       rhcollect(reduce.key, combined)
     }
   )
-  job$setup <- expression(
+  jobIn$setup <- expression(
     map = {
       library(plyr, lib.loc=control$libLoc)
       library(yaImpute, lib.loc=control$libLoc)
@@ -198,18 +208,17 @@ drstlplus <- function(input, output, infill = TRUE, vari, cyctime, seaname, n, n
       library(drSpaceTime, lib.loc=control$libLoc)
     }
   )
-  job$parameters <- paras
-  job$input <- rhfmt(input, type = "sequence")
-  job$output <- rhfmt(output, type = "sequence")
-  job$mapred <- list(
+  jobIn$parameters <- paras
+  jobIn$input <- rhfmt(input, type = "sequence")
+  jobIn$output <- rhfmt(output, type = "sequence")
+  jobIn$mapred <- list(
     mapred.reduce.tasks = reduceTask,  #cdh3,4
     mapreduce.job.reduces = reduceTask,  #cdh5
     io.sort.mb = io.sort,
     io.sort.spill.percent = spill.percent 
   )
-  job$readback <- FALSE
-  job$jobname <- output
-  job.mr <- do.call("rhwatch", job)
-
+  jobIn$readback <- FALSE
+  jobIn$jobname <- output
+  job.mr <- do.call("rhwatch", jobIn)
 
 }

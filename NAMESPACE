@@ -2,8 +2,9 @@
 
 export(c_ma)
 export(.loess_stlplus)
-export(drstlplus)
+export(drinner)
 export(repbyTime)
+export(robustWeight)
 export(spacetime.control)
 export(swaptoSeason)
 export(swaptoTime)
