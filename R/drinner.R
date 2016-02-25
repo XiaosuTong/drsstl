@@ -71,7 +71,7 @@ drinner <- function(Inner_input, Inner_output, n, n.p, vari, cyctime, seaname,
   jobIn$map <- expression({
     lapply(seq_along(map.keys), function(r) {
       value <- plyr::arrange(map.values[[r]], get(cyctime))
-      if(infill) {
+      if(infill & crtI == 1) {
         Index <- which(is.na(value[, vari]))
         value[Index, vari] <- value$fitted[Index]
         value$flag <- 1
