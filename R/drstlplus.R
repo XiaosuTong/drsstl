@@ -9,8 +9,7 @@
 #' @importFrom utils head stack tail
 #' @export
 #' @rdname drstlplus
-drstlplus <- function(input, output, model_control=spacetime.control(), 
-	cluster_control=mapredcue.control(), ...) {
+drstlplus <- function(input, output, model_control=spacetime.control()) {
 
   nextodd <- function(x) {
     x <- round(x)
@@ -105,14 +104,20 @@ drstlplus <- function(input, output, model_control=spacetime.control(),
   if(is.null(l.jump) || length(l.jump)==0) l.jump <- ceiling(l.window / 10)
   if(is.null(t.jump) || length(t.jump)==0) t.jump <- ceiling(t.window / 10)
 
-  FileInput <- 
+  FileInput <- input
 
   for (o in 1:model_control$outer) {
-
     for (i in 1:model_control$inner) {
-
-      drSpaceTime::swaptoSeason()
       
+      FileOutput <- paste(input, "byseason", sep = ".")
+      cluster_control <- mapreduce.control(reduceTask=10, libLoc = .libPaths())
+      
+      drSpaceTime::swaptoSeason(input=FileInput, output=FileOutput, Clcontrol=cluster_control)
+      
+      FileInput <- FileOutput
+      FileOutput <- output
+      cluster_control <- mapreduce.control(reduceTask=10, libLoc = .libPaths())
+
       drSpaceTime::drinner(
         Inner_input=FileInput, Inner_output=FileOutput, 
         n=model_control$n, n.p=model_control$n.p, vari=model_control$vari, cyctime=model_control$cyctime, 
@@ -125,11 +130,20 @@ drstlplus <- function(input, output, model_control=spacetime.control(),
         crtI = i, sub.labels = model_control$sub.labels, sub.start = model_control$sub.start, 
         infill= model_control$infill, Clcontrol=cluster_control
       )
+      
+      FileInput <- FileOutput
 
     }
 
-    drSpaceTime::drrobust()
+    if (model_control$outer > 1) {
 
+    	FileOutput <- output
+    	cluster_control <- mapreduce.control(reduceTask=10, libLoc = .libPaths())
+      drSpaceTime::drrobust(input=FileInput, output=FileOutput, vari=model_control$vari, Clcontrol=cluster_control)
+    
+      FileInput <- FileOutput
+
+    }
   }
 
 }

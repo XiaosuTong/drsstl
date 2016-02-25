@@ -63,7 +63,7 @@ drinner <- function(Inner_input, Inner_output, n, n.p, vari, cyctime, seaname,
     s.window = s.window, s.degree = s.degree, s.jump = s.jump, s.blend = s.blend,  
     l.window = l.window, l.degree = l.degree, l.jump = l.jump, l.blend = l.blend, 
     t.window = t.window, t.degree = t.degree, t.jump = t.jump, t.blend = t.blend,
-    crtI = crtI, Clcontrol=Clcontrol, infill = infill, libLoc = Clcontrol$libLoc
+    crtI = crtI, Clcontrol=Clcontrol, infill = infill
   )
 
   # inner loop
@@ -154,14 +154,14 @@ drinner <- function(Inner_input, Inner_output, n, n.p, vari, cyctime, seaname,
   )
   jobIn$setup <- expression(
     map = {
-      library(plyr, lib.loc=libLoc)
-      library(yaImpute, lib.loc=libLoc)
-      library(drSpaceTime, lib.loc=libLoc)
+      library(plyr, lib.loc=Clcontrol$libLoc)
+      library(yaImpute, lib.loc=Clcontrol$libLoc)
+      library(drSpaceTime, lib.loc=Clcontrol$libLoc)
     },
     reduce = {
-      library(plyr, lib.loc=libLoc)
-      library(yaImpute, lib.loc=libLoc)
-      library(drSpaceTime, lib.loc=libLoc)
+      library(plyr, lib.loc=Clcontrol$libLoc)
+      library(yaImpute, lib.loc=Clcontrol$libLoc)
+      library(drSpaceTime, lib.loc=Clcontrol$libLoc)
     }
   )
   jobIn$parameters <- paras

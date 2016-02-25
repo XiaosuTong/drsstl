@@ -21,10 +21,10 @@
 #'     FileInput <- "/ln/tongx/Spatial/tmp/tmax/a1950/bymonth.fit/symmetric/direct/2/sp0.015.bystation"
 #'     FileOutput <- "/ln/tongx/Spatial/tmp/tmax/a1950/byseason"
 #'     \dontrun{
-#'       swaptoSeason(FileInput, FileOutput, reduceTask=10, control=spacetime.control(libLoc=.libPaths()))
+#'       swaptoSeason(FileInput, FileOutput, reduceTask=10, Clcontrol=mapreduce.control(libLoc=.libPaths()))
 #'     }
 
-swaptoSeason <- function(input, output, reduceTask=0, control=spacetime.control()) {
+swaptoSeason <- function(input, output, Clcontrol) {
 
   job <- list()
   job$map <- expression({
@@ -41,19 +41,18 @@ swaptoSeason <- function(input, output, reduceTask=0, control=spacetime.control(
     })
   })
   job$parameters <- list(
-    control = control
+    Clcontrol = Clcontrol
   )
   job$setup <- expression(
-    map = {library(plyr, lib.loc=control$libLoc)}
+    map = {library(plyr, lib.loc=Clcontrol$libLoc)}
   )
   job$mapred <- list(
-    mapred.reduce.tasks = reduceTask,  #cdh3,4
-    mapreduce.job.reduces = reduceTask,  #cdh5
+    mapred.reduce.tasks = Clcontrol$reduceTask,  #cdh3,4
+    mapreduce.job.reduces = Clcontrol$reduceTask,  #cdh5
     mapred.tasktimeout = 0, #cdh3,4
     mapreduce.task.timeout = 0, #cdh5
     rhipe_reduce_buff_size = 10000
   )
-  job$combiner <- TRUE
   job$input <- rhfmt(input, type="sequence")
   job$output <- rhfmt(output, type="sequence")
   job$mon.sec <- 20
