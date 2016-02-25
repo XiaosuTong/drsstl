@@ -8,7 +8,7 @@
 #' @importFrom stats frequency loess median predict quantile weighted.mean time
 #' @importFrom utils head stack tail
 #' @examples
-#'    smoothPara <- spacetime.control(vari="resp", cyctime="year", seaname="month", n=576, n.p=12, s.window = 13, t.window = 241, inner = 1)
+#'    smoothPara <- spacetime.control(vari="resp", cyctime="year", seaname="month", n=576, n.p=12, s.window = 13, t.window = 241, inner = 4)
 #'    \dontrun{
 #'      drstlplus(input="/ln/tongx/Spatial/tmp/tmax/test/bystation", output="/ln/tongx/Spatial/tmp/tmax/test/stlfit", model_control=smoothPara)
 #'    }
@@ -142,7 +142,7 @@ drstlplus <- function(input, output, model_control=spacetime.control()) {
 
     if (model_control$outer > 1) {
 
-    	FileOutput <- output
+    	FileOutput <- paste(input, "outer", sep = ".")
     	cluster_control <- mapreduce.control(reduceTask=10, libLoc = .libPaths())
       drSpaceTime::drrobust(input=FileInput, output=FileOutput, vari=model_control$vari, Clcontrol=cluster_control)
     
