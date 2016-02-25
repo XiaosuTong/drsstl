@@ -133,7 +133,7 @@ drinner <- function(Inner_input, Inner_output, n, n.p, vari, cyctime, seaname,
       Ctotal <- rbind(Ctotal, do.call("rbind", lapply(reduce.values, "[[", 2)))
     },
     post = {
-      combined <- plyr::arrange(combined, get(cyctime), get(seaname))
+      combined <- plyr::arrange(combined, get(cyctime), match(get(seaname), month.abb))
       Ctotal <- plyr::arrange(Ctotal, t)
       y_idx <- !is.na(combined[, vari])
       noNA <- all(y_idx)
