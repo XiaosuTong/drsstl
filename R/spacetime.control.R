@@ -57,7 +57,7 @@ spacetime.control <- function(vari, cyctime, seaname, n, n.p, s.window, s.degree
     t.window=t.window, t.degree= t.degree, t.jump=t.jump, t.blend= t.blend, 
     l.window=l.window, l.degree= l.degree, l.jump=l.jump, l.blend= l.blend,
     critfreq=critfreq, sub.labels=sub.labels, sub.start=sub.start, 
-    inner=inner, outer=outer, surface=match,arg(surface), 
+    inner=inner, outer=outer, surface=match.arg(surface), 
     iterations=iterations, infill=infill
   )
 
