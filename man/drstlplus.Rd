@@ -4,14 +4,19 @@
 \alias{drstlplus}
 \title{D&R Seasonal Trend Decomposition of Time Series by Loess}
 \usage{
-drstlplus(input, output, model_control = spacetime.control(),
-  cluster_control = mapredcue.control(), ...)
+drstlplus(input, output, model_control = spacetime.control())
 }
 \description{
 Decompose a time series into seasonal, trend and irregular components using \code{loess}, acronym STL. A new implementation of STL. Allows for NA values, local quadratic smoothing, post-trend smoothing, and endpoint blending. The usage is very similar to that of R's built-in \code{stl()}.
 }
 \note{
 This is a complete re-implementation of the STL algorithm, with the loess part in C and the rest in R. Moving a lot of the code to R makes it easier to experiment with the method at a very minimal speed cost. Recoding in C instead of using R's built-in loess results in better performance, especially for larger series.
+}
+\examples{
+   smoothPara <- spacetime.control(vari="resp", cyctime="year", seaname="month", n=576, n.p=12, s.window = 13, t.window = 241, inner = 1)
+   \dontrun{
+     drstlplus(input="/ln/tongx/Spatial/tmp/tmax/test/bystation", output="/ln/tongx/Spatial/tmp/tmax/test/stlfit")
+   }
 }
 \author{
 Xiaosu Tong, Ryan Hafen

@@ -7,6 +7,11 @@
 #' @note This is a complete re-implementation of the STL algorithm, with the loess part in C and the rest in R. Moving a lot of the code to R makes it easier to experiment with the method at a very minimal speed cost. Recoding in C instead of using R's built-in loess results in better performance, especially for larger series.
 #' @importFrom stats frequency loess median predict quantile weighted.mean time
 #' @importFrom utils head stack tail
+#' @examples
+#'    smoothPara <- spacetime.control(vari="resp", cyctime="year", seaname="month", n=576, n.p=12, s.window = 13, t.window = 241, inner = 1)
+#'    \dontrun{
+#'      drstlplus(input="/ln/tongx/Spatial/tmp/tmax/test/bystation", output="/ln/tongx/Spatial/tmp/tmax/test/stlfit")
+#'    }
 #' @export
 #' @rdname drstlplus
 drstlplus <- function(input, output, model_control=spacetime.control()) {

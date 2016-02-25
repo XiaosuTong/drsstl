@@ -4,7 +4,7 @@
 \alias{swaptoSeason}
 \title{Swap to division by season}
 \usage{
-swaptoSeason(input, output, reduceTask = 0, control = spacetime.control())
+swaptoSeason(input, output, Clcontrol)
 }
 \arguments{
 \item{input}{The path of input sequence file on HDFS. It should be by location.}
@@ -27,7 +27,7 @@ swaptoSeason is used for switch division by location to division by season.
     FileInput <- "/ln/tongx/Spatial/tmp/tmax/a1950/bymonth.fit/symmetric/direct/2/sp0.015.bystation"
     FileOutput <- "/ln/tongx/Spatial/tmp/tmax/a1950/byseason"
     \dontrun{
-      swaptoSeason(FileInput, FileOutput, reduceTask=10, control=spacetime.control(libLoc=.libPaths()))
+      swaptoSeason(FileInput, FileOutput, reduceTask=10, Clcontrol=mapreduce.control(libLoc=.libPaths()))
     }
 }
 \author{
