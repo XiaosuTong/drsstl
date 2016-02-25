@@ -1,154 +1,69 @@
-#' Seasonal Trend Decomposition of Time Series by Loess
+#' Inner loop of Seasonal Trend Decomposition of Time Series by Loess
 #'
-#' Decompose a time series into seasonal, trend and irregular components using \code{loess}, acronym STL. A new implementation of STL. Allows for NA values, local quadratic smoothing, post-trend smoothing, and endpoint blending. The usage is very similar to that of R's built-in \code{stl()}.
-#'
-#' @param input the HDFS path of input files
-#' @param output the HDFS path of output files
-#' @param vari variable name in string of the response variable
-#' @param cyctime variable name in string of time index in each subseries
-#' @param seaname variable name in string of the seasonal variable
-#' @param n the number of total observations
-#' @param n.p the number of observation in each subseries
-#' @param s.window either the character string \code{"periodic"} or the span (in lags) of the loess window for seasonal extraction, which should be odd. This has no default.
-#' @param s.degree degree of locally-fitted polynomial in seasonal extraction. Should be 0, 1, or 2.
-#' @param sub.labels optional vector of length n.p that contains the labels of the subseries in their natural order (such as month name, day of week, etc.), used for strip labels when plotting. All entries must be unique.
-#' @param sub.start which element of sub.labels does the series begin with. See details.
-#' @param zero.weight value to use as zero for zero weighting
-#' @param details if \code{TRUE}, returns a list of the results of all the intermediate iterations.
-#' @param s.jump,l.jump integers at least one to increase speed of the respective smoother. Linear interpolation happens between every \code{*.jump}th value.
-#' @param s.blend,l.blend vectors of proportion of blending to degree 0 polynomials at the endpoints of the series.
-#' @param reduceTask the number of reduce tasks
-#' @param spill.percent the threshold of percentage of memory of JVM that will triger the map to spill the output from memory to disk as a new spilled file
-#' @param io.sort the number in MB which is the memory buffer size for the map to write the output to.
-#' @param control a list contains some other parameters need for stlplus fit.
-#' @param \ldots additional parameters
-#' @details The seasonal component is found by \emph{loess} smoothing the seasonal sub-series (the series of all January values, \ldots); if \code{s.window = "periodic"} smoothing is effectively replaced by taking the mean. The seasonal values are removed, and the remainder smoothed to find the trend. The overall level is removed from the seasonal component and added to the trend component. This process is iterated a few times. The \code{remainder} component is the residuals from the seasonal plus trend fit.
-#'
+#' The inner loop of STL. A new implementation of STL. Allows for NA values, local quadratic smoothing, post-trend smoothing, and endpoint blending. The usage is very similar to that of R's built-in \code{stl()}.
+#' Allows seasonal fitting in parallel.
+#' 
+#' @param Inner_input 
+#'     the HDFS path of input files for inner loop
+#' @param Inner_output 
+#'     the HDFS path of output files for inner loop
+#' @param n
+#'     the number of all observation in the series
+#' @param n.p 
+#'     periodicity of the seasonal component. In R's \code{stl} function, this is the frequency of the time series.
+#' @param s.window 
+#'     either the character string \code{"periodic"} or the span (in lags) of the loess window for seasonal extraction, which should be odd. This has no default.
+#' @param s.degree 
+#'     degree of locally-fitted polynomial in seasonal extraction. Should be 0, 1, or 2.
+#' @param t.window 
+#'     the span (in lags) of the loess window for trend extraction, which should be odd. If \code{NULL}, the default, \code{nextodd(ceiling((1.5*period) / (1-(1.5/s.window))))}, is taken.
+#' @param t.degree 
+#'     degree of locally-fitted polynomial in trend extraction. Should be 0, 1, or 2.
+#' @param l.window 
+#'     the span (in lags) of the loess window of the low-pass filter used for each subseries. Defaults to the smallest odd integer greater than or equal to \code{n.p} which is recommended since it prevents competition between the trend and seasonal components. If not an odd integer its given value is increased to the next odd one.
+#' @param l.degree 
+#'     degree of locally-fitted polynomial for the subseries low-pass filter. Should be 0, 1, or 2.
+#' @param critfreq 
+#'     the critical frequency to use for automatic calculation of smoothing windows for the trend and high-pass filter.
+#' @param s.jump,t.jump,l.jump 
+#'     integers at least one to increase speed of the respective smoother. Linear interpolation happens between every \code{*.jump}th value.
+#' @param s.blend,t.blend,l.blend
+#'     vectors of proportion of blending to degree 0 polynomials at the endpoints of the series.
+#' @param sub.labels 
+#'     optional vector of length n.p that contains the labels of the subseries in their natural order (such as month name, day of week, etc.), used for strip labels when plotting. All entries must be unique.
+#' @param sub.start 
+#'     which element of sub.labels does the series begin with. See details.
+#' @param Clcontrol 
+#'     a list contains all tuning parameters for the mapreduce job.
+#' @param crtI
+#'     index of corrent inner loop
+#' @details 
+#'     The seasonal component is found by \emph{loess} smoothing the seasonal sub-series (the series of all January values, \ldots); if \code{s.window = "periodic"} smoothing is effectively replaced by taking the mean. The seasonal values are removed, and the remainder smoothed to find the trend. The overall level is removed from the seasonal component and added to the trend component. This process is iterated a few times. The \code{remainder} component is the residuals from the seasonal plus trend fit.
 #' Cycle-subseries labels are useful for plotting and can be specified through the sub.labels argument. Here is an example for how the sub.labels and sub.start parameters might be set for one situation. Suppose we have a daily series with n.p=7 (fitting a day-of-week component). Here, sub.labels could be set to c("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"). Now, if the series starts with a Wednesday value, then one would specify sub.labels=4, since Wednesday is the fourth element of sub.labels. This ensures that the labels in the plots to start the plotting with Sunday cycle-subseries instead of Wednesday.
-#' @return
-#' returns an object of class \code{"stlplus"}, containing
-#' \item{data}{data frame containing all of the components: \code{raw}, \code{seasonal}, \code{trend}, \code{remainder}, \code{weights}.}
-#' \item{pars}{list of parameters used in the procedure.}
-#' \item{fc.number}{number of post-trend frequency components fitted.}
-#' \item{fc}{data frame of the post-trend frequency components.}
-#' \item{time}{vector of time values corresponding to the raw values, if specified.}
-#' \item{n}{the number of observations.}
-#' \item{sub.labels}{the cycle-subseries labels.}
 #' @references R. B. Cleveland, W. S. Cleveland, J. E. McRae, and I. Terpenning (1990) STL: A Seasonal-Trend Decomposition Procedure Based on Loess. \emph{Journal of Official Statistics}, \bold{6}, 3--73.
 #' @author Xiaosu Tong, Ryan Hafen
 #' @note This is a complete re-implementation of the STL algorithm, with the loess part in C and the rest in R. Moving a lot of the code to R makes it easier to experiment with the method at a very minimal speed cost. Recoding in C instead of using R's built-in loess results in better performance, especially for larger series.
-#' @examples
-#'     FileInput <- "/ln/tongx/Spatial/tmp/tmax/a1950/byseason"
-#'     FileOutput <- "/ln/tongx/Spatial/tmp/tmax/a1950/byseason.season"
-#'     \dontrun{
-#'       drinner(input=FileInput, output=FileOutput, vari="resp", cyctime="year", seaname = "month", n=576, n.p=12, s.window=13, s.degree=1, t.window = 241, t.degree = 1, reduceTask=10, spill.percent = 0.85, io.sort = 256, control=spacetime.control(libLoc=.libPaths()))
-#'     }
 #' @importFrom stats frequency loess median predict quantile weighted.mean time
 #' @importFrom utils head stack tail
 #' @export
 #' @rdname drinner
-drinner <- function(input, output, infill = TRUE, vari, cyctime, seaname, n, n.p, s.window, 
-  s.degree = 1, s.jump = ceiling(s.window / 10), t.window = NULL, t.degree = 1, 
-  t.jump = ceiling(t.window / 10), t.blend = 0, l.window = NULL, 
-  l.degree = 1, l.jump = ceiling(l.window / 10), l.blend = 0, critfreq = 0.05, s.blend = 0, 
-  sub.labels = NULL, sub.start = 1, zero.weight = 1e-6, inner = 1, details = FALSE, 
-  reduceTask=0, spill.percent = 0.8, io.sort = 256, control=spacetime.control(), ...) {
+drinner <- function(Inner_input, Inner_output, n, n.p, vari, cyctime, seaname, 
+  s.window, s.degree, t.window, t.degree, l.window, l.degree,
+  s.jump, t.jump, l.jump, critfreq, s.blend, t.blend, l.blend, crtI, 
+  sub.labels, sub.start, infill, Clcontrol) {
 
-  nextodd <- function(x) {
-    x <- round(x)
-    x2 <- ifelse(x %% 2 == 0, x + 1, x)
-    # if(any(x != x2))
-    # warning("A smoothing span was not odd, was rounded to nearest odd. Check final object parameters to see which spans were used.")
-    as.integer(x2)
-  }
-
-  wincheck <- function(x) {
-    x <- nextodd(x)
-    if(any(x <= 0)) stop("Window lengths must be positive.")
-    x
-  }
-
-  degcheck <- function(x) {
-    if(! all(x == 0 | x == 1 | x == 2)) stop("Smoothing degree must be 0, 1, or 2")
-  }
-
-  get.t.window <- function(t.dg, s.dg, n.s, n.p, omega) {
-    if(t.dg == 0) t.dg <- 1
-    if(s.dg == 0) s.dg <- 1
-    
-    coefs_a <- data.frame(
-      a = c(0.000103350651767650, 3.81086166990428e-6),
-      b = c(-0.000216653946625270, 0.000708495976681902))
-    coefs_b <- data.frame(
-      a = c(1.42686036792937, 2.24089552678906),
-      b = c(-3.1503819836694, -3.30435316073732),
-      c = c(5.07481807116087, 5.08099438760489))
-    coefs_c <- data.frame(
-      a = c(1.66534145060448, 2.33114333880815),
-      b = c(-3.87719398039131, -1.8314816166323),
-      c = c(6.46952900183769, 1.85431548427732))
-    
-    # estimate critical frequency for seasonal
-    betac0 <- coefs_a$a[s.dg] + coefs_a$b[s.dg] * omega
-    betac1 <- coefs_b$a[s.dg] + coefs_b$b[s.dg] * omega + coefs_b$c[s.dg] * omega^2
-    betac2 <- coefs_c$a[s.dg] + coefs_c$b[s.dg] * omega + coefs_c$c[s.dg] * omega^2
-    f_c <- (1 - (betac0 + betac1 / n.s + betac2 / n.s^2)) / n.p
-    
-    # choose
-    betat0 <- coefs_a$a[t.dg] + coefs_a$b[t.dg] * omega
-    betat1 <- coefs_b$a[t.dg] + coefs_b$b[t.dg] * omega + coefs_b$c[t.dg] * omega^2
-    betat2 <- coefs_c$a[t.dg] + coefs_c$b[t.dg] * omega + coefs_c$c[t.dg] * omega^2
-    
-    betat00 <- betat0 - f_c
-    
-    n.t <- nextodd((-betat1 - sqrt(betat1^2 - 4 * betat00 * betat2)) / (2 * betat00))
-    n.t
-  }
-
-  periodic <- FALSE
-  if (is.character(s.window)) {
-    if (is.na(pmatch(s.window, "periodic")))
-      stop("unknown string value for s.window")
-    else {
-      periodic <- TRUE
-      s.window <- 10 * n + 1
-      s.degree <- 0
-      s.jump <- ceiling(s.window / 10)
-    }
-  } else {
-    s.window <- wincheck(s.window)
-  }
-
-  if(is.null(l.window)) {
-    l.window <- nextodd(n.p)
-  } else {
-    l.window <- wincheck(l.window)
-  }
-
-  if (is.null(t.window)) {
-    t.window <- get.t.window(t.degree, s.degree, s.window, n.p, critfreq)
-  } else {
-    t.window <- wincheck(t.window)
-  }
-
-  degcheck(s.degree)
-  degcheck(l.degree)
-  degcheck(t.degree)
-
-  if(is.null(s.jump) || length(s.jump)==0) s.jump <- ceiling(s.window / 10)
-  if(is.null(l.jump) || length(l.jump)==0) l.jump <- ceiling(l.window / 10)
-  if(is.null(t.jump) || length(t.jump)==0) t.jump <- ceiling(t.window / 10)
   # start and end indices for after adding in extra n.p before and after 
   st <- n.p + 1
   nd <- n + n.p
 
   # package the parameters into list
   paras <- list(
-  	vari = vari, cyctime = cyctime, seaname=seaname, n.p = n.p, n = n, st = st, nd = nd, 
-  	s.window = s.window, s.degree = s.degree, s.jump = s.jump, s.blend = s.blend, periodic = periodic, 
-  	l.window = l.window, l.degree = l.degree, l.jump = l.jump, l.blend = l.blend, inner = inner,
+    vari = vari, cyctime = cyctime, seaname = seaname, 
+    n.p = n.p, n = n, st = st, nd = nd, periodic = periodic,
+    s.window = s.window, s.degree = s.degree, s.jump = s.jump, s.blend = s.blend,  
+    l.window = l.window, l.degree = l.degree, l.jump = l.jump, l.blend = l.blend, 
     t.window = t.window, t.degree = t.degree, t.jump = t.jump, t.blend = t.blend,
-  	control = control, infill = infill
+    crtI = crtI, Clcontrol=Clcontrol, infill = infill, libLoc = Clcontrol$libLoc
   )
 
   # inner loop
@@ -169,7 +84,7 @@ drinner <- function(input, output, infill = TRUE, vari, cyctime, seaname, n, n.p
       }else {
         index <- match(map.keys[[r]][2], month.abb)
         value[, seaname] <- index
-        if (inner == 1) {
+        if (crtI == 1) {
           value$trend <- 0
           value$weight <- 1
         }  
@@ -239,27 +154,27 @@ drinner <- function(input, output, infill = TRUE, vari, cyctime, seaname, n, n.p
   )
   jobIn$setup <- expression(
     map = {
-      library(plyr, lib.loc=control$libLoc)
-      library(yaImpute, lib.loc=control$libLoc)
-      library(drSpaceTime, lib.loc=control$libLoc)
+      library(plyr, lib.loc=libLoc)
+      library(yaImpute, lib.loc=libLoc)
+      library(drSpaceTime, lib.loc=libLoc)
     },
     reduce = {
-      library(plyr, lib.loc=control$libLoc)
-      library(yaImpute, lib.loc=control$libLoc)
-      library(drSpaceTime, lib.loc=control$libLoc)
+      library(plyr, lib.loc=libLoc)
+      library(yaImpute, lib.loc=libLoc)
+      library(drSpaceTime, lib.loc=libLoc)
     }
   )
   jobIn$parameters <- paras
-  jobIn$input <- rhfmt(input, type = "sequence")
-  jobIn$output <- rhfmt(output, type = "sequence")
+  jobIn$input <- rhfmt(Inner_input, type = "sequence")
+  jobIn$output <- rhfmt(Inner_output, type = "sequence")
   jobIn$mapred <- list(
-    mapred.reduce.tasks = reduceTask,  #cdh3,4
-    mapreduce.job.reduces = reduceTask,  #cdh5
-    io.sort.mb = io.sort,
-    io.sort.spill.percent = spill.percent 
+    mapred.reduce.tasks = Clcontrol$reduceTask,  #cdh3,4
+    mapreduce.job.reduces = Clcontrol$reduceTask,  #cdh5
+    io.sort.mb = Clcontrol$io.sort,
+    io.sort.spill.percent = Clcontrol$spill.percent 
   )
   jobIn$readback <- FALSE
-  jobIn$jobname <- output
+  jobIn$jobname <- Inner_output
   job.mr <- do.call("rhwatch", jobIn)
 
 }

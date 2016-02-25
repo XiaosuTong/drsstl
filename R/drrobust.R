@@ -6,26 +6,29 @@
 #'     The path of input sequence file on HDFS. It should be by location division.
 #' @param output
 #'     The path of output sequence file on HDFS. It is by time division.
-#' @param seasonal
-#'     The number of the reduce tasks.
-#' @param trend
-#'     Logical argument, if TRUE, then the elevation attribute from input value data.frame is log2 transformation
-#'     If FALSE, a log2 transformation is added to the elevation attribute.
-#' @param zero.weight
-#'     all parameters that are needed for space-time fitting
+#' @param vari
+#'     variable name in string of the response variable
+#' @param reduceTask
+#'     The reduce task number, also the number of output files. If set to be 0, then there is no shuffle and sort stage after map.
+#' @param spill.percent
+#'     The threshold usage proportion for both the map output memory buffer and record boundaries index to start the process of spilling to disk.
+#' @param io.sort
+#'     The size, in megabytes, of the memory buffer to use while sorting map output.
+#' @param zero.weight 
+#'     value to use as zero for zero weighting
 #' @details
-#'     swaptoTime is used for switch division by location to division by time.
+#'     Calculate the robust weight for each location
 #' @author 
 #'     Xiaosu Tong 
 #' @examples
-#'     FileInput <- "/ln/tongx/Spatial/tmp/tmax/a1950/byseason.season"
+#'     FileInput <- "/ln/tongx/Spatial/tmp/tmax/a1950/byseason.inner"
 #'     FileOutput <- "/ln/tongx/Spatial/tmp/tmax/a1950/byseason.outer"
 #'     \dontrun{
 #'        drrobust(FileInput, FileOutput, vari="resp")
 #'     }
 #' @export
 
-drrobust <- function(input, output, vari, reduceTask=0, io.sort.mb=256, io.sort=256, spill.percent=0.85, zero.weight=1e-6) {
+drrobust <- function(input, output, vari, Clcontrol, zero.weight=1e-6) {
 
   jobW <- list()
   jobW$map <- expression({
@@ -52,10 +55,10 @@ drrobust <- function(input, output, vari, reduceTask=0, io.sort.mb=256, io.sort=
   jobW$input <- rhfmt(input, type = "sequence")
   jobW$output <- rhfmt(output, type = "sequence")
   jobW$mapred <- list(
-    mapred.reduce.tasks = reduceTask,  #cdh3,4
-    mapreduce.job.reduces = reduceTask,  #cdh5
-    io.sort.mb = io.sort,
-    io.sort.spill.percent = spill.percent 
+    mapred.reduce.tasks = Clcontrol$reduceTask,  #cdh3,4
+    mapreduce.job.reduces = Clcontrol$reduceTask,  #cdh5
+    io.sort.mb = Clcontrol$io.sort,
+    io.sort.spill.percent = Clcontrol$spill.percent 
   )
   jobW$readback <- FALSE
   jobW$jobname <- output

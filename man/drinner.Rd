@@ -2,85 +2,58 @@
 % Please edit documentation in R/drinner.R
 \name{drinner}
 \alias{drinner}
-\title{Seasonal Trend Decomposition of Time Series by Loess}
+\title{Inner loop of Seasonal Trend Decomposition of Time Series by Loess}
 \usage{
-drinner(input, output, infill = TRUE, vari, cyctime, seaname, n, n.p,
-  s.window, s.degree = 1, s.jump = ceiling(s.window/10), t.window = NULL,
-  t.degree = 1, t.jump = ceiling(t.window/10), t.blend = 0,
-  l.window = NULL, l.degree = 1, l.jump = ceiling(l.window/10),
-  l.blend = 0, critfreq = 0.05, s.blend = 0, sub.labels = NULL,
-  sub.start = 1, zero.weight = 1e-06, inner = 1, details = FALSE,
-  reduceTask = 0, spill.percent = 0.8, io.sort = 256,
-  control = spacetime.control(), ...)
+drinner(Inner_input, Inner_output, n, n.p, vari, cyctime, seaname, s.window,
+  s.degree, t.window, t.degree, l.window, l.degree, s.jump, t.jump, l.jump,
+  critfreq, s.blend, t.blend, l.blend, crtI, sub.labels, sub.start, infill,
+  Clcontrol)
 }
 \arguments{
-\item{input}{the HDFS path of input files}
+\item{Inner_input}{the HDFS path of input files for inner loop}
 
-\item{output}{the HDFS path of output files}
+\item{Inner_output}{the HDFS path of output files for inner loop}
 
-\item{vari}{variable name in string of the response variable}
+\item{n}{the number of all observation in the series}
 
-\item{cyctime}{variable name in string of time index in each subseries}
-
-\item{seaname}{variable name in string of the seasonal variable}
-
-\item{n}{the number of total observations}
-
-\item{n.p}{the number of observation in each subseries}
+\item{n.p}{periodicity of the seasonal component. In R's \code{stl} function, this is the frequency of the time series.}
 
 \item{s.window}{either the character string \code{"periodic"} or the span (in lags) of the loess window for seasonal extraction, which should be odd. This has no default.}
 
 \item{s.degree}{degree of locally-fitted polynomial in seasonal extraction. Should be 0, 1, or 2.}
 
-\item{s.jump, l.jump}{integers at least one to increase speed of the respective smoother. Linear interpolation happens between every \code{*.jump}th value.}
+\item{t.window}{the span (in lags) of the loess window for trend extraction, which should be odd. If \code{NULL}, the default, \code{nextodd(ceiling((1.5*period) / (1-(1.5/s.window))))}, is taken.}
 
-\item{s.blend, l.blend}{vectors of proportion of blending to degree 0 polynomials at the endpoints of the series.}
+\item{t.degree}{degree of locally-fitted polynomial in trend extraction. Should be 0, 1, or 2.}
+
+\item{l.window}{the span (in lags) of the loess window of the low-pass filter used for each subseries. Defaults to the smallest odd integer greater than or equal to \code{n.p} which is recommended since it prevents competition between the trend and seasonal components. If not an odd integer its given value is increased to the next odd one.}
+
+\item{l.degree}{degree of locally-fitted polynomial for the subseries low-pass filter. Should be 0, 1, or 2.}
+
+\item{s.jump, t.jump, l.jump}{integers at least one to increase speed of the respective smoother. Linear interpolation happens between every \code{*.jump}th value.}
+
+\item{critfreq}{the critical frequency to use for automatic calculation of smoothing windows for the trend and high-pass filter.}
+
+\item{s.blend, t.blend, l.blend}{vectors of proportion of blending to degree 0 polynomials at the endpoints of the series.}
+
+\item{crtI}{index of corrent inner loop}
 
 \item{sub.labels}{optional vector of length n.p that contains the labels of the subseries in their natural order (such as month name, day of week, etc.), used for strip labels when plotting. All entries must be unique.}
 
 \item{sub.start}{which element of sub.labels does the series begin with. See details.}
 
-\item{zero.weight}{value to use as zero for zero weighting}
-
-\item{details}{if \code{TRUE}, returns a list of the results of all the intermediate iterations.}
-
-\item{reduceTask}{the number of reduce tasks}
-
-\item{spill.percent}{the threshold of percentage of memory of JVM that will triger the map to spill the output from memory to disk as a new spilled file}
-
-\item{io.sort}{the number in MB which is the memory buffer size for the map to write the output to.}
-
-\item{control}{a list contains some other parameters need for stlplus fit.}
-
-\item{\ldots}{additional parameters}
-}
-\value{
-returns an object of class \code{"stlplus"}, containing
-\item{data}{data frame containing all of the components: \code{raw}, \code{seasonal}, \code{trend}, \code{remainder}, \code{weights}.}
-\item{pars}{list of parameters used in the procedure.}
-\item{fc.number}{number of post-trend frequency components fitted.}
-\item{fc}{data frame of the post-trend frequency components.}
-\item{time}{vector of time values corresponding to the raw values, if specified.}
-\item{n}{the number of observations.}
-\item{sub.labels}{the cycle-subseries labels.}
+\item{Clcontrol}{a list contains all tuning parameters for the mapreduce job.}
 }
 \description{
-Decompose a time series into seasonal, trend and irregular components using \code{loess}, acronym STL. A new implementation of STL. Allows for NA values, local quadratic smoothing, post-trend smoothing, and endpoint blending. The usage is very similar to that of R's built-in \code{stl()}.
+The inner loop of STL. A new implementation of STL. Allows for NA values, local quadratic smoothing, post-trend smoothing, and endpoint blending. The usage is very similar to that of R's built-in \code{stl()}.
+Allows seasonal fitting in parallel.
 }
 \details{
 The seasonal component is found by \emph{loess} smoothing the seasonal sub-series (the series of all January values, \ldots); if \code{s.window = "periodic"} smoothing is effectively replaced by taking the mean. The seasonal values are removed, and the remainder smoothed to find the trend. The overall level is removed from the seasonal component and added to the trend component. This process is iterated a few times. The \code{remainder} component is the residuals from the seasonal plus trend fit.
-
 Cycle-subseries labels are useful for plotting and can be specified through the sub.labels argument. Here is an example for how the sub.labels and sub.start parameters might be set for one situation. Suppose we have a daily series with n.p=7 (fitting a day-of-week component). Here, sub.labels could be set to c("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"). Now, if the series starts with a Wednesday value, then one would specify sub.labels=4, since Wednesday is the fourth element of sub.labels. This ensures that the labels in the plots to start the plotting with Sunday cycle-subseries instead of Wednesday.
 }
 \note{
 This is a complete re-implementation of the STL algorithm, with the loess part in C and the rest in R. Moving a lot of the code to R makes it easier to experiment with the method at a very minimal speed cost. Recoding in C instead of using R's built-in loess results in better performance, especially for larger series.
-}
-\examples{
-    FileInput <- "/ln/tongx/Spatial/tmp/tmax/a1950/byseason"
-    FileOutput <- "/ln/tongx/Spatial/tmp/tmax/a1950/byseason.season"
-    \dontrun{
-      drinner(input=FileInput, output=FileOutput, vari="resp", cyctime="year", seaname = "month", n=576, n.p=12, s.window=13, s.degree=1, t.window = 241, t.degree = 1, reduceTask=10, spill.percent = 0.85, io.sort = 256, control=spacetime.control(libLoc=.libPaths()))
-    }
 }
 \author{
 Xiaosu Tong, Ryan Hafen

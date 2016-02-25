@@ -4,31 +4,34 @@
 \alias{drrobust}
 \title{Calculate the robust weight for STL}
 \usage{
-drrobust(input, output, vari, zero.weight)
+drrobust(input, output, vari, Clcontrol, zero.weight = 1e-06)
 }
 \arguments{
 \item{input}{The path of input sequence file on HDFS. It should be by location division.}
 
 \item{output}{The path of output sequence file on HDFS. It is by time division.}
 
-\item{zero.weight}{all parameters that are needed for space-time fitting}
+\item{vari}{variable name in string of the response variable}
 
-\item{seasonal}{The number of the reduce tasks.}
+\item{zero.weight}{value to use as zero for zero weighting}
 
-\item{trend}{Logical argument, if TRUE, then the elevation attribute from input value data.frame is log2 transformation
-If FALSE, a log2 transformation is added to the elevation attribute.}
+\item{reduceTask}{The reduce task number, also the number of output files. If set to be 0, then there is no shuffle and sort stage after map.}
+
+\item{spill.percent}{The threshold usage proportion for both the map output memory buffer and record boundaries index to start the process of spilling to disk.}
+
+\item{io.sort}{The size, in megabytes, of the memory buffer to use while sorting map output.}
 }
 \description{
 Calculate the robust weight for each observation of the time series
 }
 \details{
-swaptoTime is used for switch division by location to division by time.
+Calculate the robust weight for each location
 }
 \examples{
-    FileInput <- "/ln/tongx/Spatial/tmp/tmax/a1950/byseason.season"
+    FileInput <- "/ln/tongx/Spatial/tmp/tmax/a1950/byseason.inner"
     FileOutput <- "/ln/tongx/Spatial/tmp/tmax/a1950/byseason.outer"
     \dontrun{
-       drrobust(FileInput, FileOutput, vari="resp", zero.weight=)
+       drrobust(FileInput, FileOutput, vari="resp")
     }
 }
 \author{
