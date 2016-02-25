@@ -83,7 +83,7 @@ drinner <- function(Inner_input, Inner_output, n, n.p, vari, cyctime, seaname,
         stop("at least one of subseries does not have enough observations")
       }else {
         index <- match(map.keys[[r]][2], month.abb)
-        value[, seaname] <- index
+        value[, seaname] <- map.keys[[r]][2]
         if (crtI == 1) {
           value$trend <- 0
           value$weight <- 1
