@@ -132,7 +132,7 @@ drstlplus <- function(input, output, model_control=spacetime.control()) {
         l.window = l.window, l.degree = l.degree,
         periodic = periodic, s.jump = s.jump, t.jump = t.jump, l.jump = l.jump, critfreq = 0.05,
         s.blend = model_control$s.blend, t.blend = model_control$t.blend, l.blend = model_control$l.blend,  
-        crtI = i, sub.labels = model_control$sub.labels, sub.start = model_control$sub.start, 
+        crtI = i, crtO = o, sub.labels = model_control$sub.labels, sub.start = model_control$sub.start, 
         infill= model_control$infill, Clcontrol=cluster_control
       )
       

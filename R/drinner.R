@@ -49,7 +49,7 @@
 #' @rdname drinner
 drinner <- function(Inner_input, Inner_output, n, n.p, vari, cyctime, seaname, 
   s.window, s.degree, t.window, t.degree, l.window, l.degree, periodic,
-  s.jump, t.jump, l.jump, critfreq, s.blend, t.blend, l.blend, crtI, 
+  s.jump, t.jump, l.jump, critfreq, s.blend, t.blend, l.blend, crtI, crtO,
   sub.labels, sub.start, infill, Clcontrol) {
 
   # start and end indices for after adding in extra n.p before and after 
@@ -63,7 +63,7 @@ drinner <- function(Inner_input, Inner_output, n, n.p, vari, cyctime, seaname,
     s.window = s.window, s.degree = s.degree, s.jump = s.jump, s.blend = s.blend,  
     l.window = l.window, l.degree = l.degree, l.jump = l.jump, l.blend = l.blend, 
     t.window = t.window, t.degree = t.degree, t.jump = t.jump, t.blend = t.blend,
-    crtI = crtI, Clcontrol=Clcontrol, infill = infill
+    crtI = crtI, crtO = crtO, Clcontrol=Clcontrol, infill = infill
   )
 
   # inner loop
@@ -71,7 +71,7 @@ drinner <- function(Inner_input, Inner_output, n, n.p, vari, cyctime, seaname,
   jobIn$map <- expression({
     lapply(seq_along(map.keys), function(r) {
       value <- plyr::arrange(map.values[[r]], get(cyctime))
-      if(infill & crtI == 1) {
+      if(infill & crtI == 1 & crtO == 1) {
         Index <- which(is.na(value[, vari]))
         value[Index, vari] <- value$fitted[Index]
         value$flag <- 1
