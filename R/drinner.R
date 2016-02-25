@@ -48,7 +48,7 @@
 #' @export
 #' @rdname drinner
 drinner <- function(Inner_input, Inner_output, n, n.p, vari, cyctime, seaname, 
-  s.window, s.degree, t.window, t.degree, l.window, l.degree,
+  s.window, s.degree, t.window, t.degree, l.window, l.degree, periodic,
   s.jump, t.jump, l.jump, critfreq, s.blend, t.blend, l.blend, crtI, 
   sub.labels, sub.start, infill, Clcontrol) {
 

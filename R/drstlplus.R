@@ -10,7 +10,7 @@
 #' @examples
 #'    smoothPara <- spacetime.control(vari="resp", cyctime="year", seaname="month", n=576, n.p=12, s.window = 13, t.window = 241, inner = 1)
 #'    \dontrun{
-#'      drstlplus(input="/ln/tongx/Spatial/tmp/tmax/test/bystation", output="/ln/tongx/Spatial/tmp/tmax/test/stlfit")
+#'      drstlplus(input="/ln/tongx/Spatial/tmp/tmax/test/bystation", output="/ln/tongx/Spatial/tmp/tmax/test/stlfit", model_control=smoothPara)
 #'    }
 #' @export
 #' @rdname drstlplus
@@ -130,7 +130,7 @@ drstlplus <- function(input, output, model_control=spacetime.control()) {
         s.window = s.window, s.degree = s.degree, 
         t.window = t.window, t.degree = t.degree,
         l.window = l.window, l.degree = l.degree,
-        s.jump = s.jump, t.jump = t.jump, l.jump = l.jump, critfreq = 0.05,
+        periodic = periodic, s.jump = s.jump, t.jump = t.jump, l.jump = l.jump, critfreq = 0.05,
         s.blend = model_control$s.blend, t.blend = model_control$t.blend, l.blend = model_control$l.blend,  
         crtI = i, sub.labels = model_control$sub.labels, sub.start = model_control$sub.start, 
         infill= model_control$infill, Clcontrol=cluster_control
