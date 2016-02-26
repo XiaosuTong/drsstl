@@ -115,13 +115,13 @@ drstlplus <- function(input, output, model_control=spacetime.control()) {
     for (i in 1:model_control$inner) {
       
       FileOutput <- paste(input, "byseason", sep = ".")
-      cluster_control <- mapreduce.control(reduceTask=10, libLoc = .libPaths())
+      cluster_control <- mapreduce.control(reduceTask=100, libLoc = .libPaths())
       
       drSpaceTime::swaptoSeason(input=FileInput, output=FileOutput, Clcontrol=cluster_control)
       
       FileInput <- FileOutput
       FileOutput <- output
-      cluster_control <- mapreduce.control(reduceTask=10, libLoc = .libPaths())
+      cluster_control <- mapreduce.control(reduceTask=100, libLoc = .libPaths())
 
       drSpaceTime::drinner(
         Inner_input=FileInput, Inner_output=FileOutput, 
@@ -143,7 +143,7 @@ drstlplus <- function(input, output, model_control=spacetime.control()) {
     if (model_control$outer > 1) {
 
     	FileOutput <- paste(input, "outer", sep = ".")
-    	cluster_control <- mapreduce.control(reduceTask=10, libLoc = .libPaths())
+    	cluster_control <- mapreduce.control(reduceTask=100, libLoc = .libPaths())
       drSpaceTime::drrobust(input=FileInput, output=FileOutput, vari=model_control$vari, Clcontrol=cluster_control)
     
       FileInput <- FileOutput
