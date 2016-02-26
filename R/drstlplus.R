@@ -8,9 +8,9 @@
 #' @importFrom stats frequency loess median predict quantile weighted.mean time
 #' @importFrom utils head stack tail
 #' @examples
-#'    smoothPara <- spacetime.control(vari="resp", cyctime="year", seaname="month", n=576, n.p=12, s.window = 13, t.window = 241, inner = 4)
+#'    smoothPara <- spacetime.control(vari="resp", time="date", seaname="month", n=576, n.p=12, s.window = 13, t.window = 241, inner = 4)
 #'    \dontrun{
-#'      drstlplus(input="/ln/tongx/Spatial/tmp/tmax/test/bystation", output="/ln/tongx/Spatial/tmp/tmax/test/stlfit", model_control=smoothPara)
+#'      drstlplus(input="/ln/tongx/Spatial/tmp/tmax/simulate/bystation", output="/ln/tongx/Spatial/tmp/tmax/simulate/stlfit", model_control=smoothPara)
 #'    }
 #' @export
 #' @rdname drstlplus

@@ -70,7 +70,7 @@ drinner <- function(Inner_input, Inner_output, n, n.p, vari, time, seaname,
   jobIn <- list()
   jobIn$map <- expression({
     lapply(seq_along(map.keys), function(r) {
-      value <- plyr::arrange(map.values[[r]], get(cyctime))
+      value <- plyr::arrange(map.values[[r]], get(time))
       if(infill & crtI == 1 & crtO == 1) {
         Index <- which(is.na(value[, vari]))
         value[Index, vari] <- value$fitted[Index]
