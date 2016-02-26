@@ -58,6 +58,7 @@ drrobust <- function(input, output, vari, Clcontrol, zero.weight=1e-6) {
     mapred.reduce.tasks = Clcontrol$reduceTask,  #cdh3,4
     mapreduce.job.reduces = Clcontrol$reduceTask,  #cdh5
     io.sort.mb = Clcontrol$io.sort,
+    rhipe_reduce_buff_size = 10000,
     io.sort.spill.percent = Clcontrol$spill.percent 
   )
   jobW$readback <- FALSE

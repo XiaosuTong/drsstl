@@ -170,6 +170,8 @@ drinner <- function(Inner_input, Inner_output, n, n.p, vari, time, seaname,
   jobIn$mapred <- list(
     mapred.reduce.tasks = Clcontrol$reduceTask,  #cdh3,4
     mapreduce.job.reduces = Clcontrol$reduceTask,  #cdh5
+    mapred.tasktimeout = 0,
+    rhipe_reduce_buff_size = 10000,
     io.sort.mb = Clcontrol$io.sort,
     io.sort.spill.percent = Clcontrol$spill.percent 
   )
