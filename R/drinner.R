@@ -109,7 +109,7 @@ drinner <- function(Inner_input, Inner_output, n, n.p, vari, time, seaname,
             jump = s.jump, at = c(0:(cycleSub.length + 1))
           ) 
         }
-        Cdf <- data.frame(C = C, t = as.numeric(c(cs1, value[, ctime], cs2)))
+        Cdf <- data.frame(C = C, t = as.numeric(c(cs1, value[, time], cs2)))
         rhcollect(map.keys[[r]][1], list(value, Cdf))
       }
     })
