@@ -47,7 +47,7 @@
 #' @importFrom utils head stack tail
 #' @export
 #' @rdname drinner
-drinner <- function(Inner_input, Inner_output, n, n.p, vari, cyctime, seaname, 
+drinner <- function(Inner_input, Inner_output, n, n.p, vari, time, seaname, 
   s.window, s.degree, t.window, t.degree, l.window, l.degree, periodic,
   s.jump, t.jump, l.jump, critfreq, s.blend, t.blend, l.blend, crtI, crtO,
   sub.labels, sub.start, infill, Clcontrol) {
@@ -58,7 +58,7 @@ drinner <- function(Inner_input, Inner_output, n, n.p, vari, cyctime, seaname,
 
   # package the parameters into list
   paras <- list(
-    vari = vari, cyctime = cyctime, seaname = seaname, 
+    vari = vari, time = time, seaname = seaname, 
     n.p = n.p, n = n, st = st, nd = nd, periodic = periodic,
     s.window = s.window, s.degree = s.degree, s.jump = s.jump, s.blend = s.blend,  
     l.window = l.window, l.degree = l.degree, l.jump = l.jump, l.blend = l.blend, 
@@ -94,8 +94,8 @@ drinner <- function(Inner_input, Inner_output, n, n.p, vari, cyctime, seaname,
         # detrending
         cycleSub <- cycleSub - value$trend
 
-        cs1 <- as.numeric(head(value[, cyctime], 1)) - 1
-        cs2 <- as.numeric(tail(value[, cyctime], 1)) + 1  
+        cs1 <- as.numeric(head(value[, time], 1)) - 12
+        cs2 <- as.numeric(tail(value[, time], 1)) + 12 
 
         if (periodic) {
           C <- rep(weighted.mean(cycleSub, w = value$weight, na.rm = TRUE), cycleSub.length + 2)
@@ -109,7 +109,7 @@ drinner <- function(Inner_input, Inner_output, n, n.p, vari, cyctime, seaname,
             jump = s.jump, at = c(0:(cycleSub.length + 1))
           ) 
         }
-        Cdf <- data.frame(C = C, t = as.numeric(c(cs1, value[, cyctime], cs2)) + index/12.5)
+        Cdf <- data.frame(C = C, t = as.numeric(c(cs1, value[, ctime], cs2)))
         rhcollect(map.keys[[r]][1], list(value, Cdf))
       }
     })
@@ -133,7 +133,7 @@ drinner <- function(Inner_input, Inner_output, n, n.p, vari, cyctime, seaname,
       Ctotal <- rbind(Ctotal, do.call("rbind", lapply(reduce.values, "[[", 2)))
     },
     post = {
-      combined <- plyr::arrange(combined, get(cyctime), match(get(seaname), month.abb))
+      combined <- plyr::arrange(combined, get(time))
       Ctotal <- plyr::arrange(Ctotal, t)
       y_idx <- !is.na(combined[, vari])
       noNA <- all(y_idx)

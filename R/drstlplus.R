@@ -125,8 +125,8 @@ drstlplus <- function(input, output, model_control=spacetime.control()) {
 
       drSpaceTime::drinner(
         Inner_input=FileInput, Inner_output=FileOutput, 
-        n=model_control$n, n.p=model_control$n.p, vari=model_control$vari, cyctime=model_control$cyctime, 
-        seaname=model_control$seaname, 
+        n=model_control$n, n.p=model_control$n.p, vari=model_control$vari, 
+        time=model_control$time, seaname=model_control$seaname, 
         s.window = s.window, s.degree = s.degree, 
         t.window = t.window, t.degree = t.degree,
         l.window = l.window, l.degree = l.degree,

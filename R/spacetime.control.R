@@ -3,8 +3,8 @@
 #'  Set control parameters for drSpaceTime fits
 #' @param vari 
 #'     variable name in string of the response variable
-#' @param cyctime 
-#'     variable name in string of time index in each subseries
+#' @param time 
+#'     variable name in string of time index of the whole time series
 #' @param seaname 
 #'     variable name in string of the seasonal variable
 #' @param n 
@@ -45,14 +45,14 @@
 #' @examples
 #'     spacetime.control()
 
-spacetime.control <- function(vari, cyctime, seaname, n, n.p, s.window, s.degree = 1,
+spacetime.control <- function(vari, time, seaname, n, n.p, s.window, s.degree = 1,
   s.jump = ceiling(s.window / 10), t.window = NULL, t.degree = 1, t.jump = ceiling(t.window / 10),
   t.blend = 0, l.window = NULL, l.degree = t.degree, l.jump = ceiling(l.window / 10), l.blend = 0,
   critfreq = 0.05, s.blend = 0, sub.labels = NULL, sub.start = 1, inner=4, outer=1, 
   surface = c("interpolate", "direct"), iterations = 1, infill = TRUE) {
   
   list(
-    vari=vari, cyctime=cyctime, seaname=seaname, n=n, n.p=n.p, 
+    vari=vari, time=time, seaname=seaname, n=n, n.p=n.p, 
     s.window=s.window, s.degree=s.degree, s.jump=s.jump, s.blend=s.blend, 
     t.window=t.window, t.degree= t.degree, t.jump=t.jump, t.blend= t.blend, 
     l.window=l.window, l.degree= l.degree, l.jump=l.jump, l.blend= l.blend,
