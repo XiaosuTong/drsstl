@@ -84,7 +84,7 @@ drinner <- function(Inner_input, Inner_output, n, n.p, vari, cyctime, seaname,
       }else {
         index <- match(map.keys[[r]][2], month.abb)
         value[, seaname] <- map.keys[[r]][2]
-        if (crtI == 1) {
+        if (crtI == 1 & crtO == 1) {
           value$trend <- 0
           value$weight <- 1
         }  
