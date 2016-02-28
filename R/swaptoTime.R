@@ -67,7 +67,7 @@ swaptoTime <- function(input, output, control=mapreduce.control()) {
     mapreduce.reduce.shuffle.parallelcopies = control$parallelcopies,
     mapreduce.reduce.merge.inmem.threshold = control$reduce_merge_inmem,
     mapreduce.reduce.input.buffer.percent = control$reduce_input_buffer,
-    mapred.tasktimeout = 0,
+    mapreduce.task.timeout  = 0,
     rhipe_reduce_buff_size = control$reduce_buff_size
   )
   job$combiner <- TRUE
