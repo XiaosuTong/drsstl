@@ -30,12 +30,17 @@
 #' @examples
 #'     mapreduce.control()
 
-mapreduce.control <- function(reduceTask=0, spill.percent = 0.8, io.sort = 256, libLoc = NULL) {
+mapreduce.control <- function(
+  reduceTask=0, libLoc = NULL, 
+  spill_percent = 0.8, io_sort = 100, task_io_sort_factor = 10,
+  reduce_parallelcopies = 5, reduce_shuffle_input_buffer_percent = 0.70,
+  reduce_shuffle_merge_percent = 0.66, reduce_merge_inmem = 1000,
+  reduce_input_buffer_percent = 0) {
   
   list(
-  	reduceTask = reduceTask, libLoc=libLoc,
-  	# three parameters control the map spill stage 
-  	spill_percent = spill_percent, io_sort = io_sort, task_io_sort_factor = task_io_sort_factor,
+    reduceTask = reduceTask, libLoc=libLoc,
+    # three parameters control the map spill stage 
+    spill_percent = spill_percent, io_sort = io_sort, task_io_sort_factor = task_io_sort_factor,
     # mapreduce.reduce.shuffle.parallelcopies
     reduce_parallelcopies = reduce_parallelcopies,
     # mapreduce.reduce.shuffle.input.buffer.percent

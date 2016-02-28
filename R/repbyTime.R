@@ -7,29 +7,33 @@
 #'     The path of input sequence file on HDFS. It should be by location division.
 #' @param output
 #'     The path of output sequence file on HDFS. It is by location division but duplicate the time series to be longer.
-#' @param reduceTask
-#'     The number of the reduce tasks.
 #' @param Rep
 #'     The replication time for the time series of each location
+#' @param control
+#'     A list contains all mapreduce tuning parameters.
 #' @details
-#'     swaptoTime is used for switch division by location to division by time.
+#'     repbyoTime is used for duplicate the time series at each location.
 #' @author 
 #'     Xiaosu Tong 
 #' @export
 
-repbyTime <- function(input, output, Rep=8000, reduceTask, control=spacetime.control()){
+repbyTime <- function(input, output, Rep=5800, control=mapreduce.control()){
 
   job <- list()
   job$map <- expression({
     lapply(seq_along(map.keys), function(r) {
-      value <- rdply(Rep, arrange(map.values[[r]], year, match(month, month.abb)), .id=NA)
+      Index <- which(is.na(map.values[[r]]$resp))
+      map.values[[r]][Index, "resp"] <- map.values[[r]]$fitted[Index]
+      value <- subset(arrange(map.values[[r]], year, match(month, month.abb)), select = -c(fitted, year))
+      value <- rdply(Rep, value, .id=NULL)
       value$date <- 1:nrow(value)
-      value <- subset(value, select=-c(.n))
+      row.names(value) <- NULL
+      attr(value, "loc") <- attributes(map.values[[r]])$loc
       rhcollect(map.keys[[r]], value)
     })
   })
   job$setup <- expression(
-    map = {library(plyr, lib.loc=control$libLoc)}
+    map = {suppressMessages(library(plyr, lib.loc=control$libLoc))}
   )
   job$parameters <- list(
     control = control,
@@ -38,11 +42,16 @@ repbyTime <- function(input, output, Rep=8000, reduceTask, control=spacetime.con
   job$input <- rhfmt(input, type = "sequence")
   job$output <- rhfmt(output, type = "sequence")
   job$mapred <- list(
-    mapred.reduce.tasks = reduceTask,  #cdh3,4
-    mapreduce.job.reduces = reduceTask,  #cdh5
-    #rhipe_map_buff_size = buffSize
+    mapred.reduce.tasks = control$reduceTask,  #cdh3,4
+    mapreduce.job.reduces = control$reduceTask,  #cdh5
+    mapreduce.task.io.sort.mb = control$io_sort,
+    mapreduce.map.sort.spill.percent = control$spill_percent,
+    mapreduce.reduce.shuffle.parallelcopies = control$parallelcopies,
+    mapreduce.reduce.merge.inmem.threshold = control$reduce_merge_inmem,
+    mapreduce.reduce.input.buffer.percent = control$reduce_input_buffer,
+    mapred.tasktimeout = 0
   )
-  job$mon.sec <- 20
+  job$mon.sec <- 10
   job$jobname <- output  
   job$readback <- FALSE
   job.mr <- do.call("rhwatch", job)
