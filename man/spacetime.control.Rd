@@ -4,7 +4,7 @@
 \alias{spacetime.control}
 \title{Set parameter for drSpaceTime fitting}
 \usage{
-spacetime.control(vari, cyctime, seaname, n, n.p, s.window, s.degree = 1,
+spacetime.control(vari, time, seaname, n, n.p, s.window, s.degree = 1,
   s.jump = ceiling(s.window/10), t.window = NULL, t.degree = 1,
   t.jump = ceiling(t.window/10), t.blend = 0, l.window = NULL,
   l.degree = t.degree, l.jump = ceiling(l.window/10), l.blend = 0,
@@ -15,7 +15,7 @@ spacetime.control(vari, cyctime, seaname, n, n.p, s.window, s.degree = 1,
 \arguments{
 \item{vari}{variable name in string of the response variable}
 
-\item{cyctime}{variable name in string of time index in each subseries}
+\item{time}{variable name in string of time index of the whole time series}
 
 \item{seaname}{variable name in string of the seasonal variable}
 

@@ -13,9 +13,9 @@ Decompose a time series into seasonal, trend and irregular components using \cod
 This is a complete re-implementation of the STL algorithm, with the loess part in C and the rest in R. Moving a lot of the code to R makes it easier to experiment with the method at a very minimal speed cost. Recoding in C instead of using R's built-in loess results in better performance, especially for larger series.
 }
 \examples{
-   smoothPara <- spacetime.control(vari="resp", cyctime="year", seaname="month", n=576, n.p=12, s.window = 13, t.window = 241, inner = 1)
+   smoothPara <- spacetime.control(vari="resp", time="date", seaname="month", n=576, n.p=12, s.window = 13, t.window = 241, infill=FALSE, inner = 4)
    \dontrun{
-     drstlplus(input="/ln/tongx/Spatial/tmp/tmax/test/bystation", output="/ln/tongx/Spatial/tmp/tmax/test/stlfit")
+     drstlplus(input="/ln/tongx/Spatial/tmp/tmax/simulate/bystation", output="/ln/tongx/Spatial/tmp/tmax/simulate/stlfit", model_control=smoothPara)
    }
 }
 \author{

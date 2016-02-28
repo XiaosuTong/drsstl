@@ -4,10 +4,10 @@
 \alias{drinner}
 \title{Inner loop of Seasonal Trend Decomposition of Time Series by Loess}
 \usage{
-drinner(Inner_input, Inner_output, n, n.p, vari, cyctime, seaname, s.window,
-  s.degree, t.window, t.degree, l.window, l.degree, s.jump, t.jump, l.jump,
-  critfreq, s.blend, t.blend, l.blend, crtI, sub.labels, sub.start, infill,
-  Clcontrol)
+drinner(Inner_input, Inner_output, n, n.p, vari, time, seaname, s.window,
+  s.degree, t.window, t.degree, l.window, l.degree, periodic, s.jump, t.jump,
+  l.jump, critfreq, s.blend, t.blend, l.blend, crtI, crtO, sub.labels,
+  sub.start, infill, Clcontrol)
 }
 \arguments{
 \item{Inner_input}{the HDFS path of input files for inner loop}

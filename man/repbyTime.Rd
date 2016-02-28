@@ -4,8 +4,7 @@
 \alias{repbyTime}
 \title{Swap to division by time}
 \usage{
-repbyTime(input, output, Rep = 8000, reduceTask,
-  control = spacetime.control())
+repbyTime(input, output, Rep = 5800, control = mapreduce.control())
 }
 \arguments{
 \item{input}{The path of input sequence file on HDFS. It should be by location division.}
@@ -14,14 +13,14 @@ repbyTime(input, output, Rep = 8000, reduceTask,
 
 \item{Rep}{The replication time for the time series of each location}
 
-\item{reduceTask}{The number of the reduce tasks.}
+\item{control}{A list contains all mapreduce tuning parameters.}
 }
 \description{
 Switch input key-value pairs which is division by location
 to the key-value pairs which is division by time.
 }
 \details{
-swaptoTime is used for switch division by location to division by time.
+repbyoTime is used for duplicate the time series at each location.
 }
 \author{
 Xiaosu Tong

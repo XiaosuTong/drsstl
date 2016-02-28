@@ -4,18 +4,35 @@
 \alias{mapreduce.control}
 \title{Set mapreduce parameter for drSpaceTime fitting}
 \usage{
-mapreduce.control(reduceTask = 0, spill.percent = 0.8, io.sort = 256,
-  libLoc = NULL)
+mapreduce.control(reduceTask = 0, libLoc = NULL, spill_percent = 0.8,
+  io_sort = 100, task_io_sort_factor = 10, reduce_parallelcopies = 5,
+  reduce_shuffle_input_buffer_percent = 0.7,
+  reduce_shuffle_merge_percent = 0.66, reduce_merge_inmem = 1000,
+  reduce_input_buffer_percent = 0, reduce_buff_size = 10000)
 }
 \arguments{
 \item{reduceTask}{The reduce task number, also the number of output files. If set to be 0, then there is no shuffle and sort stage after map.}
 
-\item{spill.percent}{The threshold usage proportion for both the map output memory buffer and record boundaries index to start the process of spilling to disk.}
+\item{spill_percent}{For mapreduce.sort.spill.percent parameter, 
+the threshold usage proportion for both the map output memory buffer and record boundaries 
+index to start the process of spilling to disk.}
 
-\item{io.sort}{The size, in megabytes, of the memory buffer to use while sorting map output.}
+\item{io_sort}{For mapreduce.task.io.sort.mb, the size, in megabytes, of the memory buffer to use while sorting map output.}
+
+\item{task_io_sort_factor}{For mapreduce.task.io.sort.factor}
+
+\item{reduce_parallelcopies}{For mapreduce.reduce.shuffle.parallelcopies}
+
+\item{reduce_shuffle_input_buffer_percent}{For mapreduce.reduce.shuffle.input.buffer.percent}
+
+\item{reduce_shuffle_merge_percent}{For mapreduce.reduce.shuffle.merge.percent}
+
+\item{reduce_merge_inmem}{For mapreduce.reduce.merge.inmem.shreshold}
+
+\item{reduce_input_buffer_percent}{For mapreduce.reduce.input.buffer.percent}
 }
 \value{
-A list with space-time fitting parameters.
+A list with mapreduce tuning parameters.
 }
 \description{
 Set control parameters of mapreduce for drSpaceTime fits
