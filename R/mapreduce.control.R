@@ -35,7 +35,7 @@ mapreduce.control <- function(
   spill_percent = 0.8, io_sort = 100, task_io_sort_factor = 10,
   reduce_parallelcopies = 5, reduce_shuffle_input_buffer_percent = 0.70,
   reduce_shuffle_merge_percent = 0.66, reduce_merge_inmem = 1000,
-  reduce_input_buffer_percent = 0) {
+  reduce_input_buffer_percent = 0, reduce_buff_size = 10000) {
   
   list(
     reduceTask = reduceTask, libLoc=libLoc,
@@ -50,7 +50,9 @@ mapreduce.control <- function(
     # mapreduce.reduce.merge.inmem.shreshold
     reduce_merge_inmem = reduce_merge_inmem,
     # mapreduce.reduce.input.buffer.percent
-    reduce_input_buffer_percent = reduce_input_buffer_percent
+    reduce_input_buffer_percent = reduce_input_buffer_percent,
+    # Rhipe argument
+    reduce_buff_size = reduce_buff_size
   )
 
 }
