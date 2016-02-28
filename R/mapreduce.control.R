@@ -4,12 +4,26 @@
 #'
 #' @param reduceTask
 #'     The reduce task number, also the number of output files. If set to be 0, then there is no shuffle and sort stage after map.
-#' @param spill.percent
-#'     The threshold usage proportion for both the map output memory buffer and record boundaries index to start the process of spilling to disk.
-#' @param io.sort
-#'     The size, in megabytes, of the memory buffer to use while sorting map output.
+#' @param spill_percent
+#'     For mapreduce.sort.spill.percent parameter, 
+#'     the threshold usage proportion for both the map output memory buffer and record boundaries 
+#'     index to start the process of spilling to disk.
+#' @param io_sort
+#'     For mapreduce.task.io.sort.mb, the size, in megabytes, of the memory buffer to use while sorting map output.
+#' @param task_io_sort_factor
+#'     For mapreduce.task.io.sort.factor
+#' @param reduce_parallelcopies
+#'     For mapreduce.reduce.shuffle.parallelcopies
+#' @param reduce_shuffle_input_buffer_percent
+#'     For mapreduce.reduce.shuffle.input.buffer.percent
+#' @param reduce_shuffle_merge_percent
+#'     For mapreduce.reduce.shuffle.merge.percent
+#' @param reduce_merge_inmem
+#'     For mapreduce.reduce.merge.inmem.shreshold
+#' @param reduce_input_buffer_percent
+#'     For mapreduce.reduce.input.buffer.percent
 #' @return
-#'     A list with space-time fitting parameters.
+#'     A list with mapreduce tuning parameters.
 #' @author 
 #'     Xiaosu Tong 
 #' @export
@@ -18,6 +32,20 @@
 
 mapreduce.control <- function(reduceTask=0, spill.percent = 0.8, io.sort = 256, libLoc = NULL) {
   
-  list(reduceTask = reduceTask, spill.percent = spill.percent, io.sort = io.sort, libLoc=libLoc)
+  list(
+  	reduceTask = reduceTask, libLoc=libLoc,
+  	# three parameters control the map spill stage 
+  	spill_percent = spill_percent, io_sort = io_sort, task_io_sort_factor = task_io_sort_factor,
+    # mapreduce.reduce.shuffle.parallelcopies
+    reduce_parallelcopies = reduce_parallelcopies,
+    # mapreduce.reduce.shuffle.input.buffer.percent
+    reduce_shuffle_input_buffer_percent = reduce_shuffle_input_buffer_percent,
+    # mapreduce.reduce.shuffle.merge.percent
+    reduce_shuffle_merge_percent = reduce_shuffle_merge_percent,
+    # mapreduce.reduce.merge.inmem.shreshold
+    reduce_merge_inmem = reduce_merge_inmem,
+    # mapreduce.reduce.input.buffer.percent
+    reduce_input_buffer_percent = reduce_input_buffer_percent
+  )
 
 }
