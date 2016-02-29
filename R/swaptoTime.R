@@ -39,7 +39,7 @@ swaptoTime <- function(input, output, control=mapreduce.control()) {
           lon = as.numeric(attributes(map.values[[r]])$loc[1]),
           lat = as.numeric(attributes(map.values[[r]])$loc[2]),
           elev2 = as.numeric(attributes(map.values[[r]])$loc[3]),
-          resp = map.values[[r]][i, "resp"],
+          resp = map.values[[r]][k, "resp"],
           stringsAsFactors = FALSE
         )
         rhcollect(key, value)
