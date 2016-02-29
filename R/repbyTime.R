@@ -16,6 +16,12 @@
 #' @author 
 #'     Xiaosu Tong 
 #' @export
+#' @examples
+#'     FileInput <- "/wsc/tongx/Spatial/tmp/tmax/simulate/bystation.orig"
+#'     FileOutput <- "/wsc/tongx/Spatial/tmp/tmax/simulate/bystation.small"
+#'     \dontrun{
+#'       repbyTime(FileInput, FileOutput, Rep=100, mapreduce.control())
+#'     }
 
 repbyTime <- function(input, output, Rep=5800, control=mapreduce.control()){
 
@@ -49,7 +55,7 @@ repbyTime <- function(input, output, Rep=5800, control=mapreduce.control()){
     mapreduce.reduce.shuffle.parallelcopies = control$parallelcopies,
     mapreduce.reduce.merge.inmem.threshold = control$reduce_merge_inmem,
     mapreduce.reduce.input.buffer.percent = control$reduce_input_buffer,
-    mapred.tasktimeout = 0
+    mapreduce.task.timeout = 0
   )
   job$mon.sec <- 10
   job$jobname <- output  

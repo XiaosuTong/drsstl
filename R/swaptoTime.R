@@ -20,10 +20,11 @@
 #'     Xiaosu Tong 
 #' @export
 #' @examples
-#'     FileInput <- "/ln/tongx/Spatial/a1950/bystation"
-#'     FileOutput <- "/ln/tongx/Spatial/a1950/bymonth"
+#'     FileInput <- "/wsc/tongx/Spatial/tmp/tmax/simulate/bystation.small"
+#'     FileOutput <- "/wsc/tongx/Spatial/tmp/tmax/simulate/bymonth"
+#'     me <- mapreduce.control(libLoc="/home/tongx/R_LIBS", io_sort=512)
 #'     \dontrun{
-#'       swaptoTime(FileInput, FileOutput, elevFlag=TRUE)
+#'       swaptoTime(FileInput, FileOutput, me)
 #'     }
 
 swaptoTime <- function(input, output, control=mapreduce.control()) {
@@ -34,10 +35,10 @@ swaptoTime <- function(input, output, control=mapreduce.control()) {
       for(i in 1:nrow(map.values[[r]])) {
         key <- c(map.values[[r]]$date[i], as.character(map.values[[r]]$month[i]))
         value <- subset(map.values[[r]][i, ], select = -c(date, month))
-        value$station.id = map.keys[[r]]
-        value$lon = as.numeric(attributes(map.values[[r]])$loc[1])
-        value$lat = as.numeric(attributes(map.values[[r]])$loc[2])
-        value$elev2 = as.numeric(attributes(map.values[[r]])$loc[3])
+        value$station.id <- map.keys[[r]]
+        value$lon <- as.numeric(attributes(map.values[[r]])$loc[1])
+        value$lat <- as.numeric(attributes(map.values[[r]])$loc[2])
+        value$elev2 <- as.numeric(attributes(map.values[[r]])$loc[3])
         rhcollect(key, value)
       }
     })
@@ -69,7 +70,7 @@ swaptoTime <- function(input, output, control=mapreduce.control()) {
     mapreduce.reduce.input.buffer.percent = control$reduce_input_buffer,
     mapreduce.task.timeout  = 0,
     rhipe_reduce_buff_size = control$reduce_buff_size
-  )
+ )
   job$combiner <- TRUE
   job$input <- rhfmt(input, type="sequence")
   job$output <- rhfmt(output, type="sequence")
