@@ -33,6 +33,7 @@ repbyTime <- function(input, output, Rep=5800, control=mapreduce.control()){
       value <- subset(arrange(map.values[[r]], year, match(month, month.abb)), select = -c(fitted, year))
       value <- rdply(Rep, value, .id=NULL)
       value$date <- 1:nrow(value)
+      value$month <- match(value$month, month.abb)
       row.names(value) <- NULL
       attr(value, "loc") <- attributes(map.values[[r]])$loc
       rhcollect(map.keys[[r]], value)
