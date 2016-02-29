@@ -32,15 +32,17 @@ swaptoTime <- function(input, output, control=mapreduce.control()) {
   job <- list()
   job$map <- expression({
     lapply(seq_along(map.values), function(r) {
-      for(i in 1:nrow(map.values[[r]])) {
+      lapply(1:nrow(map.values[[r]]), function(k) {
         key <- c(map.values[[r]]$date[i], as.character(map.values[[r]]$month[i]))
-        value <- subset(map.values[[r]][i, ], select = -c(date, month))
-        value$station.id <- map.keys[[r]]
-        value$lon <- as.numeric(attributes(map.values[[r]])$loc[1])
-        value$lat <- as.numeric(attributes(map.values[[r]])$loc[2])
-        value$elev2 <- as.numeric(attributes(map.values[[r]])$loc[3])
+        value <- data.frame(
+          station.id = map.keys[[r]]
+          lon = as.numeric(attributes(map.values[[r]])$loc[1])
+          lat = as.numeric(attributes(map.values[[r]])$loc[2])
+          elev2 = as.numeric(attributes(map.values[[r]])$loc[3])
+          resp = map.values[[r]][i, "resp"]
+        )
         rhcollect(key, value)
-      }
+      })
     })
   })
   job$reduce <- expression(
