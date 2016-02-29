@@ -33,7 +33,7 @@ swaptoTime <- function(input, output, control=mapreduce.control()) {
   job$map <- expression({
     lapply(seq_along(map.values), function(r) {
       lapply(1:nrow(map.values[[r]]), function(k) {
-        key <- c(map.values[[r]]$date[i], as.character(map.values[[r]]$month[i]))
+        key <- c(map.values[[r]]$date[k], as.character(map.values[[r]]$month[k]))
         value <- data.frame(
           station.id = map.keys[[r]],
           lon = as.numeric(attributes(map.values[[r]])$loc[1]),
