@@ -35,11 +35,12 @@ swaptoTime <- function(input, output, control=mapreduce.control()) {
       lapply(1:nrow(map.values[[r]]), function(k) {
         key <- c(map.values[[r]]$date[i], as.character(map.values[[r]]$month[i]))
         value <- data.frame(
-          station.id = map.keys[[r]]
-          lon = as.numeric(attributes(map.values[[r]])$loc[1])
-          lat = as.numeric(attributes(map.values[[r]])$loc[2])
-          elev2 = as.numeric(attributes(map.values[[r]])$loc[3])
-          resp = map.values[[r]][i, "resp"]
+          station.id = map.keys[[r]],
+          lon = as.numeric(attributes(map.values[[r]])$loc[1]),
+          lat = as.numeric(attributes(map.values[[r]])$loc[2]),
+          elev2 = as.numeric(attributes(map.values[[r]])$loc[3]),
+          resp = map.values[[r]][i, "resp"],
+          stringsAsFactors = FALSE
         )
         rhcollect(key, value)
       })
