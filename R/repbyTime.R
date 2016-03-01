@@ -20,7 +20,7 @@
 #'     FileInput <- "/wsc/tongx/Spatial/tmp/tmax/simulate/bystation.orig"
 #'     FileOutput <- "/wsc/tongx/Spatial/tmp/tmax/simulate/bystation.small"
 #'     \dontrun{
-#'       repbyTime(FileInput, FileOutput, Rep=100, mapreduce.control())
+#'       repbyTime(FileInput, FileOutput, Rep=5800, me)
 #'     }
 
 repbyTime <- function(input, output, Rep=5800, control=mapreduce.control()){
@@ -49,6 +49,7 @@ repbyTime <- function(input, output, Rep=5800, control=mapreduce.control()){
   job$input <- rhfmt(input, type = "sequence")
   job$output <- rhfmt(output, type = "sequence")
   job$mapred <- list(
+    mapreduce.output.fileoutputformat.compress.type = "BLOCK",
     mapred.reduce.tasks = control$reduceTask,  #cdh3,4
     mapreduce.job.reduces = control$reduceTask,  #cdh5
     mapreduce.task.io.sort.mb = control$io_sort,
