@@ -2,7 +2,7 @@
 % Please edit documentation in R/repbyTime.R
 \name{repbyTime}
 \alias{repbyTime}
-\title{Swap to division by time}
+\title{Replicate the data in time dimension.}
 \usage{
 repbyTime(input, output, Rep = 5800, control = mapreduce.control())
 }
@@ -16,11 +16,17 @@ repbyTime(input, output, Rep = 5800, control = mapreduce.control())
 \item{control}{A list contains all mapreduce tuning parameters.}
 }
 \description{
-Switch input key-value pairs which is division by location
-to the key-value pairs which is division by time.
+For simulation purpose to enlarge the data for each location.
 }
 \details{
 repbyoTime is used for duplicate the time series at each location.
+}
+\examples{
+    FileInput <- "/wsc/tongx/Spatial/tmp/tmax/simulate/bystation.orig"
+    FileOutput <- "/wsc/tongx/Spatial/tmp/tmax/simulate/bystation.small"
+    \dontrun{
+      repbyTime(FileInput, FileOutput, Rep=5800, me)
+    }
 }
 \author{
 Xiaosu Tong

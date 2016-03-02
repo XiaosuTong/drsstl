@@ -1,7 +1,6 @@
-#' Swap to division by time
+#' Replicate the data in time dimension.
 #'
-#' Switch input key-value pairs which is division by location
-#' to the key-value pairs which is division by time.
+#' For simulation purpose to enlarge the data for each location.
 #'
 #' @param input
 #'     The path of input sequence file on HDFS. It should be by location division.
