@@ -20,9 +20,9 @@
 #'     Xiaosu Tong 
 #' @export
 #' @examples
-#'     FileInput <- "/wsc/tongx/Spatial/tmp/tmax/simulate/bystation.small"
+#'     FileInput <- "/wsc/tongx/Spatial/tmp/tmax/simulate/bystation"
 #'     FileOutput <- "/wsc/tongx/Spatial/tmp/tmax/simulate/bymonth"
-#'     me <- mapreduce.control(libLoc=lib.loc, io_sort=512)
+#'     me <- mapreduce.control(libLoc=lib.loc, io_sort=2047)
 #'     \dontrun{
 #'       swaptoTime(FileInput, FileOutput, me)
 #'     }
@@ -34,8 +34,8 @@ swaptoTime <- function(input, output, control=mapreduce.control()) {
     lapply(seq_along(map.values), function(r) {
       lapply(1:nrow(map.values[[r]]), function(k) {
         key <- map.values[[r]]$date[k]
-        value <- c(map.keys[[r]], map.values[[r]][k, "resp"])
-        rhcollect(key, value)
+        #value <- c(map.keys[[r]], map.values[[r]][k, "resp"])
+        rhcollect(key, 1)
       })
     })
   })
@@ -66,6 +66,7 @@ swaptoTime <- function(input, output, control=mapreduce.control()) {
     mapreduce.reduce.input.buffer.percent = control$reduce_input_buffer,
     mapreduce.task.timeout  = 0,
     rhipe_reduce_buff_size = control$reduce_buff_size,
+    rhipe_map_buff_size = 1,
     mapreduce.map.java.opts = "-Xmx3584m",
     mapreduce.map.memory.mb = 4096 
  )
