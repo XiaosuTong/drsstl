@@ -1,4 +1,4 @@
-#' Set parameter for drSpaceTime fitting
+#' Set smoothing parameter for drSpaceTime fitting
 #'
 #'  Set control parameters for drSpaceTime fits
 #' @param vari 

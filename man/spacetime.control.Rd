@@ -2,7 +2,7 @@
 % Please edit documentation in R/spacetime.control.R
 \name{spacetime.control}
 \alias{spacetime.control}
-\title{Set parameter for drSpaceTime fitting}
+\title{Set smoothing parameter for drSpaceTime fitting}
 \usage{
 spacetime.control(vari, time, seaname, n, n.p, s.window, s.degree = 1,
   s.jump = ceiling(s.window/10), t.window = NULL, t.degree = 1,
