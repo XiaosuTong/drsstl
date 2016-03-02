@@ -26,10 +26,11 @@ to the key-value pairs which is division by time.
 swaptoTime is used for switch division by location to division by time.
 }
 \examples{
-    FileInput <- "/ln/tongx/Spatial/a1950/bystation"
-    FileOutput <- "/ln/tongx/Spatial/a1950/bymonth"
+    FileInput <- "/wsc/tongx/Spatial/tmp/tmax/simulate/bystation"
+    FileOutput <- "/wsc/tongx/Spatial/tmp/tmax/simulate/bymonth"
+    me <- mapreduce.control(libLoc=lib.loc, io_sort=2047)
     \dontrun{
-      swaptoTime(FileInput, FileOutput, elevFlag=TRUE)
+      swaptoTime(FileInput, FileOutput, me)
     }
 }
 \author{

@@ -34,8 +34,9 @@ swaptoTime <- function(input, output, control=mapreduce.control()) {
     lapply(seq_along(map.values), function(r) {
       lapply(1:nrow(map.values[[r]]), function(k) {
         key <- map.values[[r]]$date[k]
-        #value <- c(map.keys[[r]], map.values[[r]][k, "resp"])
-        rhcollect(key, 1)
+        value <- c(map.keys[[r]], map.values[[r]][k, "resp"])
+        rhcollect(key, value)
+        rm(value)
       })
     })
   })
@@ -67,7 +68,7 @@ swaptoTime <- function(input, output, control=mapreduce.control()) {
     mapreduce.task.timeout  = 0,
     rhipe_reduce_buff_size = control$reduce_buff_size,
     rhipe_map_buff_size = 1,
-    mapreduce.map.java.opts = "-Xmx3584m",
+    mapreduce.map.java.opts = "-Xmx3072m",
     mapreduce.map.memory.mb = 4096 
  )
   job$combiner <- TRUE
