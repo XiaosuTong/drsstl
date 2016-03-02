@@ -35,7 +35,6 @@ repbyTime <- function(input, output, Rep=5800, control=mapreduce.control()){
       value$date <- 1:nrow(value)
       value$month <- match(value$month, month.abb)
       row.names(value) <- NULL
-      attr(value, "loc") <- attributes(map.values[[r]])$loc
       rhcollect(map.keys[[r]], value)
     })
   })
