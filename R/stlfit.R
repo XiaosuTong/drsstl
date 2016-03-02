@@ -1,3 +1,28 @@
+#' Conduct the stlplus fitting at each location in parallel
+#'
+#' call stlplus function on time series at each location in parallel.
+#' Every station uses the same smoothing parameter
+#'
+#' @param input
+#'     The path of input sequence file on HDFS. It should be by location division.
+#' @param output
+#'     The path of output sequence file on HDFS. It is by location division but with seasonal and trend components
+#' @param model_control
+#'     The list contains all smoothing parameters
+#' @param cluster_control
+#'     A list contains all mapreduce tuning parameters.
+#' @author 
+#'     Xiaosu Tong 
+#' @export
+#' @examples
+#'     FileInput <- "/wsc/tongx/Spatial/tmp/tmax/simulate/bystation"
+#'     FileOutput <- "/wsc/tongx/Spatial/tmp/tmax/simulate/bystation.stlfit"
+#'     me <- spacetime.control(libLoc=lib.loc)
+#'     you <- mapreduce.control(vari="resp", time="date", seaname="month", n=3340800, n.p=12, s.window=13, t.window = 241)
+#'     \dontrun{
+#'       stlfit(FileInput, FileOutput, me, you)
+#'     }
+
 stlfit <- function(input, output, model_control=spacetime.control(), cluster_control=mapreduce.control()) {
   
   job <- list()
@@ -29,8 +54,9 @@ stlfit <- function(input, output, model_control=spacetime.control(), cluster_con
   job$mapred <- list(
     mapreduce.task.timeout = 0,
     mapreduce.job.reduces = 0,  #cdh5
-    mapreduce.map.java.opts = "-Xmx3584m",
-    mapreduce.map.memory.mb = 4096 
+    mapreduce.map.java.opts = "-Xmx3072m",
+    mapreduce.map.memory.mb = 4096,
+    dfs.blocksize = 256*2^20 
   )
   job$readback <- FALSE
   job$jobname <- output
