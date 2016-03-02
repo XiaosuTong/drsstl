@@ -66,13 +66,8 @@ swaptoTime <- function(input, output, control=mapreduce.control()) {
     mapreduce.reduce.input.buffer.percent = control$reduce_input_buffer,
     mapreduce.task.timeout  = 0,
     rhipe_reduce_buff_size = control$reduce_buff_size,
-    io.sort.mb = 1024,
-    io.sort.spill.percent = 0.9,
-    mapred.task.timeout  = 0,
-    io.sort.factor = 100,
-    mapred.reduce.parallel.copies = 10,
-    mapred.inmem.merge.threshold = 0,
-    mapred.job.reduce.input.buffer.percent = 0.8
+    mapreduce.map.java.opts = "-Xmx3584m",
+    mapreduce.map.memory.mb = 4096 
  )
   job$combiner <- TRUE
   job$input <- rhfmt(input, type="sequence")
