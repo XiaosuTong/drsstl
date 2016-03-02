@@ -34,7 +34,7 @@ swaptoTime <- function(input, output, control=mapreduce.control()) {
     lapply(seq_along(map.values), function(r) {
       lapply(1:nrow(map.values[[r]]), function(k) {
         key <- map.values[[r]]$date[k]
-        value <- c(map.keys[[r]], map.values[[r]][k, "resp"])
+        value <- c(map.keys[[r]], map.values[[r]]$resp[k], map.values[[r]]$trend[k], map.values[[r]]$seasonal[k])
         rhcollect(key, value)
         rm(value)
       })

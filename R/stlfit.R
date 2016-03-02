@@ -18,7 +18,7 @@
 #'     FileInput <- "/wsc/tongx/Spatial/tmp/tmax/simulate/bystation"
 #'     FileOutput <- "/wsc/tongx/Spatial/tmp/tmax/simulate/bystation.stlfit"
 #'     me <- mapreduce.control(libLoc=lib.loc)
-#'     you <- spacetime.control(vari="resp", time="date", seaname="month", n=3340800, n.p=12, s.window=13, t.window = 241)
+#'     you <- spacetime.control(vari="resp", time="date", seaname="month", n=4147200, n.p=12, s.window=13, t.window = 241)
 #'     \dontrun{
 #'       stlfit(FileInput, FileOutput, you, me)
 #'     }
@@ -35,7 +35,7 @@ stlfit <- function(input, output, model_control=spacetime.control(), cluster_con
         t.window=control$t.window, t.degree=control$t.degree, 
         inner=control$inner, outer=control$outer
       )$data
-      value <- cbind(map.values[[r]], subset(fit, select = c(seasonal, trend)))
+      value <- cbind(subset(map.values[[r]], select=c(-month)), subset(fit, select = c(seasonal, trend)))
       rhcollect(map.keys[[r]], value)
     })
   })
