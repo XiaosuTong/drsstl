@@ -17,12 +17,13 @@
 #' @export
 #' @examples
 #'     FileInput <- "/wsc/tongx/Spatial/tmp/tmax/simulate/bystation.orig"
-#'     FileOutput <- "/wsc/tongx/Spatial/tmp/tmax/simulate/bystation.small"
+#'     FileOutput <- "/wsc/tongx/Spatial/tmp/tmax/simulate/bystation"
+#'     me <- mapreduce.control(libLoc=lib.loc)
 #'     \dontrun{
-#'       repbyTime(FileInput, FileOutput, Rep=5800, me)
+#'       repbyTime(FileInput, FileOutput, Rep=7200, me) 
 #'     }
 
-repbyTime <- function(input, output, Rep=5800, control=mapreduce.control()){
+repbyTime <- function(input, output, Rep=7200, control=mapreduce.control()){
 
   job <- list()
   job$map <- expression({

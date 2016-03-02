@@ -20,8 +20,8 @@
 #'     Xiaosu Tong 
 #' @export
 #' @examples
-#'     FileInput <- "/wsc/tongx/Spatial/tmp/tmax/simulate/bystation"
-#'     FileOutput <- "/wsc/tongx/Spatial/tmp/tmax/simulate/bymonth"
+#'     FileInput <- "/wsc/tongx/Spatial/tmp/tmax/simulate/bystation.stlfit"
+#'     FileOutput <- "/wsc/tongx/Spatial/tmp/tmax/simulate/bymonth.stlfit"
 #'     me <- mapreduce.control(libLoc=lib.loc, io_sort=2047)
 #'     \dontrun{
 #'       swaptoTime(FileInput, FileOutput, me)
