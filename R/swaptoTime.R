@@ -22,7 +22,7 @@
 #' @examples
 #'     FileInput <- "/wsc/tongx/Spatial/tmp/tmax/simulate/bystation.stlfit"
 #'     FileOutput <- "/wsc/tongx/Spatial/tmp/tmax/simulate/bymonth.stlfit"
-#'     me <- mapreduce.control(libLoc=lib.loc, io_sort=2047)
+#'     me <- mapreduce.control(libLoc=lib.loc, io_sort=100)
 #'     \dontrun{
 #'       swaptoTime(FileInput, FileOutput, me)
 #'     }
@@ -32,25 +32,32 @@ swaptoTime <- function(input, output, control=mapreduce.control()) {
   job <- list()
   job$map <- expression({
     lapply(seq_along(map.values), function(r) {
-      lapply(1:nrow(map.values[[r]]), function(k) {
-        key <- map.values[[r]]$date[k]
-        value <- c(map.keys[[r]], map.values[[r]]$resp[k], map.values[[r]]$trend[k], map.values[[r]]$seasonal[k])
-        rhcollect(key, value)
-        rm(value)
+#      lapply(1:nrow(map.values[[r]]), function(k) {
+#        key <- map.values[[r]]$date[k]
+#        value <- c(map.keys[[r]], map.values[[r]]$resp[k], map.values[[r]]$trend[k], map.values[[r]]$seasonal[k])
+#        rhcollect(key, value)
+#        rm(value)
+#      })
+      map.values[[r]]$year <- ceiling(map.values[[r]]$date/12)
+      d_ply(
+        .data = map.values[[r]],
+        .vari = "year",
+        .fun = function(k) {
+          rhcollect(c(map.keys[[r]], unique(k$year)), subset(k, select = -c(year)))
       })
     })
   })
-  job$reduce <- expression(
-    pre = {
-      combine <- data.frame()
-    },
-    reduce = {
-      combine <- rbind(combine, do.call(rbind, reduce.values))
-    },
-    post = {
-      rhcollect(reduce.key, combine)
-    }
-  )
+#  job$reduce <- expression(
+#    pre = {
+#      combine <- data.frame()
+#    },
+#    reduce = {
+#      combine <- rbind(combine, do.call(rbind, reduce.values))
+#    },
+#    post = {
+#      rhcollect(reduce.key, combine)
+#    }
+#  )
   job$setup <- expression(
     map = {library(plyr, lib.loc=control$libLoc)}
   )
@@ -58,8 +65,8 @@ swaptoTime <- function(input, output, control=mapreduce.control()) {
     control = control
   )
   job$mapred <- list(
-    mapred.reduce.tasks = control$reduceTask,  #cdh3,4
-    mapreduce.job.reduces = control$reduceTask,  #cdh5
+    #mapred.reduce.tasks = control$reduceTask,  #cdh3,4
+    mapreduce.job.reduces = 0 #control$reduceTask,  #cdh5
     mapreduce.task.io.sort.mb = control$io_sort,
     mapreduce.map.sort.spill.percent = control$spill_percent,
     mapreduce.reduce.shuffle.parallelcopies = control$parallelcopies,
