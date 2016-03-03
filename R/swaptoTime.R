@@ -66,7 +66,7 @@ swaptoTime <- function(input, output, control=mapreduce.control()) {
   )
   job$mapred <- list(
     #mapred.reduce.tasks = control$reduceTask,  #cdh3,4
-    mapreduce.job.reduces = 0 #control$reduceTask,  #cdh5
+    mapreduce.job.reduces = 0, #control$reduceTask,  #cdh5
     mapreduce.task.io.sort.mb = control$io_sort,
     mapreduce.map.sort.spill.percent = control$spill_percent,
     mapreduce.reduce.shuffle.parallelcopies = control$parallelcopies,
