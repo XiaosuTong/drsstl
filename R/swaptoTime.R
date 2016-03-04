@@ -21,13 +21,14 @@
 #' @export
 #' @examples
 #'     FileInput <- "/wsc/tongx/Spatial/tmp/tmax/simulate/bystation.stlfit"
+#'     FileOutput <- "/wsc/tongx/Spatial/tmp/tmax/simulate/byyearstat.stlfit"
 #'     FileOutput <- "/wsc/tongx/Spatial/tmp/tmax/simulate/bymonth.stlfit"
 #'     me <- mapreduce.control(libLoc=lib.loc, io_sort=100)
 #'     \dontrun{
 #'       swaptoTime(FileInput, FileOutput, me)
 #'     }
 
-swaptoTime <- function(input, output, control=mapreduce.control()) {
+swaptoYear <- function(input, output, control=mapreduce.control()) {
 
   job <- list()
   job$map <- expression({
@@ -75,6 +76,7 @@ swaptoTime <- function(input, output, control=mapreduce.control()) {
     mapreduce.task.timeout  = 0,
     rhipe_reduce_buff_size = control$reduce_buff_size,
     rhipe_map_buff_size = 1,
+    dfs.blocksize = 512*2^20,
     mapreduce.map.java.opts = "-Xmx3072m",
     mapreduce.map.memory.mb = 4096 
  )
@@ -89,3 +91,59 @@ swaptoTime <- function(input, output, control=mapreduce.control()) {
 
 }
 
+
+swaptoTime <- function(input, output, control=mapreduce.control()) {
+
+  job <- list()
+  job$map <- expression({
+    lapply(seq_along(map.values), function(r) {
+      lapply(1:nrow(map.values[[r]]), function(k) {
+        key <- map.values[[r]]$date[k]
+        value <- c(map.keys[[r]][1], map.values[[r]]$resp[k], map.values[[r]]$trend[k], map.values[[r]]$seasonal[k])
+        rhcollect(key, value)
+      })
+    })
+  })
+  job$reduce <- expression(
+    pre = {
+      combine <- data.frame()
+    },
+    reduce = {
+      combine <- rbind(combine, do.call(rbind, reduce.values))
+    },
+    post = {
+      rhcollect(reduce.key, combine)
+    }
+  )
+  job$setup <- expression(
+    map = {library(plyr, lib.loc=control$libLoc)}
+  )
+  job$parameters <- list(
+    control = control
+  )
+  job$mapred <- list(
+#    #mapred.reduce.tasks = control$reduceTask,  #cdh3,4
+    mapreduce.job.reduces = 200,  #cdh5
+    mapreduce.task.io.sort.mb = control$io_sort,
+    mapreduce.map.sort.spill.percent = control$spill_percent,
+    mapreduce.reduce.shuffle.parallelcopies = control$parallelcopies,
+    mapreduce.reduce.merge.inmem.threshold = control$reduce_merge_inmem,
+    mapreduce.reduce.input.buffer.percent = control$reduce_input_buffer,
+    mapreduce.task.timeout  = 0,
+    rhipe_reduce_buff_size = control$reduce_buff_size,
+    rhipe_map_buff_size = 100000,
+    rhipe_map_bytes_read = 256*2^20,
+    dfs.blocksize = 512*2^20,
+    mapreduce.map.java.opts = "-Xmx3072m",
+    mapreduce.map.memory.mb = 4096 
+ )
+  job$combiner <- TRUE
+  job$input <- rhfmt(input, type="sequence")
+  job$output <- rhfmt(output, type="sequence")
+  job$mon.sec <- 10
+  job$jobname <- output
+  job$readback <- FALSE  
+
+  job.mr <- do.call("rhwatch", job)  
+
+}
