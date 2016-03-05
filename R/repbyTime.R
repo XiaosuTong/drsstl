@@ -20,7 +20,7 @@
 #'     FileOutput <- "/wsc/tongx/Spatial/tmp/tmax/simulate/bystation"
 #'     me <- mapreduce.control(libLoc=lib.loc)
 #'     \dontrun{
-#'       repbyTime(FileInput, FileOutput, Rep=7200, me) 
+#'       repbyTime(FileInput, FileOutput, Srep=23, me) 
 #'     }
 
 repbyTime <- function(input, output, Srep, control=mapreduce.control()){
@@ -45,7 +45,7 @@ repbyTime <- function(input, output, Srep, control=mapreduce.control()){
   )
   job$parameters <- list(
     control = control,
-    Rep = Rep
+    Srep = Srep
   )
   job$input <- rhfmt(input, type = "sequence")
   job$output <- rhfmt(output, type = "sequence")
