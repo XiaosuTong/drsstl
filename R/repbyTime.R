@@ -50,6 +50,8 @@ repbyTime <- function(input, output, Srep, control=mapreduce.control()){
   job$input <- rhfmt(input, type = "sequence")
   job$output <- rhfmt(output, type = "sequence")
   job$mapred <- list(
+    mapreduce.map.java.opts = "-Xmx3072m",
+    mapreduce.map.memory.mb = 4096, 
     mapreduce.output.fileoutputformat.compress.type = "BLOCK",
     mapred.reduce.tasks = control$reduceTask,  #cdh3,4
     mapreduce.job.reduces = control$reduceTask,  #cdh5
