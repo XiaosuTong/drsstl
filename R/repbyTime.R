@@ -20,7 +20,7 @@
 #'     FileOutput <- "/wsc/tongx/spatem/tmax/simulate/bystation"
 #'     me <- mapreduce.control(libLoc=lib.loc)
 #'     \dontrun{
-#'       repbyTime(FileInput, FileOutput, Srep=23, me) 
+#'       repbyTime(FileInput, FileOutput, Srep=18.5, me) 
 #'     }
 
 repbyTime <- function(input, output, Srep, control=mapreduce.control()){
@@ -31,11 +31,11 @@ repbyTime <- function(input, output, Srep, control=mapreduce.control()){
       Index <- which(is.na(map.values[[r]]$resp))
       map.values[[r]][Index, "resp"] <- map.values[[r]]$fitted[Index]
       value <- subset(arrange(map.values[[r]], year, match(month, month.abb)), select = -c(fitted, year))
-      Rep <- floor(2^Srep/48)
+      Rep <- floor(round(2^Srep)/48)
       value <- rdply(Rep, value, .id=NULL)
-      value <- rbind(value, tail(value, (2^Srep - Rep*48)*12))
+      value <- rbind(value, tail(value, (round(2^Srep) - Rep*48)*12))
       value$date <- 1:nrow(value)
-      #value$month <- match(value$month, month.abb)
+      value$month <- match(value$month, month.abb)
       row.names(value) <- NULL
       rhcollect(map.keys[[r]], value)
     })
