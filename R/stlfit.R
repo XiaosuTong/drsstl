@@ -15,9 +15,9 @@
 #'     Xiaosu Tong 
 #' @export
 #' @examples
-#'     FileInput <- "/wsc/tongx/spatem/tmax/simulate/bystation"
-#'     FileOutput <- "/wsc/tongx/spatem/tmax/simulate/bystatfit"
-#'     me <- mapreduce.control(libLoc=lib.loc)
+#'     FileInput <- "/wsc/tongx/spatem/tmax/sim/bystation"
+#'     FileOutput <- "/wsc/tongx/spatem/tmax/sim/bystatfit"
+#'     me <- mapreduce.control(libLoc=lib.loc, BLK = 512)
 #'     you <- spacetime.control(vari="resp", time="date", seaname="month", n=4448736, n.p=12, s.window=13, t.window = 241)
 #'     \dontrun{
 #'       stlfit(FileInput, FileOutput, you, me)
@@ -56,7 +56,8 @@ stlfit <- function(input, output, model_control=spacetime.control(), cluster_con
     mapreduce.job.reduces = 0,  #cdh5
     mapreduce.map.java.opts = "-Xmx3072m",
     mapreduce.map.memory.mb = 4096,
-    dfs.blocksize = cluster_control$BLK 
+    dfs.blocksize = cluster_control$BLK
+    #rhipe_map_bytes_read = buffer*2^20
   )
   job$readback <- FALSE
   job$jobname <- output
