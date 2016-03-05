@@ -18,7 +18,7 @@
 #' @examples
 #'     FileInput <- "/wsc/tongx/spatem/tmax/simulate/bystation.orig"
 #'     FileOutput <- "/wsc/tongx/spatem/tmax/simulate/bystation"
-#'     me <- mapreduce.control(libLoc=lib.loc)
+#'     me <- mapreduce.control(libLoc=lib.loc, BLK = 256)
 #'     \dontrun{
 #'       repbyTime(FileInput, FileOutput, Srep=18.5, me) 
 #'     }
@@ -53,14 +53,6 @@ repbyTime <- function(input, output, Srep, control=mapreduce.control()){
     mapreduce.map.java.opts = "-Xmx3072m",
     mapreduce.map.memory.mb = 4096, 
     mapreduce.output.fileoutputformat.compress.type = "BLOCK",
-    mapred.reduce.tasks = control$reduceTask,  #cdh3,4
-    mapreduce.job.reduces = control$reduceTask,  #cdh5
-    mapreduce.task.io.sort.mb = control$io_sort,
-    mapreduce.map.sort.spill.percent = control$spill_percent,
-    mapreduce.reduce.shuffle.parallelcopies = control$parallelcopies,
-    mapreduce.reduce.merge.inmem.threshold = control$reduce_merge_inmem,
-    mapreduce.reduce.input.buffer.percent = control$reduce_input_buffer,
-    mapreduce.task.timeout = 0,
     dfs.blocksize = control$BLK
   )
   job$mon.sec <- 10
