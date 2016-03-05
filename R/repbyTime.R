@@ -23,7 +23,7 @@
 #'       repbyTime(FileInput, FileOutput, Rep=7200, me) 
 #'     }
 
-repbyTime <- function(input, output, Rep=7200, control=mapreduce.control()){
+repbyTime <- function(input, output, Srep, control=mapreduce.control()){
 
   job <- list()
   job$map <- expression({
@@ -31,9 +31,11 @@ repbyTime <- function(input, output, Rep=7200, control=mapreduce.control()){
       Index <- which(is.na(map.values[[r]]$resp))
       map.values[[r]][Index, "resp"] <- map.values[[r]]$fitted[Index]
       value <- subset(arrange(map.values[[r]], year, match(month, month.abb)), select = -c(fitted, year))
-      value <- rdply(Rep, value, .id=NULL)
+      Rep <- floor(2^Srep/48)
+      value <- rdply(2^(Rep), value, .id=NULL)
+      value <- rbind(value, tail(value, (2^Srep - Rep*48)*12))
       value$date <- 1:nrow(value)
-      value$month <- match(value$month, month.abb)
+      #value$month <- match(value$month, month.abb)
       row.names(value) <- NULL
       rhcollect(map.keys[[r]], value)
     })
@@ -56,7 +58,8 @@ repbyTime <- function(input, output, Rep=7200, control=mapreduce.control()){
     mapreduce.reduce.shuffle.parallelcopies = control$parallelcopies,
     mapreduce.reduce.merge.inmem.threshold = control$reduce_merge_inmem,
     mapreduce.reduce.input.buffer.percent = control$reduce_input_buffer,
-    mapreduce.task.timeout = 0
+    mapreduce.task.timeout = 0,
+    dfs.blocksize = control$BLK
   )
   job$mon.sec <- 10
   job$jobname <- output  
