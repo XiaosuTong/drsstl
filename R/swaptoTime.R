@@ -20,12 +20,12 @@
 #'     Xiaosu Tong 
 #' @export
 #' @examples
-#'     FileInput <- "/wsc/tongx/Spatial/tmp/tmax/simulate/bystation.stlfit"
-#'     FileOutput <- "/wsc/tongx/Spatial/tmp/tmax/simulate/byyearstat.stlfit"
-#'     FileOutput <- "/wsc/tongx/Spatial/tmp/tmax/simulate/bymonth.stlfit"
+#'     FileInput <- "/wsc/tongx/spatem/tmax/simulate/bystatfit"
+#'     FileOutput <- "/wsc/tongx/spatem/tmax/simulate/bytmp"
+#'     FileOutput <- "/wsc/tongx/spatem/tmax/simulate/bymonth.stlfit"
 #'     me <- mapreduce.control(libLoc=lib.loc, io_sort=100)
 #'     \dontrun{
-#'       swaptoTime(FileInput, FileOutput, me)
+#'       swaptoYear(FileInput, FileOutput, me)
 #'     }
 
 swaptoYear <- function(input, output, control=mapreduce.control()) {
@@ -33,12 +33,6 @@ swaptoYear <- function(input, output, control=mapreduce.control()) {
   job <- list()
   job$map <- expression({
     lapply(seq_along(map.values), function(r) {
-#      lapply(1:nrow(map.values[[r]]), function(k) {
-#        key <- map.values[[r]]$date[k]
-#        value <- c(map.keys[[r]], map.values[[r]]$resp[k], map.values[[r]]$trend[k], map.values[[r]]$seasonal[k])
-#        rhcollect(key, value)
-#        rm(value)
-#      })
       map.values[[r]]$year <- ceiling(map.values[[r]]$date/12)
       d_ply(
         .data = map.values[[r]],
@@ -68,14 +62,6 @@ swaptoYear <- function(input, output, control=mapreduce.control()) {
   job$mapred <- list(
     #mapred.reduce.tasks = control$reduceTask,  #cdh3,4
     mapreduce.job.reduces = 0, #control$reduceTask,  #cdh5
-    mapreduce.task.io.sort.mb = control$io_sort,
-    mapreduce.map.sort.spill.percent = control$spill_percent,
-    mapreduce.reduce.shuffle.parallelcopies = control$parallelcopies,
-    mapreduce.reduce.merge.inmem.threshold = control$reduce_merge_inmem,
-    mapreduce.reduce.input.buffer.percent = control$reduce_input_buffer,
-    mapreduce.task.timeout  = 0,
-    rhipe_reduce_buff_size = control$reduce_buff_size,
-    rhipe_map_buff_size = 1,
     dfs.blocksize = 512*2^20,
     mapreduce.map.java.opts = "-Xmx3072m",
     mapreduce.map.memory.mb = 4096 
@@ -99,7 +85,7 @@ swaptoTime <- function(input, output, control=mapreduce.control()) {
     lapply(seq_along(map.values), function(r) {
       lapply(1:nrow(map.values[[r]]), function(k) {
         key <- map.values[[r]]$date[k]
-        value <- c(map.keys[[r]][1], map.values[[r]]$resp[k], map.values[[r]]$trend[k], map.values[[r]]$seasonal[k])
+        value <- c(map.keys[[r]], map.values[[r]]$resp[k])
         rhcollect(key, value)
       })
     })
@@ -135,7 +121,8 @@ swaptoTime <- function(input, output, control=mapreduce.control()) {
     rhipe_map_bytes_read = 256*2^20,
     dfs.blocksize = 512*2^20,
     mapreduce.map.java.opts = "-Xmx3072m",
-    mapreduce.map.memory.mb = 4096 
+    mapreduce.map.memory.mb = 4096,
+    "yarn.nodemanager.resource.cpu-vcores" = 5
  )
   job$combiner <- TRUE
   job$input <- rhfmt(input, type="sequence")
