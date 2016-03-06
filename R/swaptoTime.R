@@ -20,11 +20,11 @@
 #'     Xiaosu Tong 
 #' @export
 #' @examples
-#'     FileInput <- "/wsc/tongx/spatem/tmax/sim/bystatfit"
+#'     FileInput <- "/wsc/tongx/spatem/tmax/sim/bystatfit512"
 #'     FileOutput <- "/wsc/tongx/spatem/tmax/sim/byyear"
-#'     me <- mapreduce.control(libLoc=lib.loc, io_sort=100, BLK=256)
+#'     me <- mapreduce.control(libLoc=lib.loc, io_sort=256, BLK=256, reduce_input_buffer_percent=0.7, reduce_merge_inmem=0, task_io_sort_factor=100)
 #'     \dontrun{
-#'       swaptoTime(interPath, FileOutput, me)
+#'       swaptoTime(FileInput, FileOutput, me)
 #'     }
 
 swaptoTime <- function(input, output, control=mapreduce.control()) {
@@ -32,15 +32,29 @@ swaptoTime <- function(input, output, control=mapreduce.control()) {
   job <- list()
   job$map <- expression({
     lapply(seq_along(map.values), function(r) {
-      map.values[[r]]$year <- ceiling(map.values[[r]]$date/12)
+      value <- map.values[[r]]
+      value$year <- ceiling(value$date/12)
+      value$station.id <- map.keys[[r]]
       d_ply(
-        .data = map.values[[r]],
+        .data = value,
         .vari = "year",
         .fun = function(k) {
-          rhcollect(c(map.keys[[r]], unique(k$year)), subset(k, select = -c(year)))
+          rhcollect(unique(k$year), subset(k, select = -c(year)))
       })
+      #rhcollect(map.keys[[r]], object.size(map.values[[r]]))
     })
   })
+  job$reduce <- expression(
+    pre = {
+      combine <- data.frame()
+    },
+    reduce = {
+      combine <- rbind(combine, do.call(rbind, reduce.values))
+    },
+    post = {
+      rhcollect(reduce.key, combine)
+    }
+  )
   job$setup <- expression(
     map = {library(plyr, lib.loc=control$libLoc)}
   )
@@ -48,7 +62,7 @@ swaptoTime <- function(input, output, control=mapreduce.control()) {
     control = control
   )
   job$mapred <- list(
-    mapreduce.job.reduces = 400,  #cdh5
+    mapreduce.job.reduces = 1000,  #cdh5
     mapreduce.task.io.sort.mb = control$io_sort,
     mapreduce.map.sort.spill.percent = control$spill_percent,
     mapreduce.reduce.shuffle.parallelcopies = control$parallelcopies,
@@ -57,10 +71,13 @@ swaptoTime <- function(input, output, control=mapreduce.control()) {
     mapreduce.task.timeout  = 0,
     rhipe_reduce_buff_size = 10000,
     dfs.blocksize = control$BLK,
-    mapreduce.output.fileoutputformat.compress.type = "BLOCK",
-    mapreduce.map.java.opts = "-Xmx3072m",
-    mapreduce.map.memory.mb = 4096
- )
+    rhipe_map_bytes_read = 100*2^20,
+    mapreduce.map.java.opts = "-Xmx2048m",
+    mapreduce.map.memory.mb = 4096,
+    mapreduce.reduce.java.opts = "-Xmx3072m",
+    mapreduce.reduce.memory.mb = 4096   
+  )
+  job$combiner <- TRUE
   job$input <- rhfmt(input, type="sequence")
   job$output <- rhfmt(output, type="sequence")
   job$mon.sec <- 10
