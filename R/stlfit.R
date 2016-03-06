@@ -54,6 +54,7 @@ stlfit <- function(input, output, model_control=spacetime.control(), cluster_con
   job$mapred <- list(
     mapreduce.task.timeout = 0,
     mapreduce.job.reduces = 0,  #cdh5
+    mapreduce.output.fileoutputformat.compress.type = "BLOCK",
     mapreduce.map.java.opts = "-Xmx3072m",
     mapreduce.map.memory.mb = 4096,
     dfs.blocksize = cluster_control$BLK
