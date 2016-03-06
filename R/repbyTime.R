@@ -16,8 +16,8 @@
 #'     Xiaosu Tong 
 #' @export
 #' @examples
-#'     FileInput <- "/wsc/tongx/spatem/tmax/simulate/bystation.orig"
-#'     FileOutput <- "/wsc/tongx/spatem/tmax/simulate/bystation"
+#'     FileInput <- "/wsc/tongx/spatem/tmax/sim/bystation.orig"
+#'     FileOutput <- "/wsc/tongx/spatem/tmax/sim/bystation"
 #'     me <- mapreduce.control(libLoc=lib.loc, BLK = 256)
 #'     \dontrun{
 #'       repbyTime(FileInput, FileOutput, Srep=18.5, me) 
@@ -52,7 +52,6 @@ repbyTime <- function(input, output, Srep, control=mapreduce.control()){
   job$mapred <- list(
     mapreduce.map.java.opts = "-Xmx3072m",
     mapreduce.map.memory.mb = 4096, 
-    mapreduce.output.fileoutputformat.compress.type = "BLOCK",
     mapreduce.job.reduces = control$reduceTask,  #cdh5
     dfs.blocksize = control$BLK
   )
