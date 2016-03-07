@@ -53,7 +53,8 @@ repbyTime <- function(input, output, Srep, control=mapreduce.control()){
     mapreduce.map.java.opts = "-Xmx3072m",
     mapreduce.map.memory.mb = 4096, 
     mapreduce.job.reduces = control$reduceTask,  #cdh5
-    dfs.blocksize = control$BLK
+    dfs.blocksize = control$BLK,
+    mapreduce.output.fileoutputformat.compress.type = "BLOCK"
   )
   job$mon.sec <- 10
   job$jobname <- output  

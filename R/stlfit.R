@@ -59,7 +59,8 @@ stlfit <- function(input, output, model_control=spacetime.control(), cluster_con
     dfs.blocksize = cluster_control$BLK,
     rhipe_map_bytes_read = 50*2^20,
     rhipe_map_buffer_size = 1,
-    mapreduce.map.output.compress = TRUE 
+    mapreduce.map.output.compress = TRUE,
+    mapreduce.output.fileoutputformat.compress.type = "BLOCK" 
   )
   job$readback <- FALSE
   job$jobname <- output
