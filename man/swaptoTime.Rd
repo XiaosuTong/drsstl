@@ -4,19 +4,19 @@
 \alias{swaptoTime}
 \title{Swap to division by time}
 \usage{
-swaptoTime(input, output, control = mapreduce.control())
+swaptoTime(input, output)
 }
 \arguments{
 \item{input}{The path of input sequence file on HDFS. It should be by location division.}
 
 \item{output}{The path of output sequence file on HDFS. It is by time division.}
 
-\item{control}{all parameters that are needed for space-time fitting}
-
 \item{reduceTask}{The number of the reduce tasks.}
 
 \item{elevFlag}{Logical argument, if TRUE, then the elevation attribute from input value data.frame is log2 transformation
 If FALSE, a log2 transformation is added to the elevation attribute.}
+
+\item{control}{all parameters that are needed for space-time fitting}
 }
 \description{
 Switch input key-value pairs which is division by location
@@ -26,11 +26,12 @@ to the key-value pairs which is division by time.
 swaptoTime is used for switch division by location to division by time.
 }
 \examples{
-    FileInput <- "/wsc/tongx/Spatial/tmp/tmax/simulate/bystation"
-    FileOutput <- "/wsc/tongx/Spatial/tmp/tmax/simulate/bymonth"
-    me <- mapreduce.control(libLoc=lib.loc, io_sort=2047)
+    FileInput <- "/wsc/tongx/spatem/tmax/sim/bystatfit512"
+    FileOutput <- "/wsc/tongx/spatem/tmax/sim/byyear"
+    me <- mapreduce.control(libLoc=lib.loc, io_sort=512, BLK=256, reduce_input_buffer_percent=0.7, reduce_merge_inmem=0, task_io_sort_factor=100, spill_percent=1)
     \dontrun{
-      swaptoTime(FileInput, FileOutput, me)
+      swaptoTimeMap(FileInput, FileOutput, me)
+      swaptoTimeRed(FileOutput, "/wsc/tongx/spatem/tmax/sim/byyr256test", me)
     }
 }
 \author{

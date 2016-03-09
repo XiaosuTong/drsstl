@@ -22,12 +22,17 @@
 #' @examples
 #'     FileInput <- "/wsc/tongx/spatem/tmax/sim/bystatfit512"
 #'     FileOutput <- "/wsc/tongx/spatem/tmax/sim/byyear"
-#'     me <- mapreduce.control(libLoc=lib.loc, io_sort=256, BLK=256, reduce_input_buffer_percent=0.7, reduce_merge_inmem=0, task_io_sort_factor=100)
+#'     me <- mapreduce.control(libLoc=lib.loc, io_sort=512, BLK=256, reduce_input_buffer_percent=0.7, reduce_merge_inmem=0, task_io_sort_factor=100, spill_percent=1)
 #'     \dontrun{
-#'       swaptoTime(FileInput, FileOutput, me)
+#'       swaptoTimeMap(FileInput, FileOutput, me)
+#'       swaptoTimeRed(FileOutput, "/wsc/tongx/spatem/tmax/sim/byyr256test", me)
 #'     }
+swaptoTime <- function(input, output){
 
-swaptoTime <- function(input, output, control=mapreduce.control()) {
+
+}
+
+swaptoTimeMap <- function(input, output, control=mapreduce.control()) {
 
   job <- list()
   job$map <- expression({
@@ -41,7 +46,40 @@ swaptoTime <- function(input, output, control=mapreduce.control()) {
         .fun = function(k) {
           rhcollect(unique(k$year), subset(k, select = -c(year)))
       })
-      #rhcollect(map.keys[[r]], object.size(map.values[[r]]))
+    })
+  })
+  job$setup <- expression(
+    map = {library(plyr, lib.loc=control$libLoc)}
+  )
+  job$parameters <- list(
+    control = control
+  )
+  job$mapred <- list(
+    mapreduce.job.reduces = 0,  #cdh5
+    mapreduce.task.timeout  = 0,
+    dfs.blocksize = control$BLK,
+    rhipe_map_bytes_read = 100*2^20,
+    mapreduce.map.java.opts = "-Xmx3072m",
+    mapreduce.map.memory.mb = 5120
+  )
+  job$combiner <- TRUE
+  job$input <- rhfmt(input, type="sequence")
+  job$output <- rhfmt(output, type="sequence")
+  job$mon.sec <- 10
+  job$jobname <- output
+  job$readback <- FALSE  
+
+  job.mr <- do.call("rhwatch", job)  
+
+}
+
+
+swaptoTimeRed <- function(input, output, control=mapreduce.control()) {
+
+  job <- list()
+  job$map <- expression({
+    lapply(seq_along(map.values), function(r) {
+      rhcollect(map.keys[[r]], map.values[[r]])
     })
   })
   job$reduce <- expression(
@@ -68,14 +106,19 @@ swaptoTime <- function(input, output, control=mapreduce.control()) {
     mapreduce.reduce.shuffle.parallelcopies = control$parallelcopies,
     mapreduce.reduce.merge.inmem.threshold = control$reduce_merge_inmem,
     mapreduce.reduce.input.buffer.percent = control$reduce_input_buffer,
+    mapreduce.task.io.sort.factor = control$task_io_sort_factor,
+    mapreduce.output.fileoutputformat.compress.type = "BLOCK",
     mapreduce.task.timeout  = 0,
     rhipe_reduce_buff_size = 10000,
     dfs.blocksize = control$BLK,
-    rhipe_map_bytes_read = 100*2^20,
-    mapreduce.map.java.opts = "-Xmx2048m",
-    mapreduce.map.memory.mb = 4096,
-    mapreduce.reduce.java.opts = "-Xmx3072m",
-    mapreduce.reduce.memory.mb = 4096   
+    #rhipe_map_bytes_read = 100*2^20,
+    rhipe_map_buff_size = 10000,
+    mapreduce.map.java.opts = "-Xmx3072m",
+    mapreduce.map.memory.mb = 5120,
+    rhipe_reduce_bytes_read = 1024*2^20,
+    mapreduce.reduce.java.opts = "-Xmx3584m",
+    mapreduce.reduce.memory.mb = 5120,
+    mapreduce.job.reduce.slowstart.completedmaps = 0.8   
   )
   job$combiner <- TRUE
   job$input <- rhfmt(input, type="sequence")
@@ -87,57 +130,3 @@ swaptoTime <- function(input, output, control=mapreduce.control()) {
   job.mr <- do.call("rhwatch", job)  
 
 }
-
-#swaptoTime <- function(interPath, output, control=mapreduce.control()) {
-#  job <- list()
-#  job$map <- expression({
-#    lapply(seq_along(map.values), function(r) {
-#      lapply(1:nrow(map.values[[r]]), function(k) {
-#        key <- map.values[[r]]$date[k]
-#        value <- c(map.keys[[r]][1], map.values[[r]]$resp[k], map.values[[r]]$trend[k], map.values[[r]]$seasonal[k])
-#        rhcollect(1, 1)
-#      })
-#    })
-#  })
-#  job$reduce <- expression(
-#    pre = {
-#      combine <- data.frame()
-#    },
-#    reduce = {
-#      combine <- rbind(combine, do.call(rbind, reduce.values))
-#    },
-#    post = {
-#      rhcollect(reduce.key, combine)
-#    }
-#  )
-#  job$setup <- expression(
-#    map = {library(plyr, lib.loc=control$libLoc)}
-#  )
-#  job$parameters <- list(
-#    control = control
-#  )
-#  job$mapred <- list(
-#    mapreduce.job.reduces = 400,  #cdh5
-#    mapreduce.task.io.sort.mb = control$io_sort,
-#    mapreduce.map.sort.spill.percent = control$spill_percent,
-#    mapreduce.reduce.shuffle.parallelcopies = control$parallelcopies,
-#    mapreduce.reduce.merge.inmem.threshold = control$reduce_merge_inmem,
-#    mapreduce.reduce.input.buffer.percent = control$reduce_input_buffer,
-#    mapreduce.task.timeout  = 0,
-#    rhipe_reduce_buff_size = control$reduce_buff_size,
-#    rhipe_map_buff_size = 10000,
-#    rhipe_map_bytes_read = 256*2^20,
-#    dfs.blocksize = control$BLK,
-#    mapreduce.map.java.opts = "-Xmx3072m",
-#    mapreduce.map.memory.mb = 4096
-#  )
-#  job$combiner <- TRUE
-#  job$input <- rhfmt(interPath, type="sequence")
-#  job$output <- rhfmt(output, type="sequence")
-#  job$mon.sec <- 10
-#  job$jobname <- output
-#  job$readback <- FALSE  #
-
-#  job.mr <- do.call("rhwatch", job)  #
-
-#}
