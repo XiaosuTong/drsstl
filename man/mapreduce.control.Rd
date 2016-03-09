@@ -4,9 +4,9 @@
 \alias{mapreduce.control}
 \title{Set mapreduce parameter for drSpaceTime fitting}
 \usage{
-mapreduce.control(reduceTask = 0, libLoc = NULL, spill_percent = 0.8,
-  io_sort = 100, task_io_sort_factor = 10, reduce_parallelcopies = 5,
-  reduce_shuffle_input_buffer_percent = 0.7,
+mapreduce.control(reduceTask = 0, libLoc = NULL, BLK = 512,
+  spill_percent = 0.8, io_sort = 100, task_io_sort_factor = 10,
+  reduce_parallelcopies = 5, reduce_shuffle_input_buffer_percent = 0.7,
   reduce_shuffle_merge_percent = 0.66, reduce_merge_inmem = 1000,
   reduce_input_buffer_percent = 0, reduce_buff_size = 10000)
 }

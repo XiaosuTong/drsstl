@@ -4,16 +4,16 @@
 \alias{repbyTime}
 \title{Replicate the data in time dimension.}
 \usage{
-repbyTime(input, output, Rep = 5800, control = mapreduce.control())
+repbyTime(input, output, Srep, control = mapreduce.control())
 }
 \arguments{
 \item{input}{The path of input sequence file on HDFS. It should be by location division.}
 
 \item{output}{The path of output sequence file on HDFS. It is by location division but duplicate the time series to be longer.}
 
-\item{Rep}{The replication time for the time series of each location}
-
 \item{control}{A list contains all mapreduce tuning parameters.}
+
+\item{Rep}{The replication time for the time series of each location}
 }
 \description{
 For simulation purpose to enlarge the data for each location.
@@ -22,10 +22,11 @@ For simulation purpose to enlarge the data for each location.
 repbyoTime is used for duplicate the time series at each location.
 }
 \examples{
-    FileInput <- "/wsc/tongx/Spatial/tmp/tmax/simulate/bystation.orig"
-    FileOutput <- "/wsc/tongx/Spatial/tmp/tmax/simulate/bystation.small"
+    FileInput <- "/wsc/tongx/spatem/tmax/sim/bystation.orig"
+    FileOutput <- "/wsc/tongx/spatem/tmax/sim/bystation"
+    me <- mapreduce.control(libLoc=lib.loc, BLK = 256)
     \dontrun{
-      repbyTime(FileInput, FileOutput, Rep=5800, me)
+      repbyTime(FileInput, FileOutput, Srep=18.5, me) 
     }
 }
 \author{

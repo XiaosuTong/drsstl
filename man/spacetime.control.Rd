@@ -4,13 +4,13 @@
 \alias{spacetime.control}
 \title{Set smoothing parameter for drSpaceTime fitting}
 \usage{
-spacetime.control(vari, time, seaname, n, n.p, s.window, s.degree = 1,
-  s.jump = ceiling(s.window/10), t.window = NULL, t.degree = 1,
-  t.jump = ceiling(t.window/10), t.blend = 0, l.window = NULL,
-  l.degree = t.degree, l.jump = ceiling(l.window/10), l.blend = 0,
-  critfreq = 0.05, s.blend = 0, sub.labels = NULL, sub.start = 1,
-  inner = 4, outer = 1, surface = c("interpolate", "direct"),
-  iterations = 1, infill = TRUE)
+spacetime.control(vari = "resp", time = "date", seaname = "month", n,
+  n.p = 12, s.window, s.degree = 1, s.jump = ceiling(s.window/10),
+  t.window = NULL, t.degree = 1, t.jump = ceiling(t.window/10),
+  t.blend = 0, l.window = NULL, l.degree = t.degree,
+  l.jump = ceiling(l.window/10), l.blend = 0, critfreq = 0.05,
+  s.blend = 0, sub.labels = NULL, sub.start = 1, inner = 4, outer = 1,
+  degree, span, Edeg, surf = c("interpolate", "direct"), iterations = 1)
 }
 \arguments{
 \item{vari}{variable name in string of the response variable}
@@ -39,11 +39,11 @@ spacetime.control(vari, time, seaname, n, n.p, s.window, s.degree = 1,
 
 \item{outer}{The iteration time for outer loop of stlplus for time dimension fitting}
 
-\item{surface}{should the fitted surface be computed exactly or via interpolation from a kd tree?}
-
 \item{iterations}{the number of iterations used for the space-time back-fitting.}
 
 \item{zero.weight}{value to use as zero for zero weighting}
+
+\item{surface}{should the fitted surface be computed exactly or via interpolation from a kd tree?}
 
 \item{libLoc}{the library searching path, sepcifically the path including Spaloess and 
 stlplus package on the front end server. If all packages have been pushed
