@@ -12,11 +12,17 @@
 #'     Xiaosu Tong 
 #' @export
 #' @examples
-#'  me <- mapreduce.control(libLoc=lib.loc, reduceTask=1300, io_sort=512, BLK=256, reduce_input_buffer_percent=0.7, reduce_parallelcopies=5, reduce_merge_inmem=0, task_io_sort_factor=100, spill_percent=1)
-#'     \dontrun{
-#'       readIn("/wsc/tongx/spatem/nRaw/tmax","/wsc/tongx/spatem/tmax/sim/bymth", me) 
-#'     }
-readIn <- function(input, output, cluster_control = mapreduce.control()) {
+    me <- mapreduce.control(
+      libLoc=lib.loc, reduceTask=179, io_sort=512, BLK=256, 
+      reduce_input_buffer_percent=1, reduce_parallelcopies=10, 
+      reduce_merge_inmem=0, task_io_sort_factor=100, 
+      spill_percent=1,reduce_shuffle_input_buffer_percent = 0.8,
+      reduce_shuffle_merge_percent = 1
+    )
+#'    \dontrun{
+#'      readIn("/wsc/tongx/spatem/nRaw/tmax","/wsc/tongx/spatem/tmax/sim/bymth", info="/wsc/tongx/spatem/stationinfo/a1950UStinfo.RData", me) 
+#'    }
+readIn <- function(input, output, info, cluster_control = mapreduce.control()) {
 
   job <- list()
   job$map <- expression({
@@ -36,12 +42,14 @@ readIn <- function(input, output, cluster_control = mapreduce.control()) {
     tmp <- as.data.frame(
       matrix(as.numeric(y[, (1:12) + 3]), ncol = 12)
     )
-    name <- y[, 3]
+
+    name <- match(y[, 3], a1950UStinfo$station.id)
+
     year <- (as.numeric(y[, 2]) - 55) + (as.numeric(y[, 1]) - 1)*48
     tmp <- tmp/10
     tmp[miss == 1] <- NA
     names(tmp) <- 1:12
-    tmp <- cbind(station.id = name, tmp, year = year, stringsAsFactors = FALSE)
+    tmp <- cbind(station.id = as.numeric(name), tmp, year = year, stringsAsFactors = FALSE)
     value <- data.frame(
       station.id = rep(tmp$station.id, 12),
       year = rep(tmp$year, 12),
@@ -56,7 +64,7 @@ readIn <- function(input, output, cluster_control = mapreduce.control()) {
       .data = value,
       .vari = c("year","month"),
       .fun = function(r) {
-        rhcollect(c(unique(r$year), unique(r$month)), subset(r, select = -c(month, year)))
+        rhcollect(c(unique(r$year), unique(r$month)), as.matrix(subset(r, select = -c(month, year)), rownames.force=FALSE))
       }
     )
   })
@@ -68,21 +76,23 @@ readIn <- function(input, output, cluster_control = mapreduce.control()) {
       combine <- rbind(combine, do.call(rbind, reduce.values))
     },
     post = {
-      rhcollect(reduce.key, combine)
+      rhcollect(reduce.key, as.matrix(combine, rownames.force=FALSE))
     }
   )
   job$setup <- expression(
     map = {
       library(plyr, lib.loc = Clcontrol$libLoc)
+      load("a1950UStinfo.RData")
     }
   )
+  job$shared <- c(info)
   job$parameters <- list(Clcontrol = cluster_control)
   job$input <- rhfmt(input, type = "text")
   job$output <- rhfmt(output, type = "sequence")
   job$mapred <- list( 
     mapreduce.map.java.opts = "-Xmx3072m",
     mapreduce.map.memory.mb = 5120, 
-    mapreduce.reduce.java.opts = "-Xmx3584m",
+    mapreduce.reduce.java.opts = "-Xmx4096m",
     mapreduce.reduce.memory.mb = 5120,
     mapreduce.job.reduces = cluster_control$reduceTask,  #cdh5
     dfs.blocksize = cluster_control$BLK,
