@@ -1,6 +1,21 @@
-
-#'  me <- mapreduce.control(libLoc=lib.loc, reduceTask=1300, io_sort=512, BLK=256, reduce_input_buffer_percent=0.7, reduce_parallelcopies=10, reduce_merge_inmem=0, task_io_sort_factor=100, spill_percent=1)
-#'  readIn("/wsc/tongx/spatem/nRaw/tmax","/wsc/tongx/spatem/tmax/sim/bymth", me)
+#' Readin Raw text data files and save it as by time division on HDFS.
+#'
+#' Input raw text data file is divided into by time subsets and saved on HDFS
+#'
+#' @param input
+#'     The path of input sequence file on HDFS. It should be raw text file.
+#' @param output
+#'     The path of output sequence file on HDFS. It is by time division.
+#' @param cluster_control
+#'     all parameters that are needed for mapreduce job
+#' @author 
+#'     Xiaosu Tong 
+#' @export
+#' @examples
+#'  me <- mapreduce.control(libLoc=lib.loc, reduceTask=1300, io_sort=512, BLK=256, reduce_input_buffer_percent=0.7, reduce_parallelcopies=5, reduce_merge_inmem=0, task_io_sort_factor=100, spill_percent=1)
+#'     \dontrun{
+#'       readIn("/wsc/tongx/spatem/nRaw/tmax","/wsc/tongx/spatem/tmax/sim/bymth", me) 
+#'     }
 readIn <- function(input, output, cluster_control = mapreduce.control()) {
 
   job <- list()
@@ -8,7 +23,7 @@ readIn <- function(input, output, cluster_control = mapreduce.control()) {
     y <- do.call("rbind", 
       lapply(map.values, function(r) {
         row <- strsplit(r, " +")[[1]]
-        c(row[1:2], row[3:14], substring(row[15], 1:12, 1:12))
+        c(row[1:3], row[4:15], substring(row[16], 1:12, 1:12))
       })
     )
     #file <- Sys.getenv("mapred.input.file") #get the file name that Hadoop is reading
@@ -16,13 +31,13 @@ readIn <- function(input, output, cluster_control = mapreduce.control()) {
     #  substr(tail(strsplit(tail(strsplit(file, "/")[[1]],1), "[.]")[[1]], 1), 2, 4)
     #)
     miss <- as.data.frame(
-      matrix(as.numeric(y[, (1:12) + 14]), ncol = 12)
+      matrix(as.numeric(y[, (1:12) + 15]), ncol = 12)
     )
     tmp <- as.data.frame(
-      matrix(as.numeric(y[, (1:12) + 2]), ncol = 12)
+      matrix(as.numeric(y[, (1:12) + 3]), ncol = 12)
     )
-    name <- y[, 2]
-    year <- (as.numeric(y[, 1]))
+    name <- y[, 3]
+    year <- (as.numeric(y[, 2]) - 55) + (as.numeric(y[, 1]) - 1)*48
     tmp <- tmp/10
     tmp[miss == 1] <- NA
     names(tmp) <- 1:12
@@ -82,7 +97,7 @@ readIn <- function(input, output, cluster_control = mapreduce.control()) {
     rhipe_reduce_buff_size = 10000,
     rhipe_reduce_bytes_read = 150*2^20,
     rhipe_map_buff_size = 10000, 
-    mapreduce.job.reduce.slowstart.completedmaps = 0.8 
+    mapreduce.job.reduce.slowstart.completedmaps = 0.9 
   )
   job$combiner <- TRUE
   job$jobname <- output

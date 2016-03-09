@@ -21,12 +21,12 @@ call stlplus function on time series at each location in parallel.
 Every station uses the same smoothing parameter
 }
 \examples{
-    FileInput <- "/wsc/tongx/Spatial/tmp/tmax/simulate/bystation"
-    FileOutput <- "/wsc/tongx/Spatial/tmp/tmax/simulate/bystation.stlfit"
-    me <- spacetime.control(libLoc=lib.loc)
-    you <- mapreduce.control(vari="resp", time="date", seaname="month", n=3340800, n.p=12, s.window=13, t.window = 241)
+    FileInput <- "/wsc/tongx/spatem/tmax/sim/bystat256"
+    FileOutput <- "/wsc/tongx/spatem/tmax/sim/bystatfit512"
+    me <- mapreduce.control(libLoc=lib.loc, BLK = 512)
+    you <- spacetime.control(vari="resp", time="date", seaname="month", n=4448736, n.p=12, s.window=13, t.window = 241)
     \dontrun{
-      stlfit(FileInput, FileOutput, me, you)
+      stlfit(FileInput, FileOutput, you, me)
     }
 }
 \author{

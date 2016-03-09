@@ -30,17 +30,17 @@ stlfit <- function(input, output, model_control=spacetime.control(), cluster_con
     lapply(seq_along(map.keys), function(r) {
       #value <- arrange(map.values[[r]], date)
       fit <- stlplus::stlplus(
-        x=map.values[[r]][, control$vari], t=map.values[[r]][, control$time], n.p=control$n.p, 
-        s.window=control$s.window, s.degree=control$s.degree, 
-        t.window=control$t.window, t.degree=control$t.degree, 
-        inner=control$inner, outer=control$outer
+        x=map.values[[r]][, Mlcontrol$vari], t=map.values[[r]][, Mlcontrol$time], n.p=Mlcontrol$n.p, 
+        s.window=Mlcontrol$s.window, s.degree=Mlcontrol$s.degree, 
+        t.window=Mlcontrol$t.window, t.degree=Mlcontrol$t.degree, 
+        inner=Mlcontrol$inner, outer=Mlcontrol$outer
       )$data
       value <- cbind(subset(map.values[[r]], select=c(-month)), subset(fit, select = c(seasonal, trend)))
       rhcollect(map.keys[[r]], value)
     })
   })
   job$parameters <- list(
-    control = model_control,
+    Mlcontrol = model_control,
     Clcontrol = cluster_control
   )
   job$setup <- expression(
