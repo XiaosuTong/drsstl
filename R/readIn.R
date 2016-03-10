@@ -12,13 +12,13 @@
 #'     Xiaosu Tong 
 #' @export
 #' @examples
-    me <- mapreduce.control(
-      libLoc=lib.loc, reduceTask=179, io_sort=512, BLK=256, 
-      reduce_input_buffer_percent=1, reduce_parallelcopies=10, 
-      reduce_merge_inmem=0, task_io_sort_factor=100, 
-      spill_percent=1,reduce_shuffle_input_buffer_percent = 0.8,
-      reduce_shuffle_merge_percent = 1
-    )
+#'    me <- mapreduce.control(
+#'      libLoc=lib.loc, reduceTask=1300, io_sort=512, BLK=256, 
+#'      reduce_input_buffer_percent=0.99, reduce_parallelcopies=10, 
+#'      reduce_merge_inmem=0, task_io_sort_factor=100, 
+#'      spill_percent=0.99, reduce_shuffle_input_buffer_percent = 0.9,
+#'      reduce_shuffle_merge_percent = 0.99
+#'    )
 #'    \dontrun{
 #'      readIn("/wsc/tongx/spatem/nRaw/tmax","/wsc/tongx/spatem/tmax/sim/bymth", info="/wsc/tongx/spatem/stationinfo/a1950UStinfo.RData", me) 
 #'    }
@@ -92,16 +92,18 @@ readIn <- function(input, output, info, cluster_control = mapreduce.control()) {
   job$mapred <- list( 
     mapreduce.map.java.opts = "-Xmx3072m",
     mapreduce.map.memory.mb = 5120, 
-    mapreduce.reduce.java.opts = "-Xmx4096m",
+    mapreduce.reduce.java.opts = "-Xmx4608m",
     mapreduce.reduce.memory.mb = 5120,
     mapreduce.job.reduces = cluster_control$reduceTask,  #cdh5
     dfs.blocksize = cluster_control$BLK,
     mapreduce.task.io.sort.mb = cluster_control$io_sort,
     mapreduce.map.sort.spill.percent = cluster_control$spill_percent,
-    mapreduce.reduce.shuffle.parallelcopies = cluster_control$parallelcopies,
-    mapreduce.reduce.merge.inmem.threshold = cluster_control$reduce_merge_inmem,
-    mapreduce.reduce.input.buffer.percent = cluster_control$reduce_input_buffer,
+    mapreduce.reduce.shuffle.parallelcopies = cluster_control$reduce_parallelcopies,
     mapreduce.task.io.sort.factor = cluster_control$task_io_sort_factor,
+    mapreduce.reduce.shuffle.merge.percent = cluster_control$reduce_shuffle_merge_percent,
+    mapreduce.reduce.merge.inmem.threshold = cluster_control$reduce_merge_inmem,
+    mapreduce.reduce.input.buffer.percent = cluster_control$reduce_input_buffer_percent,
+    mapreduce.reduce.shuffle.input.buffer.percent = cluster_control$reduce_shuffle_input_buffer_percent,
     mapreduce.output.fileoutputformat.compress.type = "BLOCK",
     mapreduce.task.timeout  = 0,
     rhipe_reduce_buff_size = 10000,
@@ -114,4 +116,23 @@ readIn <- function(input, output, info, cluster_control = mapreduce.control()) {
   job$readback <- FALSE
   job.mr <- do.call("rhwatch", job)
 
+}
+
+result <- data.frame()
+
+for (i in round(179*(seq(1,7,1)))) {
+
+    me <- mapreduce.control(
+      libLoc=lib.loc, reduceTask=i, io_sort=512, BLK=256, 
+      reduce_input_buffer_percent=0.9, reduce_parallelcopies=10, 
+      reduce_merge_inmem=0, task_io_sort_factor=100, 
+      spill_percent=1.0, reduce_shuffle_input_buffer_percent = 0.9,
+      reduce_shuffle_merge_percent = 0.99
+    )
+    time <- system.time(readIn("/wsc/tongx/spatem/nRaw/tmax","/wsc/tongx/spatem/tmax/sim/bymth", info="/wsc/tongx/spatem/stationinfo/a1950UStinfo.RData", me)) 
+    rst <- data.frame(user=as.numeric(time[1]), sys=as.numeric(time[2]), elap = as.numeric(time[3]))
+    result <- rbind(result, rst)
+    
+    Sys.sleep(300)
+    
 }
