@@ -13,7 +13,7 @@
 #' @export
 #' @examples
 #'    me <- mapreduce.control(
-#'      libLoc=lib.loc, reduceTask=1300, io_sort=512, BLK=256, 
+#'      libLoc="/home/tongx/R_LIBS", reduceTask=1300, io_sort=512, BLK=256, 
 #'      reduce_input_buffer_percent=0.99, reduce_parallelcopies=10, 
 #'      reduce_merge_inmem=0, task_io_sort_factor=100, 
 #'      spill_percent=0.99, reduce_shuffle_input_buffer_percent = 0.9,
@@ -120,19 +120,19 @@ readIn <- function(input, output, info, cluster_control = mapreduce.control()) {
 
 result <- data.frame()
 
-for (i in round(179*(seq(1,7,1)))) {
-
-    me <- mapreduce.control(
-      libLoc=lib.loc, reduceTask=i, io_sort=512, BLK=256, 
-      reduce_input_buffer_percent=0.9, reduce_parallelcopies=10, 
-      reduce_merge_inmem=0, task_io_sort_factor=100, 
-      spill_percent=1.0, reduce_shuffle_input_buffer_percent = 0.9,
-      reduce_shuffle_merge_percent = 0.99
-    )
-    time <- system.time(readIn("/wsc/tongx/spatem/nRaw/tmax","/wsc/tongx/spatem/tmax/sim/bymth256", info="/wsc/tongx/spatem/stationinfo/a1950UStinfo.RData", me)) 
-    rst <- data.frame(user=as.numeric(time[1]), sys=as.numeric(time[2]), elap = as.numeric(time[3]))
-    result <- rbind(result, rst)
-    
-    Sys.sleep(300)
-    
-}
+#for (i in c(108, 72, 179*(seq(1,7,1)))) {
+#
+#    me <- mapreduce.control(
+#      libLoc=lib.loc, reduceTask=i, io_sort=512, BLK=256, 
+#      reduce_input_buffer_percent=0.9, reduce_parallelcopies=10, 
+#      reduce_merge_inmem=0, task_io_sort_factor=100, 
+#      spill_percent=1.0, reduce_shuffle_input_buffer_percent = 0.9,
+#      reduce_shuffle_merge_percent = 0.99
+#    )
+#    time <- system.time(readIn("/wsc/tongx/spatem/nRaw/tmax","/wsc/tongx/spatem/tmax/test/bymth256", info="/wsc/tongx/spatem/stationinfo/a1950UStinfo.RData", me)) 
+#    rst <- data.frame(user=as.numeric(time[1]), sys=as.numeric(time[2]), elap = as.numeric(time[3]))
+#    result <- rbind(result, rst)
+#    
+#    Sys.sleep(300)
+#    
+#}

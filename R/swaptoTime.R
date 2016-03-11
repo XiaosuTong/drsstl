@@ -22,7 +22,7 @@
 #' @examples
 #'     FileInput <- "/wsc/tongx/spatem/tmax/sim/bystatfit512"
 #'     FileOutput <- "/wsc/tongx/spatem/tmax/sim/byyear"
-#'     me <- mapreduce.control(libLoc=lib.loc, io_sort=512, BLK=256, reduce_input_buffer_percent=0.7, reduce_merge_inmem=0, task_io_sort_factor=100, spill_percent=1)
+#'     me <- mapreduce.control(libLoc="/home/tongx/R_LIBS", io_sort=512, BLK=256, reduce_input_buffer_percent=0.7, reduce_merge_inmem=0, task_io_sort_factor=100, spill_percent=1)
 #'     \dontrun{
 #'       swaptoTimeMap(FileInput, FileOutput, me)
 #'       swaptoTimeRed(FileOutput, "/wsc/tongx/spatem/tmax/sim/byyr256test", me)

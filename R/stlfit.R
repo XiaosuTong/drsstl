@@ -17,7 +17,7 @@
 #' @examples
 #'     FileInput <- "/wsc/tongx/spatem/tmax/sim/bystat256"
 #'     FileOutput <- "/wsc/tongx/spatem/tmax/sim/bystatfit512"
-#'     me <- mapreduce.control(libLoc=lib.loc, BLK = 512)
+#'     me <- mapreduce.control(libLoc="/home/tongx/R_LIBS", BLK = 512)
 #'     you <- spacetime.control(vari="resp", time="date", seaname="month", n=4448736, n.p=12, s.window=13, t.window = 241)
 #'     \dontrun{
 #'       stlfit(FileInput, FileOutput, you, me)
