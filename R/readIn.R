@@ -129,7 +129,7 @@ for (i in round(179*(seq(1,7,1)))) {
       spill_percent=1.0, reduce_shuffle_input_buffer_percent = 0.9,
       reduce_shuffle_merge_percent = 0.99
     )
-    time <- system.time(readIn("/wsc/tongx/spatem/nRaw/tmax","/wsc/tongx/spatem/tmax/sim/bymth", info="/wsc/tongx/spatem/stationinfo/a1950UStinfo.RData", me)) 
+    time <- system.time(readIn("/wsc/tongx/spatem/nRaw/tmax","/wsc/tongx/spatem/tmax/sim/bymth256", info="/wsc/tongx/spatem/stationinfo/a1950UStinfo.RData", me)) 
     rst <- data.frame(user=as.numeric(time[1]), sys=as.numeric(time[2]), elap = as.numeric(time[3]))
     result <- rbind(result, rst)
     
