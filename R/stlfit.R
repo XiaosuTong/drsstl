@@ -18,7 +18,7 @@
 #'     FileInput <- "/wsc/tongx/spatem/tmax/sim/bystat256"
 #'     FileOutput <- "/wsc/tongx/spatem/tmax/sim/bystatfit512"
 #'     me <- mapreduce.control(libLoc="/home/tongx/R_LIBS", BLK = 512)
-#'     you <- spacetime.control(vari="resp", time="date", seaname="month", n=4448736, n.p=12, s.window=13, t.window = 241)
+#'     you <- spacetime.control(vari="resp", time="date", seaname="month", n=3145728, n.p=12, s.window=13, t.window = 241, degree=2, span=0.015, Edeg=2)
 #'     \dontrun{
 #'       stlfit(FileInput, FileOutput, you, me)
 #'     }
@@ -28,14 +28,15 @@ stlfit <- function(input, output, model_control=spacetime.control(), cluster_con
   job <- list()
   job$map <- expression({
     lapply(seq_along(map.keys), function(r) {
-      #value <- arrange(map.values[[r]], date)
+      value <- arrange(as.data.frame(map.values[[r]]), V1)
       fit <- stlplus::stlplus(
-        x=map.values[[r]][, Mlcontrol$vari], t=map.values[[r]][, Mlcontrol$time], n.p=Mlcontrol$n.p, 
+        x=value$V2, t=value$V1, n.p=Mlcontrol$n.p, 
         s.window=Mlcontrol$s.window, s.degree=Mlcontrol$s.degree, 
         t.window=Mlcontrol$t.window, t.degree=Mlcontrol$t.degree, 
         inner=Mlcontrol$inner, outer=Mlcontrol$outer
       )$data
-      value <- cbind(subset(map.values[[r]], select=c(-month)), subset(fit, select = c(seasonal, trend)))
+      names(value) <- c(Mlcontrol$time, Mlcontrol$vari)
+      value <- cbind(value, subset(fit, select = c(seasonal, trend)))
       rhcollect(map.keys[[r]], value)
     })
   })
@@ -54,14 +55,15 @@ stlfit <- function(input, output, model_control=spacetime.control(), cluster_con
   job$mapred <- list(
     mapreduce.task.timeout = 0,
     mapreduce.job.reduces = 0,  #cdh5
-    mapreduce.map.java.opts = "-Xmx3072m",
-    mapreduce.map.memory.mb = 4096,
+    mapreduce.map.java.opts = "-Xmx3584m",
+    mapreduce.map.memory.mb = 5120,     
     dfs.blocksize = cluster_control$BLK,
-    rhipe_map_bytes_read = 50*2^20,
-    rhipe_map_buffer_size = 1,
+    rhipe_map_bytes_read = 200*2^20,
+    rhipe_map_buffer_size = 10000,
     mapreduce.map.output.compress = TRUE,
-    mapreduce.output.fileoutputformat.compress.type = "BLOCK" 
+    mapreduce.output.fileoutputformat.compress.type = "BLOCK"
   )
+  job$mon.sec <- 10
   job$readback <- FALSE
   job$jobname <- output
   job.mr <- do.call("rhwatch", job)
