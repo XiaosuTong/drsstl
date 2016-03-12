@@ -26,7 +26,7 @@
 #'     me <- mapreduce.control(libLoc="/home/tongx/R_LIBS", BLK = 512)
 #'     you <- spacetime.control(vari="resp", time="date", seaname="month", n=4448736, n.p=12, s.window=13, t.window = 241, degree=2, span=0.015, Edeg=2)
 #'     \dontrun{
-#'       spatialfit(FileInput, FileOutput, target=you$vari,na=TRUE, sub=1, info="/wsc/tongx/spatem/stationinfo/a1950UStinfo.RData", model_control=you, cluster_control=me)
+#'       spatialfit(FileInput, FileOutput, target=you$vari, na=TRUE, sub=1, info="/wsc/tongx/spatem/stationinfo/a1950UStinfo.RData", model_control=you, cluster_control=me)
 #'     }
 
 
@@ -115,7 +115,7 @@ spatialfit <- function(input, output, info, na = TRUE, target="resp", sub=1, mod
     mapreduce.task.timeout = 0,
     mapreduce.job.reduces = 0,  #cdh5
     mapreduce.map.java.opts = "-Xmx3584m",
-    mapreduce.map.memory.mb = 5120, 
+    mapreduce.map.memory.mb = 5120,     
     dfs.blocksize = cluster_control$BLK,
     rhipe_map_bytes_read = 200*2^20,
     rhipe_map_buffer_size = 10000,
