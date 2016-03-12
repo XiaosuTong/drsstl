@@ -23,7 +23,7 @@
 #'       stlfit(FileInput, FileOutput, you, me)
 #'     }
 
-stlfit <- function(input, output, model_control=spacetime.control(), cluster_control=mapreduce.control()) {
+stlfit <- function(input, output, model_control=spacetime.control(), cluster_control=mapreduce.control(), map_read_bytes) {
   
   job <- list()
   job$map <- expression({
@@ -58,7 +58,7 @@ stlfit <- function(input, output, model_control=spacetime.control(), cluster_con
     mapreduce.map.java.opts = "-Xmx3584m",
     mapreduce.map.memory.mb = 5120,     
     dfs.blocksize = cluster_control$BLK,
-    rhipe_map_bytes_read = 200*2^20,
+    rhipe_map_bytes_read = map_read_bytes*2^20,
     rhipe_map_buffer_size = 10000,
     mapreduce.map.output.compress = TRUE,
     mapreduce.output.fileoutputformat.compress.type = "BLOCK"
@@ -68,4 +68,17 @@ stlfit <- function(input, output, model_control=spacetime.control(), cluster_con
   job$jobname <- output
   job.mr <- do.call("rhwatch", job)
 
+}
+
+
+result <- data.frame()
+
+for (i in c(25,50,100,150, 200)) {
+
+    time <- system.time(stlfit(FileInput, FileOutput, model_control=you, cluster_control=me, map_read_bytes=i)) 
+    rst <- data.frame(user=as.numeric(time[1]), sys=as.numeric(time[2]), elap = as.numeric(time[3]))
+    result <- rbind(result, rst)
+    
+    Sys.sleep(300)
+    
 }

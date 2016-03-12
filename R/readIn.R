@@ -107,8 +107,9 @@ readIn <- function(input, output, info, cluster_control = mapreduce.control()) {
     mapreduce.output.fileoutputformat.compress.type = "BLOCK",
     mapreduce.task.timeout  = 0,
     rhipe_reduce_buff_size = 10000,
-    rhipe_reduce_bytes_read = 150*2^20,
+    rhipe_reduce_bytes_read = cluster_control$reduce_buffer_read,
     rhipe_map_buff_size = 10000, 
+    rhipe_map_bytes_read = cluster_control$map_buffer_read,
     mapreduce.job.reduce.slowstart.completedmaps = 0.9 
   )
   job$combiner <- TRUE
@@ -118,21 +119,24 @@ readIn <- function(input, output, info, cluster_control = mapreduce.control()) {
 
 }
 
-result <- data.frame()
+#result <- data.frame()#
 
-for (i in c(72, 108, 179*(seq(1,7,1)))) {
+#for (i in c(25,50, 100, 128, 150, 200)) {
+#  for (j in c(25,50,100, 150, 200,)) {#
 
-    me <- mapreduce.control(
-      libLoc=lib.loc, reduceTask=i, io_sort=512, BLK=256, 
-      reduce_input_buffer_percent=0.9, reduce_parallelcopies=10, 
-      reduce_merge_inmem=0, task_io_sort_factor=100, 
-      spill_percent=1.0, reduce_shuffle_input_buffer_percent = 0.9,
-      reduce_shuffle_merge_percent = 0.99
-    )
-    time <- system.time(readIn("/wsc/tongx/spatem/nRaw/tmax","/wsc/tongx/spatem/tmax/test/bymth256", info="/wsc/tongx/spatem/stationinfo/a1950UStinfo.RData", me)) 
-    rst <- data.frame(user=as.numeric(time[1]), sys=as.numeric(time[2]), elap = as.numeric(time[3]))
-    result <- rbind(result, rst)
-    
-    Sys.sleep(300)
-    
-}
+#    me <- mapreduce.control(
+#      libLoc=lib.loc, reduceTask=537, io_sort=512, BLK=256, 
+#      reduce_input_buffer_percent=0.9, reduce_parallelcopies=10, 
+#      reduce_merge_inmem=0, task_io_sort_factor=100, 
+#      spill_percent=1.0, reduce_shuffle_input_buffer_percent = 0.9,
+#      reduce_shuffle_merge_percent = 0.99,
+#      reduce_buff_read = j, map_buffer_read = i
+#    )
+#    time <- system.time(readIn("/wsc/tongx/spatem/nRaw/tmax","/wsc/tongx/spatem/tmax/test/bymth256", info="/wsc/tongx/spatem/stationinfo/a1950UStinfo.RData", me)) 
+#    rst <- data.frame(map=i, reduce=j, user=as.numeric(time[1]), sys=as.numeric(time[2]), elap = as.numeric(time[3]))
+#    result <- rbind(result, rst)
+#    
+#    Sys.sleep(300)#
+
+#  }
+#}
