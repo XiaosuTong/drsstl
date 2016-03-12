@@ -71,14 +71,14 @@ stlfit <- function(input, output, model_control=spacetime.control(), cluster_con
 }
 
 
-result <- data.frame()
+#result <- data.frame()#
 
-for (i in c(25,50,100,150, 200)) {
+#for (i in c(25,50,100,150, 200)) {#
 
-    time <- system.time(stlfit(FileInput, FileOutput, model_control=you, cluster_control=me, map_read_bytes=i)) 
-    rst <- data.frame(user=as.numeric(time[1]), sys=as.numeric(time[2]), elap = as.numeric(time[3]))
-    result <- rbind(result, rst)
-    
-    Sys.sleep(300)
-    
-}
+#    time <- system.time(stlfit(FileInput, FileOutput, model_control=you, cluster_control=me, map_read_bytes=i)) 
+#    rst <- data.frame(user=as.numeric(time[1]), sys=as.numeric(time[2]), elap = as.numeric(time[3]))
+#    result <- rbind(result, rst)
+#    
+#    Sys.sleep(300)
+#    
+#}
