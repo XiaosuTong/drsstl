@@ -55,7 +55,7 @@ swaptoLoc <- function(input, output, sub, cluster_control=mapreduce.control()) {
   job$input <- rhfmt(input , type = "sequence")
   job$output <- rhfmt(output, type = "sequence")
   job$mapred <- list(
-    mapreduce.map.java.opts = "-Xmx3584m",
+    mapreduce.map.java.opts = "-Xmx3072m",
     mapreduce.map.memory.mb = 5120, 
     mapreduce.reduce.java.opts = "-Xmx4608m",
     mapreduce.reduce.memory.mb = 5120,
@@ -72,8 +72,9 @@ swaptoLoc <- function(input, output, sub, cluster_control=mapreduce.control()) {
     mapreduce.output.fileoutputformat.compress.type = "BLOCK",
     mapreduce.task.timeout  = 0,
     rhipe_reduce_buff_size = 10000,
-    rhipe_reduce_bytes_read = 150*2^20,
+    rhipe_reduce_bytes_read = cluster_control$reduce_buffer_read,
     rhipe_map_buff_size = 10000, 
+    rhipe_map_bytes_read = cluster_control$map_buffer_read,
     mapreduce.job.reduce.slowstart.completedmaps = 0.9 
   )
   job$mon.sec <- 10
@@ -84,21 +85,25 @@ swaptoLoc <- function(input, output, sub, cluster_control=mapreduce.control()) {
 
 }
 
-#result <- data.frame()#
 
-#for (i in round(179*(seq(1,7,1)))) {#
-
+#result <- data.frame()
+# 
+#for(k in 1:3) {
+#for (i in round(179*(seq(1,7,1)))) {
+#  for(j in )
 #    me <- mapreduce.control(
-#      libLoc=lib.loc, reduceTask=537, io_sort=512, BLK=256, 
+#      libLoc=lib.loc, reduceTask=537, io_sort=i, BLK=256, 
 #      reduce_input_buffer_percent=0.9, reduce_parallelcopies=10, 
 #      reduce_merge_inmem=0, task_io_sort_factor=100, 
-#      spill_percent=1.0, reduce_shuffle_input_buffer_percent = 0.9,
-#      reduce_shuffle_merge_percent = 0.99
+#      spill_percent=j, reduce_shuffle_input_buffer_percent = 0.9,
+#      reduce_shuffle_merge_percent = 0.99,
+#      reduce_buff_read = 200, map_buffer_read = 200
 #    )
 #    time <- system.time(swaptoLoc(FileInput, FileOutput, sub=1, cluster_control=me)) 
-#    rst <- data.frame(user=as.numeric(time[1]), sys=as.numeric(time[2]), elap = as.numeric(time[3]))
+#    rst <- data.frame(rep = k, iosort=i, percent=j, elap = as.numeric(time[3]))
 #    result <- rbind(result, rst)
 #    
 #    Sys.sleep(300)
-#    
+#  }
+#}
 #}
