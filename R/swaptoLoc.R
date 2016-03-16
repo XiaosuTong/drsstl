@@ -86,24 +86,24 @@ swaptoLoc <- function(input, output, sub, cluster_control=mapreduce.control()) {
 }
 
 
-#result <- data.frame()
-# 
-#for(k in 1:3) {
-#for (i in round(179*(seq(1,7,1)))) {
-#  for(j in )
-#    me <- mapreduce.control(
-#      libLoc=lib.loc, reduceTask=537, io_sort=i, BLK=256, 
-#      reduce_input_buffer_percent=0.9, reduce_parallelcopies=10, 
-#      reduce_merge_inmem=0, task_io_sort_factor=100, 
-#      spill_percent=j, reduce_shuffle_input_buffer_percent = 0.9,
-#      reduce_shuffle_merge_percent = 0.99,
-#      reduce_buff_read = 200, map_buffer_read = 200
-#    )
-#    time <- system.time(swaptoLoc(FileInput, FileOutput, sub=1, cluster_control=me)) 
-#    rst <- data.frame(rep = k, iosort=i, percent=j, elap = as.numeric(time[3]))
-#    result <- rbind(result, rst)
-#    
-#    Sys.sleep(300)
-#  }
-#}
-#}
+result <- data.frame()
+ 
+for(k in 1:3) {
+for (i in c(128, 256, 512, 768, 1024)) {
+  for(j in c(0.1, 0.2, 0.5, 0.8, 1))
+    me <- mapreduce.control(
+      libLoc=lib.loc, reduceTask=537, io_sort=i, BLK=256, 
+      reduce_input_buffer_percent=0.9, reduce_parallelcopies=10, 
+      reduce_merge_inmem=0, task_io_sort_factor=100, 
+      spill_percent=j, reduce_shuffle_input_buffer_percent = 0.9,
+      reduce_shuffle_merge_percent = 0.99,
+      reduce_buff_read = 200, map_buffer_read = 200
+    )
+    time <- system.time(swaptoLoc(FileInput, FileOutput, sub=1, cluster_control=me)) 
+    rst <- data.frame(rep = k, iosort=i, percent=j, elap = as.numeric(time[3]))
+    result <- rbind(result, rst)
+    
+    Sys.sleep(300)
+  }
+}
+}
