@@ -1,30 +1,41 @@
-#' Swap to division by season
+#' Swap to division by subseries
 #'
 #' Switch input key-value pairs which is division by location
-#' to the key-value pairs which is division by season.
+#' to the key-value pairs which is division by subseries.
 #'
 #' @param input
-#'     The path of input sequence file on HDFS. It should be by location.
+#'     The path of input file on HDFS. It should be by location.
 #' @param output
-#'     The path of output sequence file on HDFS. It is by season division.
-#' @param reduceTask
-#'     The number of the reduce tasks.
-#' @param control
-#'     all parameters that are needed for space-time fitting
+#'     The path of output file on HDFS. It is by subseries division.
+#' @param cluster_control
+#'     Should be a list object generated from \code{mapreduce.control} function.
+#'     The list including all necessary Rhipe parameters and also user tunable 
+#'     MapReduce parameters.
+#' @param model_control
+#'     Should be a list object generated from \code{spacetime.control} function.
+#'     The list including all necessary smoothing parameters of nonparametric fitting.
 #' @details
-#'     swaptoSeason is used for switch division by location to division by season.
-#'     The output files will be intput to parallel seasonal fitting of stlplus.
+#'     \code{swaptoSubser} is used for switch division by location to division by subseries.
+#'     The smoothing procedure can be applied to each subseries in parallel. So the
+#'      output files will be intput to parallel seasonal fitting of stlplus.
 #' @author 
 #'     Xiaosu Tong 
 #' @export
+#' @seealso
+#'     \code{\link{spacetime.control}}, \code{\link{mapreduce.control}}
 #' @examples
-#'     FileInput <- "/ln/tongx/Spatial/tmp/tmax/a1950/bymonth.fit/symmetric/direct/2/sp0.015.bystation"
-#'     FileOutput <- "/ln/tongx/Spatial/tmp/tmax/a1950/byseason"
-#'     \dontrun{
-#'       swaptoSeason(FileInput, FileOutput, reduceTask=10, Clcontrol=mapreduce.control(libLoc=.libPaths()))
-#'     }
+#'     FileInput <- "/wsc/tongx/spatem/tmax/sims/bystat"
+#'     FileOutput <- "/wsc/tongx/spatem/tmax/sims/bysubser"
+#'     ccontrol <- mapreduce.control(libLoc=.libPaths(), reduceTask=179)
+#'     mcontrol <- spacetime.control(
+#'       vari = "resp", time = "date", seaname = "month", 
+#'       n = 786432, n.p = 12, s.window = "periodic", t.window = 241, 
+#'       degree = 2, span = 0.015, Edeg = 2, statbytime = 2
+#'     )
+#'     swaptoSubser(FileInput, FileOutput, cluster_control=ccontrol, model_control=mcontrol)
 
-swaptoSeason <- function(input, output, Clcontrol) {
+
+swaptoSubser <- function(input, output, cluster_control, model_control) {
 
   job <- list()
   job$map <- expression({
@@ -41,17 +52,25 @@ swaptoSeason <- function(input, output, Clcontrol) {
     })
   })
   job$parameters <- list(
-    Clcontrol = Clcontrol
+    Clcontrol = cluster_control,
+    Mlcontrol = model_control
   )
   job$setup <- expression(
     map = {library(plyr, lib.loc=Clcontrol$libLoc)}
   )
   job$mapred <- list(
-    mapred.reduce.tasks = Clcontrol$reduceTask,  #cdh3,4
-    mapreduce.job.reduces = Clcontrol$reduceTask,  #cdh5
-    mapred.tasktimeout = 0, #cdh3,4
-    mapreduce.task.timeout = 0, #cdh5
-    rhipe_reduce_buff_size = 10000
+    mapreduce.task.timeout = 0,
+    mapreduce.job.reduces = cluster_control$reduceTask,  #cdh5
+    mapreduce.map.java.opts = cluster_control$map_jvm,
+    mapreduce.map.memory.mb = cluster_control$map_memory,     
+    dfs.blocksize = cluster_control$BLK,
+    rhipe_reduce_buff_size = cluster_control$reduce_buffer_size,
+    rhipe_reduce_bytes_read = cluster_control$reduce_buffer_read,
+    rhipe_map_buff_size = cluster_control$map_buffer_size, 
+    rhipe_map_bytes_read = cluster_control$map_buffer_read,
+    mapreduce.map.output.compress = TRUE,
+    mapreduce.output.fileoutputformat.compress.type = "BLOCK"
+
   )
   job$input <- rhfmt(input, type="sequence")
   job$output <- rhfmt(output, type="sequence")
