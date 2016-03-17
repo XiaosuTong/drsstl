@@ -89,8 +89,8 @@ swaptoLoc <- function(input, output, sub, cluster_control=mapreduce.control()) {
 result <- data.frame()
  
 for(k in 1:3) {
-for (i in c(128, 256, 512, 768, 1024)) {
-  for(j in c(0.1, 0.2, 0.5, 0.8, 1))
+for (i in c(256, 512, 768, 1024)) {
+  for(j in c( 0.2, 0.5, 0.8, 1)) {
     me <- mapreduce.control(
       libLoc=lib.loc, reduceTask=537, io_sort=i, BLK=256, 
       reduce_input_buffer_percent=0.9, reduce_parallelcopies=10, 
