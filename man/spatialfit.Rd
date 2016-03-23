@@ -4,13 +4,20 @@
 \alias{spatialfit}
 \title{Conduct the stlplus fitting at each location in parallel}
 \usage{
-spatialfit(input, output, info, model_control = spacetime.control(),
+spatialfit(input, output, info, na = TRUE, target = "resp", sub = 1,
+  model_control = spacetime.control(),
   cluster_control = mapreduce.control())
 }
 \arguments{
 \item{input}{The path of input sequence file on HDFS. It should be by location division.}
 
 \item{output}{The path of output sequence file on HDFS. It is by location division but with seasonal and trend components}
+
+\item{info}{the RData path on HDFS which contains all station metadata}
+
+\item{target}{the variable name for the spatial fit, either "resp" or "remainder"}
+
+\item{sub}{integer, specifies how many month records are in each input key-value pair.}
 
 \item{model_control}{The list contains all smoothing parameters}
 
@@ -21,12 +28,12 @@ call stlplus function on time series at each location in parallel.
 Every station uses the same smoothing parameter
 }
 \examples{
-    FileInput <- "/wsc/tongx/spatem/tmax/sim/byyr256"
-    FileOutput <- "/wsc/tongx/spatem/tmax/sim/byyrfit256"
-    me <- mapreduce.control(libLoc=lib.loc, BLK = 256)
-    you <- spacetime.control(vari="resp", time="date", seaname="month", n=4448736, n.p=12, s.window=13, t.window = 241, degree=2, span=0.015, Edeg=2)
+    FileInput <- "/wsc/tongx/spatem/tmax/sim/bymth256"
+    FileOutput <- "/wsc/tongx/spatem/tmax/sim/bymthfit256"
+    me <- mapreduce.control(libLoc="/home/tongx/R_LIBS", BLK = 256)
+    you <- spacetime.control(vari="resp", time="date", seaname="month", n=3145728, n.p=12, s.window=13, t.window = 241, degree=2, span=0.015, Edeg=2)
     \dontrun{
-      spatialfit(FileInput, FileOutput, info="/wsc/tongx/spatem/stationinfo/UStinfo.RData", you, me)
+      spatialfit(FileInput, FileOutput, target=you$vari, na=TRUE, sub=1, info="/wsc/tongx/spatem/stationinfo/a1950UStinfo.RData", model_control=you, cluster_control=me)
     }
 }
 \author{

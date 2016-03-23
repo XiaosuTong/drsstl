@@ -4,7 +4,7 @@
 \alias{readIn}
 \title{Readin Raw text data files and save it as by time division on HDFS.}
 \usage{
-readIn(input, output, cluster_control = mapreduce.control())
+readIn(input, output, info, cluster_control = mapreduce.control())
 }
 \arguments{
 \item{input}{The path of input sequence file on HDFS. It should be raw text file.}
@@ -17,10 +17,16 @@ readIn(input, output, cluster_control = mapreduce.control())
 Input raw text data file is divided into by time subsets and saved on HDFS
 }
 \examples{
- me <- mapreduce.control(libLoc=lib.loc, reduceTask=1300, io_sort=512, BLK=256, reduce_input_buffer_percent=0.7, reduce_parallelcopies=5, reduce_merge_inmem=0, task_io_sort_factor=100, spill_percent=1)
-    \dontrun{
-      readIn("/wsc/tongx/spatem/nRaw/tmax","/wsc/tongx/spatem/tmax/sim/bymth", me) 
-    }
+   me <- mapreduce.control(
+     libLoc="/home/tongx/R_LIBS", reduceTask=1300, io_sort=512, BLK=256, 
+     reduce_input_buffer_percent=0.99, reduce_parallelcopies=10, 
+     reduce_merge_inmem=0, task_io_sort_factor=100, 
+     spill_percent=0.99, reduce_shuffle_input_buffer_percent = 0.9,
+     reduce_shuffle_merge_percent = 0.99
+   )
+   \dontrun{
+     readIn("/wsc/tongx/spatem/nRaw/tmax","/wsc/tongx/spatem/tmax/sim/bymth", info="/wsc/tongx/spatem/stationinfo/a1950UStinfo.RData", me) 
+   }
 }
 \author{
 Xiaosu Tong

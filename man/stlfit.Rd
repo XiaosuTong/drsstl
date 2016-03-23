@@ -5,7 +5,7 @@
 \title{Conduct the stlplus fitting at each location in parallel}
 \usage{
 stlfit(input, output, model_control = spacetime.control(),
-  cluster_control = mapreduce.control())
+  cluster_control = mapreduce.control(), map_read_bytes)
 }
 \arguments{
 \item{input}{The path of input sequence file on HDFS. It should be by location division.}
@@ -23,8 +23,8 @@ Every station uses the same smoothing parameter
 \examples{
     FileInput <- "/wsc/tongx/spatem/tmax/sim/bystat256"
     FileOutput <- "/wsc/tongx/spatem/tmax/sim/bystatfit512"
-    me <- mapreduce.control(libLoc=lib.loc, BLK = 512)
-    you <- spacetime.control(vari="resp", time="date", seaname="month", n=4448736, n.p=12, s.window=13, t.window = 241)
+    me <- mapreduce.control(libLoc="/home/tongx/R_LIBS", BLK = 512)
+    you <- spacetime.control(vari="resp", time="date", seaname="month", n=3145728, n.p=12, s.window=13, t.window = 241, degree=2, span=0.015, Edeg=2)
     \dontrun{
       stlfit(FileInput, FileOutput, you, me)
     }
