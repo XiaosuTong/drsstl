@@ -31,8 +31,7 @@ swaptoLoc <- function(input, output, sub, cluster_control=mapreduce.control()) {
       date <- (as.numeric(map.keys[[r]][1]) - 1)*12 + as.numeric(map.keys[[r]][2])
       if(sub == 1) {
         lapply(1:length(map.values[[r]]), function(i){
-          value <- c(date, map.values[[r]][i])
-          rhcollect(i, value)
+          rhcollect(i, c(date, map.values[[r]][i]))
         })
       }
     })
@@ -55,7 +54,7 @@ swaptoLoc <- function(input, output, sub, cluster_control=mapreduce.control()) {
   job$input <- rhfmt(input , type = "sequence")
   job$output <- rhfmt(output, type = "sequence")
   job$mapred <- list(
-    mapreduce.map.java.opts = "-Xmx4096m",
+    mapreduce.map.java.opts = "-Xmx2560m",
     mapreduce.map.memory.mb = 5120, 
     mapreduce.reduce.java.opts = "-Xmx4608m",
     mapreduce.reduce.memory.mb = 5120,
