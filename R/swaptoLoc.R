@@ -70,11 +70,12 @@ swaptoLoc <- function(input, output, sub, cluster_control=mapreduce.control()) {
     mapreduce.reduce.shuffle.input.buffer.percent = cluster_control$reduce_shuffle_input_buffer_percent,
     mapreduce.output.fileoutputformat.compress.type = "BLOCK",
     mapreduce.task.timeout  = 0,
-    rhipe_reduce_buff_size = 10000,
+    mapreduce.job.reduce.slowstart.completedmaps = 0.9,
+    rhipe_reduce_buff_size = cluster_control$reduce_buffer_size,
     rhipe_reduce_bytes_read = cluster_control$reduce_buffer_read,
-    rhipe_map_buff_size = 10000, 
-    rhipe_map_bytes_read = cluster_control$map_buffer_read,
-    mapreduce.job.reduce.slowstart.completedmaps = 0.9 
+    rhipe_map_buff_size = cluster_control$map_buffer_size, 
+    rhipe_map_bytes_read = cluster_control$map_buffer_read
+ 
   )
   job$mon.sec <- 10
   job$jobname <- output  
