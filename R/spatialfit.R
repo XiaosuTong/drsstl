@@ -22,9 +22,9 @@
 #' @export
 #' @examples
 #'     FileInput <- "/wsc/tongx/spatem/tmax/sim/bymth256"
-#'     FileOutput <- "/wsc/tongx/spatem/tmax/sim/bymthfit512"
-#'     me <- mapreduce.control(libLoc="/home/tongx/R_LIBS", BLK = 512)
-#'     you <- spacetime.control(vari="resp", time="date", seaname="month", n=4448736, n.p=12, s.window=13, t.window = 241, degree=2, span=0.015, Edeg=2)
+#'     FileOutput <- "/wsc/tongx/spatem/tmax/sim/bymthfit256"
+#'     me <- mapreduce.control(libLoc="/home/tongx/R_LIBS", BLK = 256)
+#'     you <- spacetime.control(vari="resp", time="date", seaname="month", n=3145728, n.p=12, s.window=13, t.window = 241, degree=2, span=0.015, Edeg=2)
 #'     \dontrun{
 #'       spatialfit(FileInput, FileOutput, target=you$vari, na=TRUE, sub=1, info="/wsc/tongx/spatem/stationinfo/a1950UStinfo.RData", model_control=you, cluster_control=me)
 #'     }

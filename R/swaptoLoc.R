@@ -17,7 +17,7 @@
 #'     Xiaosu Tong 
 #' @export
 #' @examples
-#'     FileInput <- "/wsc/tongx/spatem/tmax/sim/bymthfit512"
+#'     FileInput <- "/wsc/tongx/spatem/tmax/sim/bymthfit256"
 #'     FileOutput <- "/wsc/tongx/spatem/tmax/sim/bystat256"
 #'     me <- mapreduce.control(libLoc="/home/tongx/R_LIBS", io_sort=512, BLK=256, reduce_input_buffer_percent=0.7, reduce_merge_inmem=0, task_io_sort_factor=100, spill_percent=1)
 #'     \dontrun{
@@ -55,7 +55,7 @@ swaptoLoc <- function(input, output, sub, cluster_control=mapreduce.control()) {
   job$input <- rhfmt(input , type = "sequence")
   job$output <- rhfmt(output, type = "sequence")
   job$mapred <- list(
-    mapreduce.map.java.opts = "-Xmx3584m",
+    mapreduce.map.java.opts = "-Xmx4096m",
     mapreduce.map.memory.mb = 5120, 
     mapreduce.reduce.java.opts = "-Xmx4608m",
     mapreduce.reduce.memory.mb = 5120,
@@ -99,7 +99,7 @@ for(k in 1:3) {
           reduce_merge_inmem=0, task_io_sort_factor=100, 
           spill_percent=j, reduce_shuffle_input_buffer_percent = 0.9,
           reduce_shuffle_merge_percent = 0.99,
-          reduce_buff_read = 200, map_buffer_read = 200
+          reduce_buff_read = 150, map_buffer_read = 150
         )
         time <- system.time(swaptoLoc(FileInput, FileOutput, sub=1, cluster_control=me)) 
         rst <- data.frame(rep = k, iosort=i, percent=j, elap = as.numeric(time[3]))
