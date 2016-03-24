@@ -56,7 +56,7 @@ swaptoLoc <- function(input, output, sub, cluster_control=mapreduce.control()) {
   job$mapred <- list(
     mapreduce.map.java.opts = "-Xmx2048m",
     mapreduce.map.memory.mb = 5120, 
-    mapreduce.reduce.java.opts = "-Xmx4608m",
+    mapreduce.reduce.java.opts = "-Xmx4096m",
     mapreduce.reduce.memory.mb = 5120,
     mapreduce.job.reduces = cluster_control$reduceTask,  #cdh5
     dfs.blocksize = cluster_control$BLK,
