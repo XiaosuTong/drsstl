@@ -29,22 +29,23 @@ swaptoLoc <- function(input, output, sub, cluster_control=mapreduce.control()) {
   job$map <- expression({
     lapply(seq_along(map.values), function(r) {
       date <- (as.numeric(map.keys[[r]][1]) - 1)*12 + as.numeric(map.keys[[r]][2])
-      if(sub == 1) {
-        lapply(1:length(map.values[[r]]), function(i){
-          rhcollect(i, c(date, map.values[[r]][i]))
-        })
-      }
+#      if(sub == 1) {
+#        lapply(1:length(map.values[[r]]), function(i){
+#          rhcollect(i, c(date, map.values[[r]][i]))
+#        })
+#      }
+      rhcollect(1, date)
     })
   })
   job$reduce <- expression(
     pre = {
-      combine <- data.frame()
+      combine <- numeric()
     },
     reduce = {
-      combine <- rbind(combine, do.call(rbind, reduce.values))
+      combine <- c(combine, do.call("c", reduce.values))
     },
     post = {
-      rhcollect(reduce.key, as.matrix(combine, rownames.force=FALSE))
+      rhcollect(reduce.key, matrix(combine, ncol=2, byrow=TRUE))
     }
   )
   job$parameters <- list(
