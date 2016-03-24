@@ -35,7 +35,7 @@ mapreduce.control <- function(
   spill_percent = 0.8, io_sort = 100, task_io_sort_factor = 10,
   reduce_parallelcopies = 5, reduce_shuffle_input_buffer_percent = 0.70,
   reduce_shuffle_merge_percent = 0.66, reduce_merge_inmem = 1000,
-  reduce_input_buffer_percent = 0, reduce_buff_read = 150, map_buffer_read = 150,
+  reduce_input_buffer_percent = 0, reduce_buffer_read = 150, map_buffer_read = 150,
   reduce_buffer_size = 10000, map_buffer_size= 10000) {
   
   list(
@@ -53,7 +53,7 @@ mapreduce.control <- function(
     # mapreduce.reduce.input.buffer.percent
     reduce_input_buffer_percent = reduce_input_buffer_percent,
     # Rhipe argument
-    reduce_buffer_read = reduce_buff_read*2^20,
+    reduce_buffer_read = reduce_buffer_read*2^20,
     reduce_buffer_size = reduce_buffer_size,
     map_buffer_read = map_buffer_read*2^20,
     map_buffer_size = map_buffer_size,
