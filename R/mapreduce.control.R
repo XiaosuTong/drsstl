@@ -56,8 +56,7 @@ mapreduce.control <- function(
     reduce_buff_read = reduce_buff_read*2^20,
     reduce_buffer_size = reduce_buffer_size,
     map_buffer_read = map_buffer_read*2^20,
-    map_buffer_size = map_buffer_size
-
+    map_buffer_size = map_buffer_size,
     BLK = BLK*2^20
   )
 
