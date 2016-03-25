@@ -29,12 +29,16 @@ swaptoLoc <- function(input, output, sub, cluster_control=mapreduce.control()) {
   job$map <- expression({
     lapply(seq_along(map.values), function(r) {
       date <- (as.numeric(map.keys[[r]][1]) - 1)*12 + as.numeric(map.keys[[r]][2])
-#      if(sub == 1) {
-#        lapply(1:length(map.values[[r]]), function(i){
-#          rhcollect(i, c(date, map.values[[r]][i]))
-#        })
-#      }
-      rhcollect(1, date)
+      if(sub == 1) {
+        lapply(1:length(map.values[[r]]), function(i){
+          rhcollect(i, c(date, map.values[[r]][i]))
+          NULL
+        })
+      } else {
+        lapply(seq(1, length(map.values[[r]], sub)), function(i) {
+          rhcollect(i, c(date, map.values[[r]][i], map.values[[r]][i+1]))
+        })
+      }
     })
   })
   job$reduce <- expression(
@@ -45,7 +49,8 @@ swaptoLoc <- function(input, output, sub, cluster_control=mapreduce.control()) {
       combine <- c(combine, do.call("c", reduce.values))
     },
     post = {
-      rhcollect(reduce.key, matrix(combine, ncol=2, byrow=TRUE))
+      rhcollect(reduce.key, combine)
+      #rhcollect(reduce.key, matrix(combine, ncol=(sub+1), byrow=TRUE))
     }
   )
   job$parameters <- list(
@@ -55,7 +60,7 @@ swaptoLoc <- function(input, output, sub, cluster_control=mapreduce.control()) {
   job$input <- rhfmt(input , type = "sequence")
   job$output <- rhfmt(output, type = "sequence")
   job$mapred <- list(
-    mapreduce.map.java.opts = "-Xmx2048m",
+    mapreduce.map.java.opts = "-Xmx3000m",
     mapreduce.map.memory.mb = 5120, 
     mapreduce.reduce.java.opts = "-Xmx4096m",
     mapreduce.reduce.memory.mb = 5120,
