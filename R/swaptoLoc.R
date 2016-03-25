@@ -81,7 +81,6 @@ swaptoLoc <- function(input, output, sub, cluster_control=mapreduce.control()) {
     rhipe_reduce_bytes_read = cluster_control$reduce_buffer_read,
     rhipe_map_buff_size = cluster_control$map_buffer_size, 
     rhipe_map_bytes_read = cluster_control$map_buffer_read
- 
   )
   job$mon.sec <- 10
   job$jobname <- output  
