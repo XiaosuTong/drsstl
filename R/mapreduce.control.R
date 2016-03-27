@@ -31,7 +31,8 @@
 #'     mapreduce.control()
 
 mapreduce.control <- function(
-  reduceTask=0, libLoc = NULL, BLK = 512,
+  reduceTask=0, libLoc = NULL, BLK = 512, map_jvm = "-Xmx3000m", reduce_jvm = "-Xmx4096m",
+  map_memory = 5120, reduce_memory = 5120,
   spill_percent = 0.8, io_sort = 100, task_io_sort_factor = 10,
   reduce_parallelcopies = 5, reduce_shuffle_input_buffer_percent = 0.70,
   reduce_shuffle_merge_percent = 0.66, reduce_merge_inmem = 1000,
@@ -57,7 +58,13 @@ mapreduce.control <- function(
     reduce_buffer_size = reduce_buffer_size,
     map_buffer_read = map_buffer_read*2^20,
     map_buffer_size = map_buffer_size,
-    BLK = BLK*2^20
+    BLK = BLK*2^20,
+    # mapreduce.map.java.opts
+    map_jvm = map_jvm,
+    reduce_jvm = reduce_jvm,
+    # mapreduce.map.memory.mb
+    map_memory = map_memory,
+    reduce_memory = reduce_memory
   )
 
 }

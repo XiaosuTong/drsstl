@@ -60,10 +60,10 @@ swaptoLoc <- function(input, output, sub, cluster_control=mapreduce.control()) {
   job$input <- rhfmt(input , type = "sequence")
   job$output <- rhfmt(output, type = "sequence")
   job$mapred <- list(
-    mapreduce.map.java.opts = "-Xmx3000m",
-    mapreduce.map.memory.mb = 5120, 
-    mapreduce.reduce.java.opts = "-Xmx4096m",
-    mapreduce.reduce.memory.mb = 5120,
+    mapreduce.map.java.opts = cluster_control$map_jvm,
+    mapreduce.map.memory.mb = cluster_control$map_memory, 
+    mapreduce.reduce.java.opts = cluster_control$reduce_jvm,
+    mapreduce.reduce.memory.mb = cluster_control$reduce_memory,
     mapreduce.job.reduces = cluster_control$reduceTask,  #cdh5
     dfs.blocksize = cluster_control$BLK,
     mapreduce.task.io.sort.mb = cluster_control$io_sort,
