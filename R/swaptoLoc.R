@@ -21,24 +21,18 @@
 #'     FileOutput <- "/wsc/tongx/spatem/tmax/sim/bystat256"
 #'     me <- mapreduce.control(libLoc="/home/tongx/R_LIBS", io_sort=512, BLK=256, reduce_input_buffer_percent=0.7, reduce_merge_inmem=0, task_io_sort_factor=100, spill_percent=1)
 #'     \dontrun{
-#'       swaptoLoc(FileInput, FileOutput, sub=1, cluster_control=me)
+#'       swaptoLoc(FileInput, FileOutput, cluster_control=me)
 #'     }
-swaptoLoc <- function(input, output, sub, cluster_control=mapreduce.control()) {
+swaptoLoc <- function(input, output, cluster_control=mapreduce.control()) {
 
   job <- list()
   job$map <- expression({
     lapply(seq_along(map.values), function(r) {
       date <- (as.numeric(map.keys[[r]][1]) - 1)*12 + as.numeric(map.keys[[r]][2])
-      if(sub == 1) {
-        lapply(1:length(map.values[[r]]), function(i){
-          rhcollect(i, c(date, map.values[[r]][i]))
-          NULL
-        })
-      } else {
-        lapply(seq(1, length(map.values[[r]], sub)), function(i) {
-          rhcollect(i, c(date, map.values[[r]][i], map.values[[r]][i+1]))
-        })
-      }
+      lapply(1:length(map.values[[r]]), function(i){
+        rhcollect(i, c(date, map.values[[r]][i]))
+        NULL
+      })
     })
   })
   job$reduce <- expression(
