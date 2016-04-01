@@ -23,20 +23,24 @@
 #'       stlfit(FileInput, FileOutput, you, me)
 #'     }
 
-stlfit <- function(input, output, model_control=spacetime.control(), cluster_control=mapreduce.control(), map_read_bytes) {
+stlfit <- function(input, output, model_control=spacetime.control(), cluster_control=mapreduce.control()) {
   
   job <- list()
   job$map <- expression({
     lapply(seq_along(map.keys), function(r) {
-      value <- arrange(as.data.frame(map.values[[r]]), V1)
+      value <- arrange(data.frame(matrix(map.values[[r]], ncol=2, byrow=TRUE)), X1)
+      names(value) <- c(Mlcontrol$time, Mlcontrol$vari)
+
       fit <- stlplus::stlplus(
-        x=value$V2, t=value$V1, n.p=Mlcontrol$n.p, 
+        x=value$X2, t=value$X1, n.p=Mlcontrol$n.p, 
         s.window=Mlcontrol$s.window, s.degree=Mlcontrol$s.degree, 
         t.window=Mlcontrol$t.window, t.degree=Mlcontrol$t.degree, 
         inner=Mlcontrol$inner, outer=Mlcontrol$outer
       )$data
-      names(value) <- c(Mlcontrol$time, Mlcontrol$vari)
+      # value originally is a data.frame with 4 columns, vectorize it 
+      #rhcollect(map.keys[[r]], unname(unlist(cbind(value, subset(fit, select = c(seasonal, trend))))))
       value <- cbind(value, subset(fit, select = c(seasonal, trend)))
+      rownames(value) <- NULL
       rhcollect(map.keys[[r]], value)
     })
   })
@@ -58,8 +62,10 @@ stlfit <- function(input, output, model_control=spacetime.control(), cluster_con
     mapreduce.map.java.opts = "-Xmx3584m",
     mapreduce.map.memory.mb = 5120,     
     dfs.blocksize = cluster_control$BLK,
-    rhipe_map_bytes_read = map_read_bytes*2^20,
-    rhipe_map_buffer_size = 10000,
+    rhipe_reduce_buff_size = cluster_control$reduce_buffer_size,
+    rhipe_reduce_bytes_read = cluster_control$reduce_buffer_read,
+    rhipe_map_buff_size = cluster_control$map_buffer_size, 
+    rhipe_map_bytes_read = cluster_control$map_buffer_read,
     mapreduce.map.output.compress = TRUE,
     mapreduce.output.fileoutputformat.compress.type = "BLOCK"
   )
