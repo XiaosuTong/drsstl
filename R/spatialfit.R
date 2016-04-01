@@ -26,11 +26,11 @@
 #'     me <- mapreduce.control(libLoc="/home/tongx/R_LIBS", BLK = 256)
 #'     you <- spacetime.control(vari="resp", time="date", seaname="month", n=3145728, n.p=12, s.window=13, t.window = 241, degree=2, span=0.015, Edeg=2)
 #'     \dontrun{
-#'       spatialfit(FileInput, FileOutput, target=you$vari, na=TRUE, sub=1, info="/wsc/tongx/spatem/stationinfo/a1950UStinfo.RData", model_control=you, cluster_control=me)
+#'       spatialfit(FileInput, FileOutput, target=you$vari, na=TRUE, info="/wsc/tongx/spatem/stationinfo/a1950UStinfo.RData", model_control=you, cluster_control=me)
 #'     }
 
 
-spatialfit <- function(input, output, info, na = TRUE, target="resp", sub=1, model_control=spacetime.control(), cluster_control=mapreduce.control()) {
+spatialfit <- function(input, output, info, na = TRUE, target="resp", model_control=spacetime.control(), cluster_control=mapreduce.control()) {
 
   job <- list()
   job$map <- expression({
@@ -48,51 +48,44 @@ spatialfit <- function(input, output, info, na = TRUE, target="resp", sub=1, mod
         dropSq <- FALSE
         condParam <- FALSE
       }
-      if (sub == 1) {
-        value <- arrange(as.data.frame(map.values[[r]]), station.id)
-        value <- cbind(value, a1950UStinfo[, c("lon","lat","elev")])
-        value$elev2 <- log2(value$elev + 128)
-        lo.fit <- spaloess( fml, 
-          data    = value, 
-          degree  = Mlcontrol$degree, 
-          span    = Mlcontrol$span,
-          para    = condParam,
-          drop    = dropSq,
-          family  = "symmetric",
-          normalize = FALSE,
-          distance = "Latlong",
-          control = loess.control(surface = "direct"),
-          napred = na
-        )
-        if(na) {
-          indx <- which(!is.na(value[, target]))
-          rst <- rbind(cbind(indx, fitted=lo.fit$fitted), cbind(which(is.na(value[, target])), fitted=lo.fit$pred$fitted))
-          rst <- arrange(as.data.frame(rst), indx)
+
+      value <- arrange(map.values[[r]], station.id)
+      if (target == "remainder") {
+        value$remainder <- with(value, resp - trend - seasonal)
+      }
+      value <- cbind(value, a1950UStinfo[, c("lon","lat","elev")])
+      value$elev2 <- log2(value$elev + 128)
+      lo.fit <- spaloess( fml, 
+        data    = value, 
+        degree  = Mlcontrol$degree, 
+        span    = Mlcontrol$span,
+        para    = condParam,
+        drop    = dropSq,
+        family  = "symmetric",
+        normalize = FALSE,
+        distance = "Latlong",
+        control = loess.control(surface = "direct"),
+        napred = na
+      )
+      if(na) {
+        indx <- which(!is.na(value[, target]))
+        rst <- rbind(cbind(indx, fitted=lo.fit$fitted), cbind(which(is.na(value[, target])), fitted=lo.fit$pred$fitted))
+        rst <- arrange(as.data.frame(rst), indx)
+        if (target == "resp") {
           rhcollect(map.keys[[r]], rst$fitted)
         } else {
-          rhcollect(map.keys[[r]], lo.fit$fitted)
+          value$Rspa <- rst$fitted
+          rhcollect(map.keys[[r]], subset(value, select = -c(remainder, lon, lat, elev2, elev)))
         }
       } else {
-        d_ply(
-          .data = value,
-          .vari = "date",
-          .fun = function(v) {
-            lo.fit <- spaloess( fml, 
-              data    = v, 
-              degree  = Mlcontrol$degree, 
-              span    = Mlcontrol$span,
-              para    = condParam,
-              drop    = dropSq,
-              family  = "symmetric",
-              normalize = FALSE,
-              distance = "Latlong",
-              control = loess.control(surface = Mlcontrol$surf),
-              napred = na
-            )
-            rhcollect(unique(v$date), lo.fit$fitted)
-          }
-        )
+        if (target == "resp") {
+          rhcollect(map.keys[[r]], lo.fit$fitted)
+        } else {
+          value$Rspa <- lo.fit$fitted
+          rhcollect(map.keys[[r]], subset(value, select = -c(remainder, lon, lat, elev2, elev)))
+        }
       }
+
     })
   })
   job$parameters <- list(
