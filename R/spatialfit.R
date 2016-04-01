@@ -21,10 +21,10 @@
 #'     Xiaosu Tong 
 #' @export
 #' @examples
-#'     FileInput <- "/wsc/tongx/spatem/tmax/sim/bymth256"
-#'     FileOutput <- "/wsc/tongx/spatem/tmax/sim/bymthfit256"
-#'     me <- mapreduce.control(libLoc="/home/tongx/R_LIBS", BLK = 256)
-#'     you <- spacetime.control(vari="resp", time="date", seaname="month", n=3145728, n.p=12, s.window=13, t.window = 241, degree=2, span=0.015, Edeg=2)
+#'     FileInput <- "/wsc/tongx/spatem/tmax/sim/bymth128"
+#'     FileOutput <- "/wsc/tongx/spatem/tmax/sim/bymthfit128"
+#'     me <- mapreduce.control(libLoc="/home/tongx/R_LIBS", BLK = 128)
+#'     you <- spacetime.control(vari="resp", time="date", seaname="month", n=786432, n.p=12, s.window=13, t.window = 241, degree=2, span=0.015, Edeg=2)
 #'     \dontrun{
 #'       spatialfit(FileInput, FileOutput, target=you$vari, na=TRUE, info="/wsc/tongx/spatem/stationinfo/a1950UStinfo.RData", model_control=you, cluster_control=me)
 #'     }
@@ -49,7 +49,7 @@ spatialfit <- function(input, output, info, na = TRUE, target="resp", model_cont
         condParam <- FALSE
       }
 
-      value <- arrange(map.values[[r]], station.id)
+      value <- arrange(as.data.frame(map.values[[r]]), station.id)
       if (target == "remainder") {
         value$remainder <- with(value, resp - trend - seasonal)
       }
