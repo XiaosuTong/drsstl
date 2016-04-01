@@ -29,57 +29,13 @@
 #'     }
 swaptoTime <- function(input, output){
 
-
-}
-
-swaptoTimeMap <- function(input, output, control=mapreduce.control()) {
-
   job <- list()
   job$map <- expression({
     lapply(seq_along(map.values), function(r) {
-      value <- map.values[[r]]
-      value$year <- ceiling(value$date/12)
-      value$station.id <- map.keys[[r]]
-      d_ply(
-        .data = value,
-        .vari = "year",
-        .fun = function(k) {
-          rhcollect(unique(k$year), subset(k, select = -c(year)))
+      map.values[[r]]$station.id <- map.keys[[r]]
+      lapply(1:nrow(map.values[[r]]), function(i) {
+        rhcollect(map.values[[r]][i, "date"], map.values[[r]][i, c("resp", "trend", "seasonal", "station.id")])
       })
-    })
-  })
-  job$setup <- expression(
-    map = {library(plyr, lib.loc=control$libLoc)}
-  )
-  job$parameters <- list(
-    control = control
-  )
-  job$mapred <- list(
-    mapreduce.job.reduces = 0,  #cdh5
-    mapreduce.task.timeout  = 0,
-    dfs.blocksize = control$BLK,
-    rhipe_map_bytes_read = 100*2^20,
-    mapreduce.map.java.opts = "-Xmx3072m",
-    mapreduce.map.memory.mb = 5120
-  )
-  job$combiner <- TRUE
-  job$input <- rhfmt(input, type="sequence")
-  job$output <- rhfmt(output, type="sequence")
-  job$mon.sec <- 10
-  job$jobname <- output
-  job$readback <- FALSE  
-
-  job.mr <- do.call("rhwatch", job)  
-
-}
-
-
-swaptoTimeRed <- function(input, output, control=mapreduce.control()) {
-
-  job <- list()
-  job$map <- expression({
-    lapply(seq_along(map.values), function(r) {
-      rhcollect(map.keys[[r]], map.values[[r]])
     })
   })
   job$reduce <- expression(
@@ -90,6 +46,7 @@ swaptoTimeRed <- function(input, output, control=mapreduce.control()) {
       combine <- rbind(combine, do.call(rbind, reduce.values))
     },
     post = {
+      rownames(combine) <- NULL
       rhcollect(reduce.key, combine)
     }
   )
@@ -100,25 +57,27 @@ swaptoTimeRed <- function(input, output, control=mapreduce.control()) {
     control = control
   )
   job$mapred <- list(
-    mapreduce.job.reduces = 1000,  #cdh5
-    mapreduce.task.io.sort.mb = control$io_sort,
-    mapreduce.map.sort.spill.percent = control$spill_percent,
-    mapreduce.reduce.shuffle.parallelcopies = control$parallelcopies,
-    mapreduce.reduce.merge.inmem.threshold = control$reduce_merge_inmem,
-    mapreduce.reduce.input.buffer.percent = control$reduce_input_buffer,
-    mapreduce.task.io.sort.factor = control$task_io_sort_factor,
+    mapreduce.map.java.opts = cluster_control$map_jvm,
+    mapreduce.map.memory.mb = cluster_control$map_memory, 
+    mapreduce.reduce.java.opts = cluster_control$reduce_jvm,
+    mapreduce.reduce.memory.mb = cluster_control$reduce_memory,
+    mapreduce.job.reduces = cluster_control$reduceTask,  #cdh5
+    dfs.blocksize = cluster_control$BLK,
+    mapreduce.task.io.sort.mb = cluster_control$io_sort,
+    mapreduce.map.sort.spill.percent = cluster_control$spill_percent,
+    mapreduce.reduce.shuffle.parallelcopies = cluster_control$reduce_parallelcopies,
+    mapreduce.task.io.sort.factor = cluster_control$task_io_sort_factor,
+    mapreduce.reduce.shuffle.merge.percent = cluster_control$reduce_shuffle_merge_percent,
+    mapreduce.reduce.merge.inmem.threshold = cluster_control$reduce_merge_inmem,
+    mapreduce.reduce.input.buffer.percent = cluster_control$reduce_input_buffer_percent,
+    mapreduce.reduce.shuffle.input.buffer.percent = cluster_control$reduce_shuffle_input_buffer_percent,
     mapreduce.output.fileoutputformat.compress.type = "BLOCK",
     mapreduce.task.timeout  = 0,
-    rhipe_reduce_buff_size = 10000,
-    dfs.blocksize = control$BLK,
-    #rhipe_map_bytes_read = 100*2^20,
-    rhipe_map_buff_size = 10000,
-    mapreduce.map.java.opts = "-Xmx3072m",
-    mapreduce.map.memory.mb = 5120,
-    rhipe_reduce_bytes_read = 1024*2^20,
-    mapreduce.reduce.java.opts = "-Xmx3584m",
-    mapreduce.reduce.memory.mb = 5120,
-    mapreduce.job.reduce.slowstart.completedmaps = 0.8   
+    mapreduce.job.reduce.slowstart.completedmaps = cluster_control$slow_starts,
+    rhipe_reduce_buff_size = cluster_control$reduce_buffer_size,
+    rhipe_reduce_bytes_read = cluster_control$reduce_buffer_read,
+    rhipe_map_buff_size = cluster_control$map_buffer_size, 
+    rhipe_map_bytes_read = cluster_control$map_buffer_read 
   )
   job$combiner <- TRUE
   job$input <- rhfmt(input, type="sequence")
@@ -130,3 +89,4 @@ swaptoTimeRed <- function(input, output, control=mapreduce.control()) {
   job.mr <- do.call("rhwatch", job)  
 
 }
+
