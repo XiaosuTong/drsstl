@@ -58,9 +58,9 @@ stlfit <- function(input, output, model_control=spacetime.control(), cluster_con
   job$output <- rhfmt(output, type = "sequence")
   job$mapred <- list(
     mapreduce.task.timeout = 0,
-    mapreduce.job.reduces = 0,  #cdh5
-    mapreduce.map.java.opts = "-Xmx3584m",
-    mapreduce.map.memory.mb = 5120,     
+    mapreduce.job.reduces = cluster_control$reduceTask,  #cdh5
+    mapreduce.map.java.opts = cluster_control$map_jvm,
+    mapreduce.map.memory.mb = cluster_control$map_memory,     
     dfs.blocksize = cluster_control$BLK,
     rhipe_reduce_buff_size = cluster_control$reduce_buffer_size,
     rhipe_reduce_bytes_read = cluster_control$reduce_buffer_read,
@@ -77,14 +77,17 @@ stlfit <- function(input, output, model_control=spacetime.control(), cluster_con
 }
 
 
-#result <- data.frame()#
-
-#for (i in c(25,50,100,150, 200)) {#
-
-#    time <- system.time(stlfit(FileInput, FileOutput, model_control=you, cluster_control=me, map_read_bytes=i)) 
-#    rst <- data.frame(user=as.numeric(time[1]), sys=as.numeric(time[2]), elap = as.numeric(time[3]))
-#    result <- rbind(result, rst)
-#    
-#    Sys.sleep(300)
-#    
-#}
+#FileInput <- "/wsc/tongx/spatem/tmax/sim/bystat128"
+#FileOutput <- "/wsc/tongx/spatem/tmax/sim/bystatfit128"#
+#
+#me <- mapreduce.control(
+#  libLoc=lib.loc, reduceTask=0, BLK=128, 
+#  map_jvm = "-Xmx4096m", map_memory = 5120,
+#  map_buffer_read = 100, map_buffer_size = 10000
+#)
+#you <- spacetime.control(
+#  vari="resp", time="date", seaname="month", 
+#  n=786432, n.p=12, s.window=13, t.window = 241, 
+#  degree=2, span=0.015, Edeg=2
+#)
+#stlfit(FileInput, FileOutput, model_control=you, cluster_control=me)
