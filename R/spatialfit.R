@@ -64,8 +64,9 @@ spatialfit <- function(input, output, info, na = TRUE, target="resp", model_cont
         family  = "symmetric",
         normalize = FALSE,
         distance = "Latlong",
-        control = loess.control(surface = "direct"),
-        napred = na
+        control = loess.control(surface = "interpolate"),
+        napred = na,
+        alltree = TRUE
       )
       if(na) {
         indx <- which(!is.na(value[, target]))
@@ -106,12 +107,12 @@ spatialfit <- function(input, output, info, na = TRUE, target="resp", model_cont
   )
   job$mapred <- list(
     mapreduce.task.timeout = 0,
-    mapreduce.job.reduces = 0,  #cdh5
-    mapreduce.map.java.opts = "-Xmx3584m",
-    mapreduce.map.memory.mb = 5120,     
+    mapreduce.job.reduces = cluster_control$reduceTask,  #cdh5
+    mapreduce.map.java.opts = cluster_control$map_jvm,
+    mapreduce.map.memory.mb = cluster_control$map_memory,     
     dfs.blocksize = cluster_control$BLK,
-    rhipe_map_bytes_read = 200*2^20,
-    rhipe_map_buffer_size = 10000,
+    rhipe_map_bytes_read = cluster_control$map_buffer_read,
+    rhipe_map_buffer_size = cluster_control$map_buffer_size,
     mapreduce.map.output.compress = TRUE,
     mapreduce.output.fileoutputformat.compress.type = "BLOCK"
   )
@@ -124,3 +125,20 @@ spatialfit <- function(input, output, info, na = TRUE, target="resp", model_cont
   job.mr <- do.call("rhwatch", job)  
 
 }
+
+# FileInput <- "/wsc/tongx/spatem/tmax/sim/bymth128"
+# FileOutput <- "/wsc/tongx/spatem/tmax/sim/bymthfit128"
+# me <- mapreduce.control(
+#   libLoc=lib.loc, reduceTask=0, BLK=128, 
+#   map_jvm = "-Xmx4096m", map_memory = 5120,
+#   map_buffer_read = 100, map_buffer_size = 1000
+# )
+# you <- spacetime.control(
+#   vari="resp", time="date", seaname="month", 
+#   n=786432, n.p=12, s.window=13, t.window = 241, 
+#   degree=2, span=0.015, Edeg=2
+# )
+# spatialfit(FileInput, FileOutput, target=you$vari, na=TRUE, 
+#   info="/wsc/tongx/spatem/stationinfo/a1950UStinfo.RData", 
+#   model_control=you, cluster_control=me
+# )
