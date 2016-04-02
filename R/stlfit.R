@@ -77,17 +77,17 @@ stlfit <- function(input, output, model_control=spacetime.control(), cluster_con
 }
 
 
- FileInput <- "/wsc/tongx/spatem/tmax/sim/bystat128"
- FileOutput <- "/wsc/tongx/spatem/tmax/sim/bystatfit128"
- 
- me <- mapreduce.control(
-   libLoc=lib.loc, reduceTask=0, BLK=128, 
-   map_jvm = "-Xmx4096m", map_memory = 5120,
-   map_buffer_read = 100, map_buffer_size = 10000
- )
- you <- spacetime.control(
-   vari="resp", time="date", seaname="month", 
-   n=786432, n.p=12, s.window=13, t.window = 241, 
-   degree=2, span=0.015, Edeg=2
- )
- stlfit(FileInput, FileOutput, model_control=you, cluster_control=me)
+# FileInput <- "/wsc/tongx/spatem/tmax/sim/bystat128"
+# FileOutput <- "/wsc/tongx/spatem/tmax/sim/bystatfit128"
+# 
+# me <- mapreduce.control(
+#   libLoc=lib.loc, reduceTask=0, BLK=128, 
+#   map_jvm = "-Xmx4096m", map_memory = 5120,
+#   map_buffer_read = 100, map_buffer_size = 10000
+# )
+# you <- spacetime.control(
+#   vari="resp", time="date", seaname="month", 
+#   n=786432, n.p=12, s.window=13, t.window = 241, 
+#   degree=2, span=0.015, Edeg=2
+# )
+# stlfit(FileInput, FileOutput, model_control=you, cluster_control=me)
