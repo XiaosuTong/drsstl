@@ -27,7 +27,7 @@
 #'       swaptoTimeMap(FileInput, FileOutput, me)
 #'       swaptoTimeRed(FileOutput, "/wsc/tongx/spatem/tmax/sim/byyr256test", me)
 #'     }
-swaptoTime <- function(input, output){
+swaptoTime <- function(input, output, cluster_control=mapreduce.control()){
 
   job <- list()
   job$map <- expression({
@@ -51,10 +51,10 @@ swaptoTime <- function(input, output){
     }
   )
   job$setup <- expression(
-    map = {library(plyr, lib.loc=control$libLoc)}
+    map = {library(plyr, lib.loc=Clcontrol$libLoc)}
   )
   job$parameters <- list(
-    control = control
+    Clcontrol = cluster_control
   )
   job$mapred <- list(
     mapreduce.map.java.opts = cluster_control$map_jvm,
@@ -90,3 +90,16 @@ swaptoTime <- function(input, output){
 
 }
 
+#FileInput <- "/wsc/tongx/spatem/tmax/sim/bystatfit256"
+#FileOutput <- "/wsc/tongx/spatem/tmax/sim/bymthse256"
+#me <- mapreduce.control(
+#  libLoc=lib.loc, reduceTask=358, io_sort=1024, BLK=256, slow_starts = 0.7,
+#  map_jvm = "-Xmx3584m", reduce_jvm = "-Xmx4096m", map_memory = 5120, reduce_memory = 5120,
+#  reduce_input_buffer_percent=0.9, reduce_parallelcopies=10,
+#  reduce_merge_inmem=0, task_io_sort_factor=100,
+#  spill_percent=0.9, reduce_shuffle_input_buffer_percent = 0.9,
+#  reduce_shuffle_merge_percent = 0.99,
+#  reduce_buffer_read = 100, map_buffer_read = 100,
+#  reduce_buffer_size = 10000, map_buffer_size = 10000
+#)
+#swaptoTime(FileInput, FileOutput, cluster_control=me)
