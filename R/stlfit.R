@@ -40,8 +40,7 @@ stlfit <- function(input, output, model_control=spacetime.control(), cluster_con
       #rhcollect(map.keys[[r]], unname(unlist(cbind(value, subset(fit, select = c(seasonal, trend))))))
       names(value) <- c(Mlcontrol$time, Mlcontrol$vari)
       value <- cbind(subset(value, select = -c(date)), subset(fit, select = c(seasonal, trend)))
-      rownames(value) <- NULL
-      rhcollect(map.keys[[r]], value)
+      rhcollect(map.keys[[r]], unname(unlist(value)))
     })
   })
   job$parameters <- list(
