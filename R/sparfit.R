@@ -30,29 +30,26 @@
 #'     }
 
 
-spatialfit <- function(input, output, info, na = TRUE, target="resp", model_control=spacetime.control(), cluster_control=mapreduce.control()) {
+sparfit <- function(input, output, info, na = TRUE, model_control=spacetime.control(), cluster_control=mapreduce.control()) {
 
   job <- list()
   job$map <- expression({
     lapply(seq_along(map.values), function(r) {
       if(Mlcontrol$Edeg == 2) {
-        fml <- as.formula(paste(target, "~ lon + lat + elev2"))
+        fml <- as.formula("remainder ~ lon + lat + elev2")
         dropSq <- FALSE
         condParam <- "elev2"
       } else if(Mlcontrol$Edeg == 1) {
-        fml <- as.formula(paste(target, "~ lon + lat + elev2"))
+        fml <- as.formula("remainder ~ lon + lat + elev2")
         dropSq <- "elev2"
         condParam <- "elev2"
       } else if (Mlcontrol$Edeg == 0) {
-        fml <- as.formula(paste(target, "~ lon + lat"))
+        fml <- as.formula("remainder ~ lon + lat")
         dropSq <- FALSE
         condParam <- FALSE
       }
 
       value <- arrange(as.data.frame(map.values[[r]]), station.id)
-      if (target == "remainder") {
-        value$remainder <- with(value, resp - trend - seasonal)
-      }
       value <- cbind(value, a1950UStinfo[, c("lon","lat","elev")])
       value$elev2 <- log2(value$elev + 128)
       lo.fit <- spaloess( fml, 
@@ -72,21 +69,12 @@ spatialfit <- function(input, output, info, na = TRUE, target="resp", model_cont
         indx <- which(!is.na(value[, target]))
         rst <- rbind(cbind(indx, fitted=lo.fit$fitted), cbind(which(is.na(value[, target])), fitted=lo.fit$pred$fitted))
         rst <- arrange(as.data.frame(rst), indx)
-        if (target == "resp") {
-          rhcollect(map.keys[[r]], rst$fitted)
-        } else {
-          value$Rspa <- rst$fitted
-          rhcollect(map.keys[[r]], subset(value, select = -c(remainder, lon, lat, elev2, elev)))
-        }
+        value$Rspa <- rst$fitted
+        rhcollect(map.keys[[r]], subset(value, select = -c(remainder, lon, lat, elev2, elev)))
       } else {
-        if (target == "resp") {
-          rhcollect(map.keys[[r]], lo.fit$fitted)
-        } else {
-          value$Rspa <- lo.fit$fitted
-          rhcollect(map.keys[[r]], subset(value, select = -c(remainder, lon, lat, elev2, elev)))
-        }
+        value$Rspa <- lo.fit$fitted
+        rhcollect(map.keys[[r]], subset(value, select = -c(remainder, lon, lat, elev2, elev)))
       }
-
     })
   })
   job$parameters <- list(
