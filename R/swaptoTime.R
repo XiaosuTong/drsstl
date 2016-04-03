@@ -32,21 +32,19 @@ swaptoTime <- function(input, output, cluster_control=mapreduce.control()){
   job <- list()
   job$map <- expression({
     lapply(seq_along(map.values), function(r) {
-      map.values[[r]]$station.id <- map.keys[[r]]
-      lapply(1:nrow(map.values[[r]]), function(i) {
-        rhcollect(map.values[[r]][i, "date"], map.values[[r]][i, c("resp", "trend", "seasonal", "station.id")])
+      lapply(seq(1, 786432, 2), function(i) {
+        rhcollect(i, c(map.values[[r]][c(i, i+786432, i + 786432*2)], i, map.keys[[r]], map.values[[r]][c(i+1, i+1+786432, i+1 + 786432*2)], i+1, map.keys[[r]]))
       })
     })
   })
   job$reduce <- expression(
     pre = {
-      combine <- data.frame()
+      combine <- numeric()
     },
     reduce = {
-      combine <- rbind(combine, do.call(rbind, reduce.values))
+      combine <- c(combine, do.call("c", reduce.values))
     },
     post = {
-      rownames(combine) <- NULL
       rhcollect(reduce.key, combine)
     }
   )
@@ -90,6 +88,7 @@ swaptoTime <- function(input, output, cluster_control=mapreduce.control()){
 
 }
 
+
 #FileInput <- "/wsc/tongx/spatem/tmax/sim/bystatfit256"
 #FileOutput <- "/wsc/tongx/spatem/tmax/sim/bymthse256"
 #me <- mapreduce.control(
@@ -100,6 +99,6 @@ swaptoTime <- function(input, output, cluster_control=mapreduce.control()){
 #  spill_percent=0.9, reduce_shuffle_input_buffer_percent = 0.9,
 #  reduce_shuffle_merge_percent = 0.99,
 #  reduce_buffer_read = 100, map_buffer_read = 100,
-#  reduce_buffer_size = 10000, map_buffer_size = 10000
+#  reduce_buffer_size = 10000, map_buffer_size = 10
 #)
 #swaptoTime(FileInput, FileOutput, cluster_control=me)
