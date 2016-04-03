@@ -112,11 +112,11 @@ sparfit <- function(input, output, info, model_control=spacetime.control(), clus
 
 }
 
-# FileInput <- "/wsc/tongx/spatem/tmax/sim/bymth128"
-# FileOutput <- "/wsc/tongx/spatem/tmax/sim/bymthfit128"
+# FileInput <- "/wsc/tongx/spatem/tmax/sim/bymthse256"
+# FileOutput <- "/wsc/tongx/spatem/tmax/sim/bymthfitse128"
 # me <- mapreduce.control(
 #   libLoc=lib.loc, reduceTask=0, BLK=128, 
-#   map_jvm = "-Xmx4096m", map_memory = 5120,
+#   map_jvm = "-Xmx3584m", map_memory = 5120,
 #   map_buffer_read = 100, map_buffer_size = 1000
 # )
 # you <- spacetime.control(
@@ -124,7 +124,7 @@ sparfit <- function(input, output, info, model_control=spacetime.control(), clus
 #   n=786432, n.p=12, s.window=13, t.window = 241, 
 #   degree=2, span=0.015, Edeg=2
 # )
-# spatialfit(FileInput, FileOutput, target=you$vari, na=TRUE, 
+# sparfit(FileInput, FileOutput,
 #   info="/wsc/tongx/spatem/stationinfo/a1950UStinfo.RData", 
 #   model_control=you, cluster_control=me
 # )
