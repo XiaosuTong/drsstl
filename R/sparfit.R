@@ -30,7 +30,7 @@
 #'     }
 
 
-sparfit <- function(input, output, info, na = TRUE, model_control=spacetime.control(), cluster_control=mapreduce.control()) {
+sparfit <- function(input, output, info, model_control=spacetime.control(), cluster_control=mapreduce.control()) {
 
   job <- list()
   job$map <- expression({
@@ -49,41 +49,39 @@ sparfit <- function(input, output, info, na = TRUE, model_control=spacetime.cont
         condParam <- FALSE
       }
 
-      value <- arrange(as.data.frame(map.values[[r]]), station.id)
-      value <- cbind(value, a1950UStinfo[, c("lon","lat","elev")])
-      value$elev2 <- log2(value$elev + 128)
-      lo.fit <- spaloess( fml, 
-        data    = value, 
-        degree  = Mlcontrol$degree, 
-        span    = Mlcontrol$span,
-        para    = condParam,
-        drop    = dropSq,
-        family  = "symmetric",
-        normalize = FALSE,
-        distance = "Latlong",
-        control = loess.control(surface = "interpolate"),
-        napred = na,
-        alltree = TRUE
-      )
-      if(na) {
-        indx <- which(!is.na(value[, target]))
-        rst <- rbind(cbind(indx, fitted=lo.fit$fitted), cbind(which(is.na(value[, target])), fitted=lo.fit$pred$fitted))
-        rst <- arrange(as.data.frame(rst), indx)
-        value$Rspa <- rst$fitted
-        rhcollect(map.keys[[r]], subset(value, select = -c(remainder, lon, lat, elev2, elev)))
-      } else {
-        value$Rspa <- lo.fit$fitted
-        rhcollect(map.keys[[r]], subset(value, select = -c(remainder, lon, lat, elev2, elev)))
-      }
+      value <- arrange(data.frame(matrix(map.values[[r]], ncol=5, byrow=TRUE)), X4, X5)
+      names(value) <- c("resp","seasonal","trend","date", "station.id")
+      value$remainder <- with(value, resp - trend - seasonal)
+
+      d_ply(
+        .data = value,
+        .vari = "date",
+        .fun = function(S) {
+          S <- cbind(S, a1950UStinfo[, c("lon","lat","elev")])
+          S$elev2 <- log2(S$elev + 128)
+          lo.fit <- spaloess( fml, 
+            data    = S, 
+            degree  = Mlcontrol$degree, 
+            span    = Mlcontrol$span,
+            para    = condParam,
+            drop    = dropSq,
+            family  = "symmetric",
+            normalize = FALSE,
+            distance = "Latlong",
+            control = loess.control(surface = "interpolate"),
+            napred = FALSE,
+            alltree = FALSE
+          )
+          S$Rspa <- lo.fit$fitted
+          rhcollect(unique(S$date), subset(S, select = -c(remainder, lon, lat, elev2, elev)))
+          NULL
+      })
     })
   })
   job$parameters <- list(
     Mlcontrol = model_control,
     Clcontrol = cluster_control,
-    info = info,
-    sub = sub,
-    na = na,
-    target = target
+    info = info
   )
   job$shared <- c(info)
   job$setup <- expression(

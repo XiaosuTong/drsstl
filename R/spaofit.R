@@ -30,7 +30,7 @@
 #'     }
 
 
-spaofit <- function(input, output, info, na = TRUE, model_control=spacetime.control(), cluster_control=mapreduce.control()) {
+spaofit <- function(input, output, info, model_control=spacetime.control(), cluster_control=mapreduce.control()) {
 
   job <- list()
   job$map <- expression({
@@ -62,27 +62,20 @@ spaofit <- function(input, output, info, na = TRUE, model_control=spacetime.cont
         normalize = FALSE,
         distance = "Latlong",
         control = loess.control(surface = "interpolate"),
-        napred = na,
+        napred = TRUE,
         alltree = TRUE
       )
-      if(na) {
-        indx <- which(!is.na(value[, target]))
-        rst <- rbind(cbind(indx, fitted=lo.fit$fitted), cbind(which(is.na(value[, target])), fitted=lo.fit$pred$fitted))
-        rst <- arrange(as.data.frame(rst), indx)
-        rhcollect(map.keys[[r]], rst$fitted)
-      } else {
-        rhcollect(map.keys[[r]], lo.fit$fitted)
-      }
-
+      indx <- which(!is.na(value$resp))
+      rst <- rbind(cbind(indx, fitted=lo.fit$fitted), cbind(which(is.na(value$resp)), fitted=lo.fit$pred$fitted))
+      rst <- arrange(as.data.frame(rst), indx)
+      rhcollect(map.keys[[r]], rst$fitted)
     })
   })
   job$parameters <- list(
     Mlcontrol = model_control,
     Clcontrol = cluster_control,
     info = info,
-    sub = sub,
-    na = na,
-    target = target
+    na = na
   )
   job$shared <- c(info)
   job$setup <- expression(
