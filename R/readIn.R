@@ -119,26 +119,29 @@ readIn <- function(input, output, info, cluster_control = mapreduce.control()) {
 
 }
 
-#result <- data.frame()
-# 
-#for(k in 1:3) {
-#for (i in c(128, 256, 512, 1024)) {
-#  for (j in c(0.1, 0.2, 0.5, 0.8, 1)) {
-# 
-#    me <- mapreduce.control(
-#      libLoc=lib.loc, reduceTask=537, io_sort=i, BLK=256, 
-#      reduce_input_buffer_percent=0.9, reduce_parallelcopies=10, 
-#      reduce_merge_inmem=0, task_io_sort_factor=100, 
-#      spill_percent=j, reduce_shuffle_input_buffer_percent = 0.9,
-#      reduce_shuffle_merge_percent = 0.99,
-#      reduce_buff_read = 200, map_buffer_read = 200
-#    )
-#    time <- system.time(readIn("/wsc/tongx/spatem/nRaw/tmax","/wsc/tongx/spatem/tmax/test/bymth256", info="/wsc/tongx/spatem/stationinfo/a1950UStinfo.RData", me)) 
-#    rst <- data.frame(rep = k, iosort=i, percent=j, elap = as.numeric(time[3]))
-#    result <- rbind(result, rst)
-#    
-#    Sys.sleep(300)
-# 
-#  }
-#}
-#}
+
+## tmaxs128 or tmaxs256 did not have too much difference about time
+## for tmaxs128, io_sort is 512 can avoid spilling
+## reduce_parallelcopies is not quite helpful
+## 0.52 is the best slow_starts
+## reduce_input_buffer_percent is 0.0 is slow, 0.7 is the optimal
+## reduce_shuffle_input_buffer_percent and reduce_shuffle_merge_percent together cannot to be too small like all 0.1
+## reduce_shuffle_input_buffer_percent = 0.7 and reduce_shuffle_merge_percent =0.4 can aviod spill
+## even though the multplication of these two kept the same, larger reduce_shuffle_input_buffer_percent be faster
+
+## for tmaxs256, io_sort is 768 can avoid spilling
+## small slow_starts value may be faster
+
+# FileInput <- "/wsc/tongx/spatem/nRaw/tmaxs128"
+# FileOutput <- "/wsc/tongx/spatem/tmax/test/bymth256"
+# me <- mapreduce.control(
+#   libLoc=lib.loc, reduceTask=179, io_sort=768, BLK=256, slow_starts = 0.7,
+#   map_jvm = "-Xmx3584m", reduce_jvm = "-Xmx4096m", map_memory = 5120, reduce_memory = 5120,
+#   reduce_input_buffer_percent=0.7, reduce_parallelcopies=5,
+#   reduce_merge_inmem=0, task_io_sort_factor=100,
+#   spill_percent=0.9, reduce_shuffle_input_buffer_percent = 0.5,
+#   reduce_shuffle_merge_percent = 0.6,
+#   reduce_buffer_read = 100, map_buffer_read = 100,
+#   reduce_buffer_size = 10000, map_buffer_size = 10000
+# )
+# readIn(FileInput, FileOutput, info="/wsc/tongx/spatem/stationinfo/a1950UStinfo.RData", me)
