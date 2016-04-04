@@ -74,8 +74,7 @@ spaofit <- function(input, output, info, model_control=spacetime.control(), clus
   job$parameters <- list(
     Mlcontrol = model_control,
     Clcontrol = cluster_control,
-    info = info,
-    na = na
+    info = info
   )
   job$shared <- c(info)
   job$setup <- expression(
@@ -118,7 +117,7 @@ spaofit <- function(input, output, info, model_control=spacetime.control(), clus
 #   n=786432, n.p=12, s.window="periodic", t.window = 241, 
 #   degree=2, span=0.015, Edeg=2
 # )
-# spaofit(FileInput, FileOutput, target=you$vari, na=TRUE, 
+# spaofit(FileInput, FileOutput,
 #   info="/wsc/tongx/spatem/stationinfo/a1950UStinfo.RData", 
 #   model_control=you, cluster_control=me
 # )
