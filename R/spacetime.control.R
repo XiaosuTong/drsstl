@@ -46,17 +46,13 @@
 #'     spacetime.control()
 
 spacetime.control <- function(vari="resp", time="date", seaname="month", n, n.p=12, s.window, s.degree = 1,
-  s.jump = ceiling(s.window / 10), t.window = NULL, t.degree = 1, t.jump = ceiling(t.window / 10),
-  t.blend = 0, l.window = NULL, l.degree = t.degree, l.jump = ceiling(l.window / 10), l.blend = 0,
-  critfreq = 0.05, s.blend = 0, sub.labels = NULL, sub.start = 1, inner=4, outer=1, 
+  t.window = NULL, t.degree = 1, inner=4, outer=1, 
   degree, span, Edeg, surf = c("interpolate", "direct"), iterations = 1) {
   
   list(
     vari=vari, time=time, seaname=seaname, n=n, n.p=n.p, 
-    s.window=s.window, s.degree=s.degree, s.jump=s.jump, s.blend=s.blend, 
-    t.window=t.window, t.degree= t.degree, t.jump=t.jump, t.blend= t.blend, 
-    l.window=l.window, l.degree= l.degree, l.jump=l.jump, l.blend= l.blend,
-    critfreq=critfreq, sub.labels=sub.labels, sub.start=sub.start, 
+    s.window=s.window, s.degree=s.degree, 
+    t.window=t.window, t.degree= t.degree, 
     inner=inner, outer=outer, degree=degree, span=span, Edeg=Edeg, 
     surf=match.arg(surf), iterations=iterations
   )

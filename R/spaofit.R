@@ -61,7 +61,7 @@ spaofit <- function(input, output, info, model_control=spacetime.control(), clus
         family  = "symmetric",
         normalize = FALSE,
         distance = "Latlong",
-        control = loess.control(surface = "interpolate"),
+        control = loess.control(surface = Mlcontrol$surf),
         napred = TRUE,
         alltree = TRUE
       )
@@ -106,19 +106,19 @@ spaofit <- function(input, output, info, model_control=spacetime.control(), clus
 
 }
 
-# FileInput <- "/wsc/tongx/spatem/tmax/sim/bymth128"
-# FileOutput <- "/wsc/tongx/spatem/tmax/sim/bymthfit128"
-# me <- mapreduce.control(
-#   libLoc=lib.loc, reduceTask=0, BLK=128, 
-#   map_jvm = "-Xmx3584m", map_memory = 5120,
-#   map_buffer_read = 100, map_buffer_size = 1000
-# )
-# you <- spacetime.control(
-#   vari="resp", time="date", seaname="month", 
-#   n=786432, n.p=12, s.window=13, t.window = 241, 
-#   degree=2, span=0.015, Edeg=2
-# )
-# spatialfit(FileInput, FileOutput, target=you$vari, na=TRUE, 
-#   info="/wsc/tongx/spatem/stationinfo/a1950UStinfo.RData", 
-#   model_control=you, cluster_control=me
-# )
+ FileInput <- "/wsc/tongx/spatem/tmax/sims/bymth128"
+ FileOutput <- "/wsc/tongx/spatem/tmax/sims/bymthfit128"
+ me <- mapreduce.control(
+   libLoc=lib.loc, reduceTask=0, BLK=128, 
+   map_jvm = "-Xmx3584m", map_memory = 5120,
+   map_buffer_read = 100, map_buffer_size = 1000
+ )
+ you <- spacetime.control(
+   vari="resp", time="date", seaname="month", 
+   n=786432, n.p=12, s.window="periodic", t.window = 241, 
+   degree=2, span=0.015, Edeg=2
+ )
+ spaofit(FileInput, FileOutput, target=you$vari, na=TRUE, 
+   info="/wsc/tongx/spatem/stationinfo/a1950UStinfo.RData", 
+   model_control=you, cluster_control=me
+ )
