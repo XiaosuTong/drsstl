@@ -68,7 +68,7 @@ sparfit <- function(input, output, info, model_control=spacetime.control(), clus
             family  = "symmetric",
             normalize = FALSE,
             distance = "Latlong",
-            control = loess.control(surface = "interpolate"),
+            control = loess.control(surface = Mlcontrol$surf),
             napred = FALSE,
             alltree = FALSE
           )
@@ -112,15 +112,15 @@ sparfit <- function(input, output, info, model_control=spacetime.control(), clus
 
 }
 
-# FileInput <- "/wsc/tongx/spatem/tmax/sim/bymthse256"
-# FileOutput <- "/wsc/tongx/spatem/tmax/sim/bymthfitse128"
+# FileInput <- "/wsc/tongx/spatem/tmax/sims/bymthse128"
+# FileOutput <- "/wsc/tongx/spatem/tmax/sims/bymthfitse128"
 # me <- mapreduce.control(
 #   libLoc=lib.loc, reduceTask=0, BLK=128, 
 #   map_jvm = "-Xmx3584m", map_memory = 5120,
 #   map_buffer_read = 100, map_buffer_size = 1000
 # )
 # you <- spacetime.control(
-#   vari="resp", time="date", seaname="month", 
+#   vari="remainder", time="date", seaname="month", 
 #   n=786432, n.p=12, s.window=13, t.window = 241, 
 #   degree=2, span=0.015, Edeg=2
 # )

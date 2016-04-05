@@ -106,9 +106,9 @@ spaofit <- function(input, output, info, model_control=spacetime.control(), clus
 }
 
 # FileInput <- "/wsc/tongx/spatem/tmax/sims/bymth128"
-# FileOutput <- "/wsc/tongx/spatem/tmax/sims/bymthfit128"
+# FileOutput <- "/wsc/tongx/spatem/tmax/test/bymthfit256"
 # me <- mapreduce.control(
-#   libLoc=lib.loc, reduceTask=0, BLK=128, 
+#   libLoc=lib.loc, reduceTask=0, BLK=256, 
 #   map_jvm = "-Xmx3584m", map_memory = 5120,
 #   map_buffer_read = 100, map_buffer_size = 1000
 # )
