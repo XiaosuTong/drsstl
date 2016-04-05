@@ -101,16 +101,16 @@ swaptoTime <- function(input, output, cluster_control=mapreduce.control()){
 ## for tmaxs256, io_sort is 768 can avoid spilling
 ## small slow_starts value may be faster
 
-#FileInput <- "/wsc/tongx/spatem/tmax/sims/bystatfit128"
-#FileOutput <- "/wsc/tongx/spatem/tmax/test/bymthse128"
-#me <- mapreduce.control(
-#  libLoc=lib.loc, reduceTask=358, io_sort=1024, BLK=128, slow_starts = 0.7,
-#  map_jvm = "-Xmx3584m", reduce_jvm = "-Xmx4096m", map_memory = 5120, reduce_memory = 5120,
-#  reduce_input_buffer_percent=0.9, reduce_parallelcopies=10,
-#  reduce_merge_inmem=0, task_io_sort_factor=100,
-#  spill_percent=0.9, reduce_shuffle_input_buffer_percent = 0.9,
-#  reduce_shuffle_merge_percent = 0.99,
-#  reduce_buffer_read = 100, map_buffer_read = 100,
-#  reduce_buffer_size = 10000, map_buffer_size = 10
-#)
-#swaptoTime(FileInput, FileOutput, cluster_control=me)
+FileInput <- "/wsc/tongx/spatem/tmax/sims/bystatfit128"
+FileOutput <- "/wsc/tongx/spatem/tmax/test/bymthse128"
+me <- mapreduce.control(
+  libLoc=lib.loc, reduceTask=358, io_sort=512, BLK=128, slow_starts = 0.7,
+  map_jvm = "-Xmx3584m", reduce_jvm = "-Xmx4096m", map_memory = 5120, reduce_memory = 5120,
+  reduce_input_buffer_percent=0.9, reduce_parallelcopies=10,
+  reduce_merge_inmem=0, task_io_sort_factor=100,
+  spill_percent=0.9, reduce_shuffle_input_buffer_percent = 0.9,
+  reduce_shuffle_merge_percent = 0.99,
+  reduce_buffer_read = 100, map_buffer_read = 100,
+  reduce_buffer_size = 10000, map_buffer_size = 10
+)
+swaptoTime(FileInput, FileOutput, cluster_control=me)

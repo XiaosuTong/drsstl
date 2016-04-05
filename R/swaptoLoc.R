@@ -95,19 +95,19 @@ swaptoLoc <- function(input, output, cluster_control=mapreduce.control()) {
 ## reduce_shuffle_input_buffer_percent = 0.8 and reduce_shuffle_merge_percent =0.4 can aviod spill
 ## even though the multplication of these two kept the same, larger reduce_shuffle_input_buffer_percent be faster
 
-##for bymthfit256, io_sort 
+##for bymthfit256, io_sort 768 can avoid spilling, but the jvm_opt cannot be larger than 2560 
 
-#FileInput <- "/wsc/tongx/spatem/tmax/sims/bymthfit256"
-#FileOutput <- "/wsc/tongx/spatem/tmax/test/bystat128"
+#FileInput <- "/wsc/tongx/spatem/tmax/sims/bymthfit128"
+#FileOutput <- "/wsc/tongx/spatem/tmax/test/bystat256"
 #me <- mapreduce.control(
-#  libLoc=lib.loc, reduceTask=169, io_sort=1024, BLK=256, slow_starts = 0.5,
-#  map_jvm = "-Xmx2048m", reduce_jvm = "-Xmx4096m", map_memory = 5120, reduce_memory = 5120,
+#  libLoc=lib.loc, reduceTask=169, io_sort=768, BLK=256, slow_starts = 0.5,
+#  map_jvm = "-Xmx2560m", reduce_jvm = "-Xmx4096m", map_memory = 5120, reduce_memory = 5120,
 #  reduce_input_buffer_percent=0.4, reduce_parallelcopies=10,
 #  reduce_merge_inmem=0, task_io_sort_factor=100,
 #  spill_percent=0.9, reduce_shuffle_input_buffer_percent = 0.8,
 #  reduce_shuffle_merge_percent = 0.4,
 #  reduce_buffer_read = 100, map_buffer_read = 100,
-#  reduce_buffer_size = 10000, map_buffer_size = 10000
+#  reduce_buffer_size = 10000, map_buffer_size = 100
 #)
-#swaptoLoc(FileInput, FileOutput, cluster_control=me)#
+#swaptoLoc(FileInput, FileOutput, cluster_control=me)
 
