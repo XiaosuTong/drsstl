@@ -1,8 +1,11 @@
 Package: drSpaceTime
 Title: Spatial-Temporal data analysis using divide and recombined
-Version: 0.1
+Version: 1.0
 Authors@R: person("Xiaosu", "Tong", email = "xiaosutong@gmail.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+Description: Apply loess smoothing to spatial-temporal data using divide and recombined concept.
+     Divide the data either by time or by location, and then apply either spatial loess smoothing
+     fit to the by time division or stlplus fit to the by location division.
+Date: 2016-04-06
 Depends: 
     R (>= 3.1.1)
 Imports: 
@@ -10,8 +13,9 @@ Imports:
     roxygen2,
     plyr,
     Rcpp,
-    yaImpute
-License: What license is it under?
+    yaImpute,
+    stlplus
+License: MIT
 LazyData: true
 RoxygenNote: 5.0.1
 Suggests: knitr,
