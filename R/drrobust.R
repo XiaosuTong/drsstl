@@ -1,31 +1,3 @@
-#' Calculate the robust weight for STL
-#'
-#' Calculate the robust weight for each observation of the time series
-#'
-#' @param input
-#'     The path of input sequence file on HDFS. It should be by location division.
-#' @param output
-#'     The path of output sequence file on HDFS. It is by time division.
-#' @param vari
-#'     variable name in string of the response variable
-#' @param reduceTask
-#'     The reduce task number, also the number of output files. If set to be 0, then there is no shuffle and sort stage after map.
-#' @param spill.percent
-#'     The threshold usage proportion for both the map output memory buffer and record boundaries index to start the process of spilling to disk.
-#' @param io.sort
-#'     The size, in megabytes, of the memory buffer to use while sorting map output.
-#' @param zero.weight 
-#'     value to use as zero for zero weighting
-#' @details
-#'     Calculate the robust weight for each location
-#' @author 
-#'     Xiaosu Tong 
-#' @examples
-#'     FileInput <- "/ln/tongx/Spatial/tmp/tmax/a1950/byseason.inner"
-#'     FileOutput <- "/ln/tongx/Spatial/tmp/tmax/a1950/byseason.outer"
-#'     \dontrun{
-#'        drrobust(FileInput, FileOutput, vari="resp")
-#'     }
 #' @export
 
 drrobust <- function(input, output, vari, Clcontrol, zero.weight=1e-6) {
