@@ -1,6 +1,7 @@
 #' Conduct the stlplus fitting at each location in parallel
 #'
-#' call stlplus function on time series at each location in parallel.
+#' Calling \code{stlplus} function from Ryan Hafen's \code{stlplus} 
+#' package on time series at each location in parallel.
 #' Every station uses the same smoothing parameter
 #'
 #' @param input
@@ -14,14 +15,21 @@
 #' @author 
 #'     Xiaosu Tong 
 #' @export
+#' @references R. B. Cleveland, W. S. Cleveland, J. E. McRae, and I. Terpenning (1990) STL: A Seasonal-Trend Decomposition Procedure Based on Loess. \emph{Journal of Official Statistics}, \bold{6}, 3--73.
+#' @references Ryan Hafen (2010): stlplus: Local regression models: Advancements, applications, and new methods. \emph{Purdue University}
+#' @seealso
+#'     \code{\link{spacetime.control}}, \code{\link{mapreduce.control}}
 #' @examples
-#'     FileInput <- "/wsc/tongx/spatem/tmax/sim/bystat256"
-#'     FileOutput <- "/wsc/tongx/spatem/tmax/sim/bystatfit512"
-#'     me <- mapreduce.control(libLoc="/home/tongx/R_LIBS", BLK = 512)
-#'     you <- spacetime.control(vari="resp", time="date", seaname="month", n=3145728, n.p=12, s.window=13, t.window = 241, degree=2, span=0.015, Edeg=2)
-#'     \dontrun{
-#'       stlfit(FileInput, FileOutput, you, me)
-#'     }
+#'     FileInput <- "/wsc/tongx/spatem/tmax/sim/bystat"
+#'     FileOutput <- "/wsc/tongx/spatem/tmax/sim/bystatfit"
+#'     ccontrol <- mapreduce.control(libLoc=lib.loc, reduceTask=0)
+#'     mcontrol <- spacetime.control(
+#'       vari = "resp", time = "date", seaname = "month", 
+#'       n = 786432, n.p = 12, s.window = "periodic", t.window = 241, 
+#'       degree = 2, span = 0.015, Edeg = 2
+#'     )
+#'     stlfit(FileInput, FileOutput, model_control=mcontrol, cluster_control=ccontrol)
+
 
 stlfit <- function(input, output, model_control=spacetime.control(), cluster_control=mapreduce.control()) {
   
@@ -36,8 +44,7 @@ stlfit <- function(input, output, model_control=spacetime.control(), cluster_con
         t.window=Mlcontrol$t.window, t.degree=Mlcontrol$t.degree, 
         inner=Mlcontrol$inner, outer=Mlcontrol$outer
       )$data
-      # value originally is a data.frame with 4 columns, vectorize it 
-      #rhcollect(map.keys[[r]], unname(unlist(cbind(value, subset(fit, select = c(seasonal, trend))))))
+      # value originally is a data.frame with 3 columns, vectorize it 
       names(value) <- c(Mlcontrol$time, Mlcontrol$vari)
       value <- cbind(subset(value, select = -c(date)), subset(fit, select = c(seasonal, trend)))
       rhcollect(map.keys[[r]], unname(unlist(value)))

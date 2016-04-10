@@ -3,25 +3,34 @@
 #' Input raw text data file is divided into by time subsets and saved on HDFS
 #'
 #' @param input
-#'     The path of input sequence file on HDFS. It should be raw text file.
+#'     The path of input file on HDFS. It should be raw text file.
 #' @param output
-#'     The path of output sequence file on HDFS. It is by time division.
+#'     The path of output file on HDFS. It is by time division.
 #' @param cluster_control
 #'     all parameters that are needed for mapreduce job
+#' @param info
+#'     The RData path on HDFS which contains all station metadata
 #' @author 
 #'     Xiaosu Tong 
 #' @export
 #' @examples
-#'    me <- mapreduce.control(
-#'      libLoc="/home/tongx/R_LIBS", reduceTask=1300, io_sort=512, BLK=256, 
-#'      reduce_input_buffer_percent=0.99, reduce_parallelcopies=10, 
-#'      reduce_merge_inmem=0, task_io_sort_factor=100, 
-#'      spill_percent=0.99, reduce_shuffle_input_buffer_percent = 0.9,
-#'      reduce_shuffle_merge_percent = 0.99
-#'    )
-#'    \dontrun{
-#'      readIn("/wsc/tongx/spatem/nRaw/tmax","/wsc/tongx/spatem/tmax/sim/bymth", info="/wsc/tongx/spatem/stationinfo/a1950UStinfo.RData", me) 
-#'    }
+#'     FileInput <- "/wsc/tongx/spatem/nRaw/tmax"
+#'     FileOutput <- "/wsc/tongx/spatem/tmax/test/bymth"
+#'     ccontrol <- mapreduce.control(
+#'       libLoc=lib.loc, reduceTask=179, io_sort=512, BLK=256, slow_starts = 0.8,
+#'       reduce_input_buffer_percent=0.9, reduce_parallelcopies=5,
+#'       reduce_merge_inmem=0, task_io_sort_factor=100,
+#'       spill_percent=0.9, reduce_shuffle_input_buffer_percent = 0.9,
+#'       reduce_shuffle_merge_percent = 0.5,
+#'       reduce_buffer_read = 100, map_buffer_read = 100,
+#'       reduce_buffer_size = 10000, map_buffer_size = 10000
+#'     )
+#'     readIn(
+#'       FileInput, FileOutput, info="/hdfs/path/a1950UStinfo.RData", 
+#'       cluster_control=ccontrol
+#'     )
+
+
 readIn <- function(input, output, info, cluster_control = mapreduce.control()) {
 
   job <- list()
@@ -115,6 +124,7 @@ readIn <- function(input, output, info, cluster_control = mapreduce.control()) {
   job$combiner <- TRUE
   job$jobname <- output
   job$readback <- FALSE
+  job$mon.sec <- 10
   job.mr <- do.call("rhwatch", job)
 
 }
@@ -135,12 +145,12 @@ readIn <- function(input, output, info, cluster_control = mapreduce.control()) {
 # FileInput <- "/wsc/tongx/spatem/nRaw/tmaxs128"
 # FileOutput <- "/wsc/tongx/spatem/tmax/test/bymth256"
 # me <- mapreduce.control(
-#   libLoc=lib.loc, reduceTask=179, io_sort=768, BLK=256, slow_starts = 0.7,
+#   libLoc=lib.loc, reduceTask=179, io_sort=512, BLK=256, slow_starts = 0.8,
 #   map_jvm = "-Xmx3584m", reduce_jvm = "-Xmx4096m", map_memory = 5120, reduce_memory = 5120,
-#   reduce_input_buffer_percent=0.7, reduce_parallelcopies=5,
+#   reduce_input_buffer_percent=0.9, reduce_parallelcopies=5,
 #   reduce_merge_inmem=0, task_io_sort_factor=100,
-#   spill_percent=0.9, reduce_shuffle_input_buffer_percent = 0.5,
-#   reduce_shuffle_merge_percent = 0.6,
+#   spill_percent=0.9, reduce_shuffle_input_buffer_percent = 0.9,
+#   reduce_shuffle_merge_percent = 0.5,
 #   reduce_buffer_read = 100, map_buffer_read = 100,
 #   reduce_buffer_size = 10000, map_buffer_size = 10000
 # )

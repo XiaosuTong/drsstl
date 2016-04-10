@@ -1,6 +1,6 @@
-#' Set smoothing parameter for drSpaceTime fitting
+#' Set smoothing parameters for drSpaceTime fitting
 #'
-#'  Set control parameters for drSpaceTime fits
+#'  Set control parameters for the smoothing fit
 #' @param vari 
 #'     variable name in string of the response variable
 #' @param time 
@@ -12,29 +12,28 @@
 #' @param n.p 
 #'     the number of observation in each subseries
 #' @param s.window 
-#'     either the character string \code{"periodic"} or the span (in lags) of the loess window for seasonal extraction, which should be odd. This has no default.
+#'     either the character string \code{"periodic"} or the span (in lags) of 
+#'     the loess window for seasonal extraction, which should be odd. This has no default.
 #' @param s.degree 
 #'     degree of locally-fitted polynomial in seasonal extraction. Should be 0, 1, or 2.
-#' @param sub.labels 
-#'     optional vector of length n.p that contains the labels of the subseries in their natural order (such as month name, day of week, etc.), used for strip labels when plotting. All entries must be unique.
-#' @param sub.start 
-#'     which element of sub.labels does the series begin with. See details.
-#' @param zero.weight 
-#'     value to use as zero for zero weighting
-#' @param s.jump,t.jump,l.jump 
-#'     integers at least one to increase speed of the respective smoother. Linear interpolation happens between every \code{*.jump}th value.
-#' @param s.blend,t.blend,l.blend 
-#'     vectors of proportion of blending to degree 0 polynomials at the endpoints of the series.
 #' @param inner
 #'     The iteration time for inner loop of stlplus for time dimension fitting
 #' @param outer
 #'     The iteration time for outer loop of stlplus for time dimension fitting
-#' @param surface
-#'     should the fitted surface be computed exactly or via interpolation from a kd tree?
-#' @param libLoc
-#'     the library searching path, sepcifically the path including Spaloess and 
-#'     stlplus package on the front end server. If all packages have been pushed
-#'     the the tar.gz file on hdfs, then this argument is set to be NULL.
+#' @param statbytime
+#'     The number of locations will be grouped together in the by time division after stlfit.
+#'     The parameter is only used for \code{swaptoTime}. Since there may be to many time
+#'     point in each location, the \code{swaptoTime} looping all time point will add to much
+#'     overhead caused by \code{rhcollect}. So every \code{statbytime} time point are collect
+#'     into one key-value pair.
+#' @param degree
+#'     smoothing degree for the spatial loess smoothing. It can be 0, 1, or 2.
+#' @param span
+#'     smoothing span for the spatial loess smoothing.
+#' @param Edeg
+#'     the degree for the conditioanl parametric model including elevation.
+#' @param surf
+#'     should the fitted surface be computed exactly or via interpolation from a kd tree.
 #' @param iterations
 #'     the number of iterations used for the space-time back-fitting.
 #' @return
@@ -42,11 +41,15 @@
 #' @author 
 #'     Xiaosu Tong 
 #' @export
+#' @references R. B. Cleveland, W. S. Cleveland, J. E. McRae, and I. Terpenning (1990) STL: A Seasonal-Trend Decomposition Procedure Based on Loess. \emph{Journal of Official Statistics}, \bold{6}, 3--73.
 #' @examples
-#'     spacetime.control()
+#'     spacetime.control(
+#'	     n = 786432, n.p = 12, s.window = 21, s.degree = 1, t.window = 241, 
+#'       t.degree = 1, degree = 2, span = 0.015, Edeg = 2, surf = "interpolate"
+#'     )
 
 spacetime.control <- function(vari="resp", time="date", seaname="month", n, n.p=12, s.window, s.degree = 1,
-  t.window = NULL, t.degree = 1, inner=4, outer=1, 
+  t.window = NULL, t.degree = 1, inner=4, outer=1, statbytime = 2,
   degree, span, Edeg, surf = c("interpolate", "direct"), iterations = 1) {
   
   list(
@@ -54,7 +57,7 @@ spacetime.control <- function(vari="resp", time="date", seaname="month", n, n.p=
     s.window=s.window, s.degree=s.degree, 
     t.window=t.window, t.degree= t.degree, 
     inner=inner, outer=outer, degree=degree, span=span, Edeg=Edeg, 
-    surf=match.arg(surf), iterations=iterations
+    surf=match.arg(surf), iterations=iterations, statbytime=statbytime
   )
 
 }

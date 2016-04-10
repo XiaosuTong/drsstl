@@ -4,36 +4,60 @@
 #' to the key-value pairs which is division by time.
 #'
 #' @param input
-#'     The path of input sequence file on HDFS. It should be by location division.
+#'     The path of input file on HDFS. It should be by location division.
 #' @param output
-#'     The path of output sequence file on HDFS. It is by time division.
-#' @param reduceTask
-#'     The number of the reduce tasks.
-#' @param elevFlag
-#'     Logical argument, if TRUE, then the elevation attribute from input value data.frame is log2 transformation
-#'     If FALSE, a log2 transformation is added to the elevation attribute.
-#' @param control
-#'     all parameters that are needed for space-time fitting
+#'     The path of output file on HDFS. It is by time division.
+#' @param cluster_control
+#'     Should be a list object generated from \code{mapreduce.control} function.
+#'     The list including all necessary Rhipe parameters and also user tunable 
+#'     MapReduce parameters.
+#' @param model_control
+#'     Should be a list object generated from \code{spacetime.control} function.
+#'     The list including all necessary smoothing parameters of nonparametric fitting.
 #' @details
-#'     swaptoTime is used for switch division by location to division by time.
+#'     \code{swaptoTime} is used for switching division by location to division by time.
+#'     The input key is location index, and input value is a vectorized matrix with 
+#'     \code{Mlcontrol$n} rows and 3 columns in order of resp, seasonal, trend. For each row 
+#'     of matrix, a new key-value pair is generated. Since the matrix is vectorized
+#'     by column, the trend in ith row is \code{i+Mlcontrol$n}. Index \code{j} controls the index 
+#'     of multiple location in one time point.
 #' @author 
 #'     Xiaosu Tong 
+#' @seealso
+#'     \code{\link{spacetime.control}}, \code{\link{mapreduce.control}}
 #' @export
 #' @examples
-#'     FileInput <- "/wsc/tongx/spatem/tmax/sim/bystatfit512"
-#'     FileOutput <- "/wsc/tongx/spatem/tmax/sim/byyear"
-#'     me <- mapreduce.control(libLoc="/home/tongx/R_LIBS", io_sort=512, BLK=256, reduce_input_buffer_percent=0.7, reduce_merge_inmem=0, task_io_sort_factor=100, spill_percent=1)
-#'     \dontrun{
-#'       swaptoTimeMap(FileInput, FileOutput, me)
-#'       swaptoTimeRed(FileOutput, "/wsc/tongx/spatem/tmax/sim/byyr256test", me)
-#'     }
-swaptoTime <- function(input, output, cluster_control=mapreduce.control()){
+#'     FileInput <- "/wsc/tongx/spatem/tmax/sims/bystatfit"
+#'     FileOutput <- "/wsc/tongx/spatem/tmax/sims/bymth"
+#'     ccontrol <- mapreduce.control(
+#'       libLoc=lib.loc, reduceTask=358, io_sort=1024, BLK=128, slow_starts = 0.5,
+#'       map_jvm = "-Xmx3072m", reduce_jvm = "-Xmx4096m", 
+#'       map_memory = 5120, reduce_memory = 5120,
+#'       reduce_input_buffer_percent=0.2, reduce_parallelcopies=10,
+#'       reduce_merge_inmem=0, task_io_sort_factor=100,
+#'       spill_percent=0.9, reduce_shuffle_input_buffer_percent = 0.7,
+#'       reduce_shuffle_merge_percent = 0.5,
+#'       reduce_buffer_read = 100, map_buffer_read = 100,
+#'       reduce_buffer_size = 10000, map_buffer_size = 10
+#'     )
+#'     mcontrol <- spacetime.control(
+#'       vari = "resp", time = "date", seaname = "month", 
+#'       n = 786432, n.p = 12, s.window = "periodic", t.window = 241, 
+#'       degree = 2, span = 0.015, Edeg = 2, statbytime = 2
+#'     )
+#'     swaptoTime(FileInput, FileOutput, cluster_control=ccontrol, model_control=mcontrol)
+swaptoTime <- function(input, output, cluster_control=mapreduce.control(), model_control=spacetime.control()){
 
   job <- list()
   job$map <- expression({
     lapply(seq_along(map.values), function(r) {
-      lapply(seq(1, 786432, 2), function(i) {
-        rhcollect(i, c(map.values[[r]][c(i, i+786432, i + 786432*2)], i, map.keys[[r]], map.values[[r]][c(i+1, i+1+786432, i+1 + 786432*2)], i+1, map.keys[[r]]))
+      lapply(seq(1, Mlcontrol$n, Mlcontrol$statbytime), function(i) {
+        value <- numeric()
+        for(j in 0:(Mlcontrol$statbytime-1)){
+          # j is the station (index - 1) in each time point, 2 here since we have two components, seasonal and trend 
+          value <- c(value, map.values[[r]][c(i, i+Mlcontrol$n+j, i+Mlcontrol$n*2+j)], i+j, map.keys[[r]] )
+        }
+        rhcollect(i, value)
       })
     })
   })
@@ -52,7 +76,8 @@ swaptoTime <- function(input, output, cluster_control=mapreduce.control()){
     map = {library(plyr, lib.loc=Clcontrol$libLoc)}
   )
   job$parameters <- list(
-    Clcontrol = cluster_control
+    Clcontrol = cluster_control,
+    Mlcontrol = model_control
   )
   job$mapred <- list(
     mapreduce.map.java.opts = cluster_control$map_jvm,
@@ -90,27 +115,39 @@ swaptoTime <- function(input, output, cluster_control=mapreduce.control()){
 
 
 ## bystatfit128 or bystatfit256 did have difference about time
-## for tmaxs128, io_sort is 1024 can avoid spilling
+## for bystatfit128, io_sort is 1024 can avoid spilling
+## opt_jvm can be 3072 but no difference with 2560
 ## reduce_parallelcopies is not quite helpful
-## 0.52 is the best slow_starts
+## 0.5 is the best slow_starts
 ## reduce_input_buffer_percent is 0.0 is slow, 0.7 is the optimal
 ## reduce_shuffle_input_buffer_percent and reduce_shuffle_merge_percent together cannot to be too small like all 0.1
-## reduce_shuffle_input_buffer_percent = 0.7 and reduce_shuffle_merge_percent =0.4 can aviod spill
+## reduce_shuffle_input_buffer_percent = 0.7 and reduce_shuffle_merge_percent =0.5 can aviod spill
 ## even though the multplication of these two kept the same, larger reduce_shuffle_input_buffer_percent be faster
 
-## for tmaxs256, io_sort is 768 can avoid spilling
-## small slow_starts value may be faster
+## for bystatfit256, spilling cannot be avioded because of the size
+## jvm_opt cannot larger than 2048
 
-FileInput <- "/wsc/tongx/spatem/tmax/sims/bystatfit128"
-FileOutput <- "/wsc/tongx/spatem/tmax/test/bymthse128"
-me <- mapreduce.control(
-  libLoc=lib.loc, reduceTask=358, io_sort=512, BLK=128, slow_starts = 0.7,
-  map_jvm = "-Xmx3584m", reduce_jvm = "-Xmx4096m", map_memory = 5120, reduce_memory = 5120,
-  reduce_input_buffer_percent=0.9, reduce_parallelcopies=10,
-  reduce_merge_inmem=0, task_io_sort_factor=100,
-  spill_percent=0.9, reduce_shuffle_input_buffer_percent = 0.9,
-  reduce_shuffle_merge_percent = 0.99,
-  reduce_buffer_read = 100, map_buffer_read = 100,
-  reduce_buffer_size = 10000, map_buffer_size = 10
-)
-swaptoTime(FileInput, FileOutput, cluster_control=me)
+
+#  FileInput <- "/wsc/tongx/spatem/tmax/sims/bystatfit128"
+#  FileOutput <- "/wsc/tongx/spatem/tmax/test/bymthse128"
+#  me <- mapreduce.control(
+#    libLoc=lib.loc, reduceTask=358, io_sort=512, BLK=128, slow_starts = 0.5,
+#    map_jvm = "-Xmx3584m", reduce_jvm = "-Xmx4096m", map_memory = 5120, reduce_memory = 5120,
+#    reduce_input_buffer_percent=0.9, reduce_parallelcopies=10,
+#    reduce_merge_inmem=0, task_io_sort_factor=20,
+#    spill_percent=0.9, reduce_shuffle_input_buffer_percent = 0.9,
+#    reduce_shuffle_merge_percent = 0.9,
+#    reduce_buffer_read = 100, map_buffer_read = 100,
+#    reduce_buffer_size = 10000, map_buffer_size = 10
+#  )
+#  system.time(swaptoTime(FileInput, FileOutput, cluster_control=me))
+
+
+## io_sort 128, 512
+## spill_percent 0.5, 0.9
+## slow_starts 0.1, 0.5
+## reduce_parallelcopies 5, 10
+## reduce_shuffle_input_buffer_percent 0.1, 0.9
+## reduce_shuffle_merge_percent 0.5, 0.9
+## reduce_input_buffer_percent 0.1, 0.9
+## task_io_sort_factor 10, 20

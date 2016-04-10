@@ -1,33 +1,42 @@
-#' Conduct the stlplus fitting at each location in parallel
+#' Conduct the spatial loess fitting on the remainder at each location in parallel
 #'
-#' call stlplus function on time series at each location in parallel.
-#' Every station uses the same smoothing parameter
+#' Call \code{spaloess} function on the spatial domain at each time point in parallel.
+#' Every spatial domain uses the same smoothing parameters
 #'
 #' @param input
-#'     The path of input sequence file on HDFS. It should be by location division.
+#'     The path of input file on HDFS. It should be by location division.
 #' @param output
-#'     The path of output sequence file on HDFS. It is by location division but with seasonal and trend components
+#'     The path of output file on HDFS. It is by location division but with 
+#'     seasonal and trend components
 #' @param info
-#'     the RData path on HDFS which contains all station metadata
-#' @param target
-#'     the variable name for the spatial fit, either "resp" or "remainder"
-#' @param sub 
-#'     integer, specifies how many month records are in each input key-value pair. 
-#' @param model_control
-#'     The list contains all smoothing parameters
+#'     The RData path on HDFS which contains all station metadata
 #' @param cluster_control
-#'     A list contains all mapreduce tuning parameters.
+#'     Should be a list object generated from \code{mapreduce.control} function.
+#'     The list including all necessary Rhipe parameters and also user tunable 
+#'     MapReduce parameters.
+#' @param model_control
+#'     Should be a list object generated from \code{spacetime.control} function.
+#'     The list including all necessary smoothing parameters of nonparametric fitting.
 #' @author 
 #'     Xiaosu Tong 
 #' @export
 #' @examples
-#'     FileInput <- "/wsc/tongx/spatem/tmax/sim/bymth128"
-#'     FileOutput <- "/wsc/tongx/spatem/tmax/sim/bymthfit128"
-#'     me <- mapreduce.control(libLoc="/home/tongx/R_LIBS", BLK = 128)
-#'     you <- spacetime.control(vari="resp", time="date", seaname="month", n=786432, n.p=12, s.window=13, t.window = 241, degree=2, span=0.015, Edeg=2)
-#'     \dontrun{
-#'       spatialfit(FileInput, FileOutput, target=you$vari, na=TRUE, info="/wsc/tongx/spatem/stationinfo/a1950UStinfo.RData", model_control=you, cluster_control=me)
-#'     }
+#'     FileInput <- "/wsc/tongx/spatem/tmax/sim/bymthse"
+#'     FileOutput <- "/wsc/tongx/spatem/tmax/sim/bymthfitse"
+#'     ccontrol <- mapreduce.control(
+#'       libLoc=lib.loc, reduceTask=0, BLK=128, map_jvm = "-Xmx3584m", 
+#'       map_memory = 5120, map_buffer_read = 100, map_buffer_size = 1000
+#'     )
+#'     mcontrol <- spacetime.control(
+#'       vari="remainder", time="date", seaname="month", n=786432, n.p=12, 
+#'       s.window=13, t.window = 241, degree=2, span=0.015, Edeg=2
+#'     )
+#'     sparfit(
+#'       FileInput, FileOutput, target=you$vari, na=TRUE, 
+#'       info="/wsc/tongx/spatem/stationinfo/a1950UStinfo.RData", 
+#'       model_control=mcontrol, cluster_control=ccontrol
+#'     )
+
 
 
 sparfit <- function(input, output, info, model_control=spacetime.control(), cluster_control=mapreduce.control()) {
@@ -73,7 +82,7 @@ sparfit <- function(input, output, info, model_control=spacetime.control(), clus
             alltree = FALSE
           )
           S$Rspa <- lo.fit$fitted
-          rhcollect(unique(S$date), subset(S, select = -c(remainder, lon, lat, elev2, elev)))
+          rhcollect(unique(S$date), subset(S, select = -c(remainder, lon, lat, elev2, elev, date, station.id)))
           NULL
       })
     })
@@ -112,7 +121,7 @@ sparfit <- function(input, output, info, model_control=spacetime.control(), clus
 
 }
 
-# FileInput <- "/wsc/tongx/spatem/tmax/sims/bymthse128"
+# FileInput <- "/wsc/tongx/spatem/tmax/sims/bymthse256"
 # FileOutput <- "/wsc/tongx/spatem/tmax/sims/bymthfitse128"
 # me <- mapreduce.control(
 #   libLoc=lib.loc, reduceTask=0, BLK=128, 

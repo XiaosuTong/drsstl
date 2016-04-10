@@ -4,35 +4,59 @@
 #' to the key-value pairs which is division by location.
 #'
 #' @param input
-#'     The path of input sequence file on HDFS. It should be by location division.
+#'     The path of input file on HDFS. It should be by location division.
 #' @param output
-#'     The path of output sequence file on HDFS. It is by time division.
-#' @param sub
-#'     The number of different locations within one hadoop key-value pair.
-#' @param model_control
-#'     The list contains all smoothing parameters
+#'     The path of output file on HDFS. It is by time division.
 #' @param cluster_control
-#'     A list contains all mapreduce tuning parameters.
+#'     Should be a list object generated from \code{mapreduce.control} function.
+#'     The list including all necessary Rhipe parameters and also user tunable 
+#'     MapReduce parameters.
 #' @author 
 #'     Xiaosu Tong 
 #' @export
+#' @seealso
+#'     \code{\link{spacetime.control}}, \code{\link{mapreduce.control}}
+#' @details
+#'     The value of each input key-value pair is a vector of spatial smoothed
+#'     value in the same order based on location index. For each of element
+#'     of this vector a intermediate key-value pair is collected. The value 
+#'     of final output key-value pair is a vector in order to keep the size
+#'     as small as possible, and also guarantee the combiner can set to be TRUE. 
 #' @examples
-#'     FileInput <- "/wsc/tongx/spatem/tmax/sim/bymthfit256"
-#'     FileOutput <- "/wsc/tongx/spatem/tmax/sim/bystat256"
-#'     me <- mapreduce.control(libLoc="/home/tongx/R_LIBS", io_sort=512, BLK=256, reduce_input_buffer_percent=0.7, reduce_merge_inmem=0, task_io_sort_factor=100, spill_percent=1)
-#'     \dontrun{
-#'       swaptoLoc(FileInput, FileOutput, cluster_control=me)
-#'     }
-swaptoLoc <- function(input, output, cluster_control=mapreduce.control()) {
+#'     FileInput <- "/wsc/tongx/spatem/tmax/sim/bymthfit"
+#'     FileOutput <- "/wsc/tongx/spatem/tmax/sim/bystat"
+#'     ccontrol <- mapreduce.control(
+#'       libLoc=lib.loc, reduceTask=169, io_sort=768, BLK=256, slow_starts = 0.5,
+#'       map_jvm = "-Xmx3072m", reduce_jvm = "-Xmx4096m", 
+#'       map_memory = 5120, reduce_memory = 5120,
+#'       reduce_input_buffer_percent=0.4, reduce_parallelcopies=10,
+#'       reduce_merge_inmem=0, task_io_sort_factor=100,
+#'       spill_percent=0.9, reduce_shuffle_input_buffer_percent = 0.8,
+#'       reduce_shuffle_merge_percent = 0.4,
+#'       reduce_buffer_read = 100, map_buffer_read = 100,
+#'       reduce_buffer_size = 10000, map_buffer_size = 100
+#'     )
+#'     swaptoLoc(FileInput, FileOutput, cluster_control=ccontrol)
+
+swaptoLoc <- function(input, output, final=FALSE, cluster_control=mapreduce.control()) {
 
   job <- list()
   job$map <- expression({
     lapply(seq_along(map.values), function(r) {
-      date <- (as.numeric(map.keys[[r]][1]) - 1)*12 + as.numeric(map.keys[[r]][2])
-      lapply(1:length(map.values[[r]]), function(i){
-        rhcollect(i, c(date, map.values[[r]][i]))
-        NULL
-      })
+      
+      if(!final) {
+        date <- (as.numeric(map.keys[[r]][1]) - 1)*12 + as.numeric(map.keys[[r]][2])
+        lapply(1:length(map.values[[r]]), function(i){
+          rhcollect(i, c(date, map.values[[r]][i]))
+          NULL
+        })
+      } else {
+        value <- unname(unlist(map.values[[r]]))
+        lapply(1:7738, function(i) {
+          rhcollect(i, c(map.keys[[r]], value[i], value[i+7738], value[i+7738*2], value[i+7738*3]))
+        })
+      }
+
     })
   })
   job$reduce <- expression(
@@ -44,11 +68,10 @@ swaptoLoc <- function(input, output, cluster_control=mapreduce.control()) {
     },
     post = {
       rhcollect(reduce.key, combine)
-      #rhcollect(reduce.key, matrix(combine, ncol=(sub+1), byrow=TRUE))
     }
   )
   job$parameters <- list(
-   sub = sub
+   final = final
   )
   job$combiner <- TRUE
   job$input <- rhfmt(input , type = "sequence")
@@ -97,17 +120,31 @@ swaptoLoc <- function(input, output, cluster_control=mapreduce.control()) {
 
 ##for bymthfit256, io_sort 768 can avoid spilling, but the jvm_opt cannot be larger than 2560 
 
-#FileInput <- "/wsc/tongx/spatem/tmax/sims/bymthfit128"
-#FileOutput <- "/wsc/tongx/spatem/tmax/test/bystat256"
-#me <- mapreduce.control(
-#  libLoc=lib.loc, reduceTask=169, io_sort=768, BLK=256, slow_starts = 0.5,
-#  map_jvm = "-Xmx2560m", reduce_jvm = "-Xmx4096m", map_memory = 5120, reduce_memory = 5120,
-#  reduce_input_buffer_percent=0.4, reduce_parallelcopies=10,
-#  reduce_merge_inmem=0, task_io_sort_factor=100,
-#  spill_percent=0.9, reduce_shuffle_input_buffer_percent = 0.8,
-#  reduce_shuffle_merge_percent = 0.4,
-#  reduce_buffer_read = 100, map_buffer_read = 100,
-#  reduce_buffer_size = 10000, map_buffer_size = 100
-#)
-#swaptoLoc(FileInput, FileOutput, cluster_control=me)
+# FileInput <- "/wsc/tongx/spatem/tmax/sims/bymthfit128"
+# FileOutput <- "/wsc/tongx/spatem/tmax/test/bystat256"
+# me <- mapreduce.control(
+#   libLoc=lib.loc, reduceTask=169, io_sort=512, BLK=256, slow_starts = 0.5,
+#   map_jvm = "-Xmx3584m", reduce_jvm = "-Xmx4096m", map_memory = 5120, reduce_memory = 5120,
+#   reduce_input_buffer_percent=0.9, reduce_parallelcopies=10,
+#   reduce_merge_inmem=0, task_io_sort_factor=20,
+#   spill_percent=0.9, reduce_shuffle_input_buffer_percent = 0.9,
+#   reduce_shuffle_merge_percent = 0.9,
+#   reduce_buffer_read = 100, map_buffer_read = 100,
+#   reduce_buffer_size = 10000, map_buffer_size = 100
+# )
+# system.time(swaptoLoc(FileInput, FileOutput, cluster_control=me))
 
+
+# FileInput <- "/wsc/tongx/spatem/tmax/sims/bymthfitse256"
+# FileOutput <- "/wsc/tongx/spatem/tmax/sims/bystatse256"
+# me <- mapreduce.control(
+#   libLoc=lib.loc, reduceTask=358, io_sort=512, BLK=256, slow_starts = 0.9,
+#   map_jvm = "-Xmx3584m", reduce_jvm = "-Xmx4096m", map_memory = 5120, reduce_memory = 5120,
+#   reduce_input_buffer_percent=0.9, reduce_parallelcopies=10,
+#   reduce_merge_inmem=0, task_io_sort_factor=20,
+#   spill_percent=0.9, reduce_shuffle_input_buffer_percent = 0.9,
+#   reduce_shuffle_merge_percent = 0.9,
+#   reduce_buffer_read = 100, map_buffer_read = 100,
+#   reduce_buffer_size = 10000, map_buffer_size = 100
+# )
+# system.time(swaptoLoc(FileInput, FileOutput, final = TRUE, cluster_control=me))
