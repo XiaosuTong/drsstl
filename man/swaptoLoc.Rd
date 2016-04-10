@@ -4,32 +4,48 @@
 \alias{swaptoLoc}
 \title{Swap to division by location}
 \usage{
-swaptoLoc(input, output, sub, cluster_control = mapreduce.control())
+swaptoLoc(input, output, cluster_control = mapreduce.control())
 }
 \arguments{
-\item{input}{The path of input sequence file on HDFS. It should be by location division.}
+\item{input}{The path of input file on HDFS. It should be by location division.}
 
-\item{output}{The path of output sequence file on HDFS. It is by time division.}
+\item{output}{The path of output file on HDFS. It is by time division.}
 
-\item{sub}{The number of different locations within one hadoop key-value pair.}
-
-\item{cluster_control}{A list contains all mapreduce tuning parameters.}
-
-\item{model_control}{The list contains all smoothing parameters}
+\item{cluster_control}{Should be a list object generated from \code{mapreduce.control} function.
+The list including all necessary Rhipe parameters and also user tunable 
+MapReduce parameters.}
 }
 \description{
 Switch input key-value pairs which is division by time
 to the key-value pairs which is division by location.
 }
+\details{
+The value of each input key-value pair is a vector of spatial smoothed
+    value in the same order based on location index. For each of element
+    of this vector a intermediate key-value pair is collected. The value 
+    of final output key-value pair is a vector in order to keep the size
+    as small as possible, and also guarantee the combiner can set to be TRUE.
+}
 \examples{
-    FileInput <- "/wsc/tongx/spatem/tmax/sim/bymthfit256"
-    FileOutput <- "/wsc/tongx/spatem/tmax/sim/bystat256"
-    me <- mapreduce.control(libLoc="/home/tongx/R_LIBS", io_sort=512, BLK=256, reduce_input_buffer_percent=0.7, reduce_merge_inmem=0, task_io_sort_factor=100, spill_percent=1)
-    \dontrun{
-      swaptoLoc(FileInput, FileOutput, sub=1, cluster_control=me)
-    }
+    FileInput <- "/wsc/tongx/spatem/tmax/sim/bymthfit"
+    FileOutput <- "/wsc/tongx/spatem/tmax/sim/bystat"
+    ccontrol <- mapreduce.control(
+      libLoc=lib.loc, reduceTask=169, io_sort=768, BLK=256, slow_starts = 0.5,
+      map_jvm = "-Xmx3072m", reduce_jvm = "-Xmx4096m", 
+      map_memory = 5120, reduce_memory = 5120,
+      reduce_input_buffer_percent=0.4, reduce_parallelcopies=10,
+      reduce_merge_inmem=0, task_io_sort_factor=100,
+      spill_percent=0.9, reduce_shuffle_input_buffer_percent = 0.8,
+      reduce_shuffle_merge_percent = 0.4,
+      reduce_buffer_read = 100, map_buffer_read = 100,
+      reduce_buffer_size = 10000, map_buffer_size = 100
+    )
+    swaptoLoc(FileInput, FileOutput, cluster_control=ccontrol)
 }
 \author{
 Xiaosu Tong
+}
+\seealso{
+\code{\link{spacetime.control}}, \code{\link{mapreduce.control}}
 }
 

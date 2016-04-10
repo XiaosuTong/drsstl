@@ -7,9 +7,11 @@
 readIn(input, output, info, cluster_control = mapreduce.control())
 }
 \arguments{
-\item{input}{The path of input sequence file on HDFS. It should be raw text file.}
+\item{input}{The path of input file on HDFS. It should be raw text file.}
 
-\item{output}{The path of output sequence file on HDFS. It is by time division.}
+\item{output}{The path of output file on HDFS. It is by time division.}
+
+\item{info}{The RData path on HDFS which contains all station metadata}
 
 \item{cluster_control}{all parameters that are needed for mapreduce job}
 }
@@ -17,16 +19,21 @@ readIn(input, output, info, cluster_control = mapreduce.control())
 Input raw text data file is divided into by time subsets and saved on HDFS
 }
 \examples{
-   me <- mapreduce.control(
-     libLoc="/home/tongx/R_LIBS", reduceTask=1300, io_sort=512, BLK=256, 
-     reduce_input_buffer_percent=0.99, reduce_parallelcopies=10, 
-     reduce_merge_inmem=0, task_io_sort_factor=100, 
-     spill_percent=0.99, reduce_shuffle_input_buffer_percent = 0.9,
-     reduce_shuffle_merge_percent = 0.99
-   )
-   \dontrun{
-     readIn("/wsc/tongx/spatem/nRaw/tmax","/wsc/tongx/spatem/tmax/sim/bymth", info="/wsc/tongx/spatem/stationinfo/a1950UStinfo.RData", me) 
-   }
+    FileInput <- "/wsc/tongx/spatem/nRaw/tmax"
+    FileOutput <- "/wsc/tongx/spatem/tmax/test/bymth"
+    ccontrol <- mapreduce.control(
+      libLoc=lib.loc, reduceTask=179, io_sort=512, BLK=256, slow_starts = 0.8,
+      reduce_input_buffer_percent=0.9, reduce_parallelcopies=5,
+      reduce_merge_inmem=0, task_io_sort_factor=100,
+      spill_percent=0.9, reduce_shuffle_input_buffer_percent = 0.9,
+      reduce_shuffle_merge_percent = 0.5,
+      reduce_buffer_read = 100, map_buffer_read = 100,
+      reduce_buffer_size = 10000, map_buffer_size = 10000
+    )
+    readIn(
+      FileInput, FileOutput, info="/hdfs/path/a1950UStinfo.RData", 
+      cluster_control=ccontrol
+    )
 }
 \author{
 Xiaosu Tong

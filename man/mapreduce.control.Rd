@@ -5,11 +5,14 @@
 \title{Set mapreduce parameter for drSpaceTime fitting}
 \usage{
 mapreduce.control(reduceTask = 0, libLoc = NULL, BLK = 512,
-  spill_percent = 0.8, io_sort = 100, task_io_sort_factor = 10,
-  reduce_parallelcopies = 5, reduce_shuffle_input_buffer_percent = 0.7,
+  map_jvm = "-Xmx3000m", reduce_jvm = "-Xmx4096m", map_memory = 5120,
+  reduce_memory = 5120, slow_starts = 0.9, spill_percent = 0.8,
+  io_sort = 100, task_io_sort_factor = 10, reduce_parallelcopies = 5,
+  reduce_shuffle_input_buffer_percent = 0.7,
   reduce_shuffle_merge_percent = 0.66, reduce_merge_inmem = 1000,
-  reduce_input_buffer_percent = 0, reduce_buff_read = 150,
-  map_buffer_read = 150)
+  reduce_input_buffer_percent = 0, reduce_buffer_read = 150,
+  map_buffer_read = 150, reduce_buffer_size = 10000,
+  map_buffer_size = 10000)
 }
 \arguments{
 \item{reduceTask}{The reduce task number, also the number of output files. If set to be 0, then there is no shuffle and sort stage after map.}

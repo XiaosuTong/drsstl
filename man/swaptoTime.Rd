@@ -4,37 +4,58 @@
 \alias{swaptoTime}
 \title{Swap to division by time}
 \usage{
-swaptoTime(input, output)
+swaptoTime(input, output, cluster_control = mapreduce.control(),
+  model_control = spacetime.control())
 }
 \arguments{
-\item{input}{The path of input sequence file on HDFS. It should be by location division.}
+\item{input}{The path of input file on HDFS. It should be by location division.}
 
-\item{output}{The path of output sequence file on HDFS. It is by time division.}
+\item{output}{The path of output file on HDFS. It is by time division.}
 
-\item{reduceTask}{The number of the reduce tasks.}
+\item{cluster_control}{Should be a list object generated from \code{mapreduce.control} function.
+The list including all necessary Rhipe parameters and also user tunable 
+MapReduce parameters.}
 
-\item{elevFlag}{Logical argument, if TRUE, then the elevation attribute from input value data.frame is log2 transformation
-If FALSE, a log2 transformation is added to the elevation attribute.}
-
-\item{control}{all parameters that are needed for space-time fitting}
+\item{model_control}{Should be a list object generated from \code{spacetime.control} function.
+The list including all necessary smoothing parameters of nonparametric fitting.}
 }
 \description{
 Switch input key-value pairs which is division by location
 to the key-value pairs which is division by time.
 }
 \details{
-swaptoTime is used for switch division by location to division by time.
+\code{swaptoTime} is used for switching division by location to division by time.
+    The input key is location index, and input value is a vectorized matrix with 
+    \code{Mlcontrol$n} rows and 3 columns in order of resp, seasonal, trend. For each row 
+    of matrix, a new key-value pair is generated. Since the matrix is vectorized
+    by column, the trend in ith row is \code{i+Mlcontrol$n}. Index \code{j} controls the index 
+    of multiple location in one time point.
 }
 \examples{
-    FileInput <- "/wsc/tongx/spatem/tmax/sim/bystatfit512"
-    FileOutput <- "/wsc/tongx/spatem/tmax/sim/byyear"
-    me <- mapreduce.control(libLoc="/home/tongx/R_LIBS", io_sort=512, BLK=256, reduce_input_buffer_percent=0.7, reduce_merge_inmem=0, task_io_sort_factor=100, spill_percent=1)
-    \dontrun{
-      swaptoTimeMap(FileInput, FileOutput, me)
-      swaptoTimeRed(FileOutput, "/wsc/tongx/spatem/tmax/sim/byyr256test", me)
-    }
+    FileInput <- "/wsc/tongx/spatem/tmax/sims/bystatfit"
+    FileOutput <- "/wsc/tongx/spatem/tmax/sims/bymth"
+    ccontrol <- mapreduce.control(
+      libLoc=lib.loc, reduceTask=358, io_sort=1024, BLK=128, slow_starts = 0.5,
+      map_jvm = "-Xmx3072m", reduce_jvm = "-Xmx4096m", 
+      map_memory = 5120, reduce_memory = 5120,
+      reduce_input_buffer_percent=0.2, reduce_parallelcopies=10,
+      reduce_merge_inmem=0, task_io_sort_factor=100,
+      spill_percent=0.9, reduce_shuffle_input_buffer_percent = 0.7,
+      reduce_shuffle_merge_percent = 0.5,
+      reduce_buffer_read = 100, map_buffer_read = 100,
+      reduce_buffer_size = 10000, map_buffer_size = 10
+    )
+    mcontrol <- spacetime.control(
+      vari = "resp", time = "date", seaname = "month", 
+      n = 786432, n.p = 12, s.window = "periodic", t.window = 241, 
+      degree = 2, span = 0.015, Edeg = 2, statbytime = 2
+    )
+    swaptoTime(FileInput, FileOutput, cluster_control=ccontrol, model_control=mcontrol)
 }
 \author{
 Xiaosu Tong
+}
+\seealso{
+\code{\link{spacetime.control}}, \code{\link{mapreduce.control}}
 }
 
