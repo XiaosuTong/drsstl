@@ -81,19 +81,3 @@ stlfit <- function(input, output, model_control=spacetime.control(), cluster_con
   job.mr <- do.call("rhwatch", job)
 
 }
-
-
-# FileInput <- "/wsc/tongx/spatem/tmax/sims/bystat256"
-# FileOutput <- "/wsc/tongx/spatem/tmax/test/bystatfit256"
-# 
-# me <- mapreduce.control(
-#   libLoc=lib.loc, reduceTask=0, BLK=256, 
-#   map_jvm = "-Xmx4096m", map_memory = 5120,
-#   map_buffer_read = 200, map_buffer_size = 10000
-# )
-# you <- spacetime.control(
-#   vari="resp", time="date", seaname="month", 
-#   n=786432, n.p=12, s.window="periodic", t.window = 241, 
-#   degree=2, span=0.015, Edeg=2
-# )
-# stlfit(FileInput, FileOutput, model_control=you, cluster_control=me)

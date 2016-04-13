@@ -120,20 +120,3 @@ sparfit <- function(input, output, info, model_control=spacetime.control(), clus
   job.mr <- do.call("rhwatch", job)  
 
 }
-
-# FileInput <- "/wsc/tongx/spatem/tmax/sims/bymthse256"
-# FileOutput <- "/wsc/tongx/spatem/tmax/sims/bymthfitse128"
-# me <- mapreduce.control(
-#   libLoc=lib.loc, reduceTask=0, BLK=128, 
-#   map_jvm = "-Xmx3584m", map_memory = 5120,
-#   map_buffer_read = 100, map_buffer_size = 1000
-# )
-# you <- spacetime.control(
-#   vari="remainder", time="date", seaname="month", 
-#   n=786432, n.p=12, s.window=13, t.window = 241, 
-#   degree=2, span=0.015, Edeg=2
-# )
-# sparfit(FileInput, FileOutput,
-#   info="/wsc/tongx/spatem/stationinfo/a1950UStinfo.RData", 
-#   model_control=you, cluster_control=me
-# )
