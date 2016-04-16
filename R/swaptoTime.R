@@ -55,7 +55,7 @@ swaptoTime <- function(input, output, cluster_control=mapreduce.control(), model
         value <- numeric()
         for(j in 0:(Mlcontrol$statbytime-1)){
           # j is the station (index - 1) in each time point, 2 here since we have two components, seasonal and trend 
-          value <- c(value, map.values[[r]][c(i, i+Mlcontrol$n+j, i+Mlcontrol$n*2+j)], i+j, map.keys[[r]] )
+          value <- c(value, map.values[[r]][c(i+j, i+Mlcontrol$n+j, i+Mlcontrol$n*2+j)], i+j, map.keys[[r]] )
         }
         rhcollect(i, value)
       })
