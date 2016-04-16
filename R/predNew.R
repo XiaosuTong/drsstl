@@ -122,120 +122,149 @@ predNew <- function(newdata, input, info, model_control=spacetime.control(), clu
   job1$readback <- FALSE  
   job.mr <- do.call("rhwatch", job1)  
 
-#  input <- output
-#  output <- "/wsc/tongx/tmp/newpred/stlfit"#
+  input <- output
+  output <- "/wsc/tongx/spatem/tmax/newpred/stlfit"
 
-#  job2 <- list()
-#  job2$map <- expression({
-#    lapply(seq_along(map.keys), function(r) {
-#      value <- arrange(data.frame(matrix(map.values[[r]], ncol=2, byrow=TRUE)), X1)#
+  job2 <- list()
+  job2$map <- expression({
+    lapply(seq_along(map.keys), function(r) {
+      value <- arrange(data.frame(matrix(map.values[[r]], ncol=2, byrow=TRUE)), X1)
 
-#      fit <- stlplus::stlplus(
-#        x=value$X2, t=value$X1, n.p=Mlcontrol$n.p, 
-#        s.window=Mlcontrol$s.window, s.degree=Mlcontrol$s.degree, 
-#        t.window=Mlcontrol$t.window, t.degree=Mlcontrol$t.degree, 
-#        inner=Mlcontrol$inner, outer=Mlcontrol$outer
-#      )$data
-#      # value originally is a data.frame with 3 columns, vectorize it 
-#      names(value) <- c(Mlcontrol$time, Mlcontrol$vari)
-#      value <- unname(unlist(cbind(subset(value, select = -c(date)), subset(fit, select = c(seasonal, trend)))))
-#      
-#      lapply((1:Mlcontrol$n), function(i) {
-#        rhcollect(i, c(value[c(i, i+Mlcontrol$n, i+Mlcontrol$n*2)], map.keys[[r]]))
-#      })#
+      fit <- stlplus::stlplus(
+        x=value$X2, t=value$X1, n.p=Mlcontrol$n.p, 
+        s.window=Mlcontrol$s.window, s.degree=Mlcontrol$s.degree, 
+        t.window=Mlcontrol$t.window, t.degree=Mlcontrol$t.degree, 
+        inner=Mlcontrol$inner, outer=Mlcontrol$outer
+      )$data
+      # value originally is a data.frame with 3 columns, vectorize it 
+      names(value) <- c(Mlcontrol$time, Mlcontrol$vari)
+      value <- unname(unlist(cbind(subset(value, select = -c(date)), subset(fit, select = c(seasonal, trend)))))
+      
+      lapply((1:Mlcontrol$n), function(i) {
+        rhcollect(i, c(value[c(i+j, i+Mlcontrol$n, i+Mlcontrol$n*2)], i+j, map.keys[[r]]))
+      })
 
-#    })      
-#  })
-#  job2$reduce <- expression(
-#  	pre = {
-#      combine <- numeric()
-#  	},
-#  	reduce = {
-#      combine <- c(combine, do.call("c", reduce.values))
-#  	},
-#  	post = {
-#      rhcollect(reduce.key, combine)
-#  	}
-#  )
-#  job2$parameters <- list(
-#    Mlcontrol = model_control,
-#    Clcontrol = cluster_control
-#  )
-#  job2$setup <- expression(
-#    map = {
-#      suppressMessages(library(stlplus, lib.loc=Clcontrol$libLoc))
-#      library(plyr, lib.loc=Clcontrol$libLoc)
-#    }
-#  )
-#  job2$input <- rhfmt(input, type = "sequence")
-#  job2$output <- rhfmt(output, type = "sequence")
-#  job2$mapred <- list(
-#    mapreduce.task.timeout = 0,
-#    mapreduce.job.reduces = 179,  #cdh5
-#    mapreduce.map.java.opts = cluster_control$map_jvm,
-#    mapreduce.map.memory.mb = cluster_control$map_memory,     
-#    dfs.blocksize = cluster_control$BLK,
-#    rhipe_reduce_buff_size = cluster_control$reduce_buffer_size,
-#    rhipe_reduce_bytes_read = cluster_control$reduce_buffer_read,
-#    rhipe_map_buff_size = cluster_control$map_buffer_size, 
-#    rhipe_map_bytes_read = cluster_control$map_buffer_read,
-#    mapreduce.map.output.compress = TRUE,
-#    mapreduce.output.fileoutputformat.compress.type = "BLOCK"
-#  )
-#  job2$mon.sec <- 10
-#  job2$readback <- FALSE
-#  job2$jobname <- output
-#  job.mr <- do.call("rhwatch", job2)
-#  
-#  input <- output
-#  output <- "/wsc/tongx/tmp/newpred/sparfit"#
+    })      
+  })
+  job2$reduce <- expression(
+  	pre = {
+      combine <- numeric()
+  	},
+  	reduce = {
+      combine <- c(combine, do.call("c", reduce.values))
+  	},
+  	post = {
+      rhcollect(reduce.key, combine)
+  	}
+  )
+  job2$parameters <- list(
+    Mlcontrol = model_control,
+    Clcontrol = cluster_control
+  )
+  job2$setup <- expression(
+    map = {
+      suppressMessages(library(stlplus, lib.loc=Clcontrol$libLoc))
+      library(plyr, lib.loc=Clcontrol$libLoc)
+    }
+  )
+  job2$input <- rhfmt(input, type = "sequence")
+  job2$output <- rhfmt(output, type = "sequence")
+  job2$mapred <- list(
+    mapreduce.task.timeout = 0,
+    mapreduce.job.reduces = cluster_control$reduceTask,  #cdh5
+    mapreduce.map.java.opts = cluster_control$map_jvm,
+    mapreduce.map.memory.mb = cluster_control$map_memory,     
+    dfs.blocksize = cluster_control$BLK,
+    rhipe_reduce_buff_size = cluster_control$reduce_buffer_size,
+    rhipe_reduce_bytes_read = cluster_control$reduce_buffer_read,
+    rhipe_map_buff_size = cluster_control$map_buffer_size, 
+    rhipe_map_bytes_read = cluster_control$map_buffer_read,
+    mapreduce.map.output.compress = TRUE,
+    mapreduce.output.fileoutputformat.compress.type = "BLOCK"
+  )
+  job2$mon.sec <- 10
+  job2$readback <- FALSE
+  job2$jobname <- output
+  job.mr <- do.call("rhwatch", job2)
+  
 
-#  job3 <- list()
-#  job3$map <- expression({
-#    lapply(seq_along(map.keys), function(r) {#
 
-#      file <- Sys.getenv("mapred.input.file")
-#      tail(strsplit(file, "/")[[1]],1)
-#      if() {
-#        value <- arrange(data.frame(matrix(map.values[[r]], ncol=4, byrow=TRUE)), X4, X5)
-#        names(value) <- c("resp","seasonal","trend","station.id")
-#        value$remainder <- with(value, resp - trend - seasonal)
-#      } else {
-#        rhcollect(map.keys[[r]], map.values[[r]])
-#      }#
 
-#    })
-#  })
-#  job3$reduce <- expression(
-#    pre = {
-#      combine <- data.frame()
-#    },
-#    reduce = {
-#      combine <- rbind(combine, do.call("rbind", reduce.values))
-#    },
-#    post = {
-#      rhcollect(reduce.key, combine)
-#    }
-#  )
 
+  input <- output
+  output <- "/wsc/tongx/spatem/tmax/newpred/sparfit"
+
+  job3 <- list()
+  job3$map <- expression({
+    lapply(seq_along(map.keys), function(r) {
+      file <- Sys.getenv("mapred.input.file")
+      value <- arrange(data.frame(matrix(map.values[[r]], ncol=5, byrow=TRUE)), X4, X5)
+      names(value) <- c("resp","seasonal","trend", "date", "station.id")
+      value$remainder <- with(value, resp - trend - seasonal)
+      rhcollect(map.keys[[r]], map.values[[r]])
+    })
+  })
+  job3$reduce <- expression(
+    pre = {
+      combine <- data.frame()
+    },
+    reduce = {
+      combine <- rbind(combine, do.call("rbind", reduce.values))
+    },
+    post = {
+      rhcollect(reduce.key, dim(combine))
+    }
+  )
+  job3$parameters <- list(
+    Mlcontrol = model_control,
+    Clcontrol = cluster_control,
+    info = info,
+    input = input
+  )
+  job3$shared <- c(info)
+  job3$setup <- expression(
+    map = {
+      load(strsplit(info, "/")[[1]][length(strsplit(info, "/")[[1]])])
+      suppressMessages(library(plyr, lib.loc=Clcontrol$libLoc))
+      library(Spaloess, lib.loc=Clcontrol$libLoc)
+    }
+  )
+  job3$mapred <- list(
+    mapreduce.task.timeout = 0,
+    mapreduce.job.reduces = cluster_control$reduceTask,  #cdh5
+    mapreduce.map.java.opts = cluster_control$map_jvm,
+    mapreduce.map.memory.mb = cluster_control$map_memory,     
+    dfs.blocksize = cluster_control$BLK,
+    rhipe_map_bytes_read = cluster_control$map_buffer_read,
+    rhipe_map_buffer_size = cluster_control$map_buffer_size,
+    mapreduce.map.output.compress = TRUE,
+    mapreduce.output.fileoutputformat.compress.type = "BLOCK"
+  )
+  job3$input <- rhfmt(input, type="sequence")
+  job3$output <- rhfmt(output, type="sequence")
+  job3$mon.sec <- 10
+  job3$jobname <- output
+  job3$readback <- FALSE  
+
+  job.mr <- do.call("rhwatch", job3)  
 
 
 }
 
-you <- spacetime.control(
-      vari="resp", time="date", seaname="month", n=576, n.p=12, 
-      s.window="periodic", t.window = 241, degree=2, span=0.015, Edeg=2
-    )
+#model_control <- spacetime.control(
+#      vari="resp", time="date", seaname="month", n=576, n.p=12, 
+#      s.window="periodic", t.window = 241, degree=2, span=0.015, Edeg=2
+#    )#
 
-me <- mapreduce.control(
-        libLoc=lib.loc, reduceTask=45, io_sort=512, BLK=128, slow_starts = 0.9,
-        map_jvm = "-Xmx3584m", reduce_jvm = "-Xmx4096m", map_memory = 5120, reduce_memory = 5120,
-        reduce_input_buffer_percent=0.8, reduce_parallelcopies=20,
-        reduce_merge_inmem=0, task_io_sort_factor=50,
-        spill_percent=0.8, reduce_shuffle_input_buffer_percent = 0.8,
-        reduce_shuffle_merge_percent = 0.8,
-        reduce_buffer_read = 100, map_buffer_read = 100,
-        reduce_buffer_size = 10000, map_buffer_size = 10000
-      )
+#cluster_control <- mapreduce.control(
+#        libLoc=lib.loc, reduceTask=45, io_sort=512, BLK=128, slow_starts = 0.9,
+#        map_jvm = "-Xmx3584m", reduce_jvm = "-Xmx4096m", map_memory = 5120, reduce_memory = 5120,
+#        reduce_input_buffer_percent=0.8, reduce_parallelcopies=20,
+#        reduce_merge_inmem=0, task_io_sort_factor=50,
+#        spill_percent=0.8, reduce_shuffle_input_buffer_percent = 0.8,
+#        reduce_shuffle_merge_percent = 0.8,
+#        reduce_buffer_read = 100, map_buffer_read = 100,
+#        reduce_buffer_size = 10000, map_buffer_size = 10000
+#      )#
 
-predNew(newdata = new.grid, input="/wsc/tongx/spatem/tmax/simo/bymth128", info="/wsc/tongx/spatem/stationinfo/a1950UStinfo.RData", model_control=you, cluster_control=me)
+#predNew(newdata = new.grid, input="/wsc/tongx/spatem/tmax/simo/bymth128", info="/wsc/tongx/spatem/stationinfo/a1950UStinfo.RData", model_control=you, cluster_control=me)
