@@ -4,7 +4,8 @@
 \alias{swaptoLoc}
 \title{Swap to division by location}
 \usage{
-swaptoLoc(input, output, cluster_control = mapreduce.control())
+swaptoLoc(input, output, final = FALSE,
+  cluster_control = mapreduce.control())
 }
 \arguments{
 \item{input}{The path of input file on HDFS. It should be by location division.}
