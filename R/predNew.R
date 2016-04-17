@@ -387,12 +387,11 @@ predNew <- function(newdata, input, info, model_control=spacetime.control(), clu
 
 }
 
-#model_control <- spacetime.control(
+#you <- spacetime.control(
 #      vari="resp", time="date", seaname="month", n=576, n.p=12, 
 #      s.window="periodic", t.window = 241, degree=2, span=0.015, Edeg=2
-#    )#
-
-#cluster_control <- mapreduce.control(
+#    )
+#me <- mapreduce.control(
 #        libLoc=lib.loc, reduceTask=45, io_sort=512, BLK=128, slow_starts = 0.9,
 #        map_jvm = "-Xmx3584m", reduce_jvm = "-Xmx4096m", map_memory = 5120, reduce_memory = 5120,
 #        reduce_input_buffer_percent=0.8, reduce_parallelcopies=20,
@@ -401,5 +400,32 @@ predNew <- function(newdata, input, info, model_control=spacetime.control(), clu
 #        reduce_shuffle_merge_percent = 0.8,
 #        reduce_buffer_read = 100, map_buffer_read = 100,
 #        reduce_buffer_size = 10000, map_buffer_size = 10000
-#      )
+#      )#
 
+#new.grid <- expand.grid(
+#  lon = seq(-126, -67, by = 0.1),
+#  lat = seq(25, 49, by = 0.1)
+#)
+#instate <- !is.na(map.where("state", new.grid$lon, new.grid$lat))
+#new.grid <- new.grid[instate, ]#
+
+#elev.fit <- spaloess( elev ~ lon + lat,
+#  data = UStinfo,
+#  degree = 2, 
+#  span = 0.05,
+#  distance = "Latlong",
+#  normalize = FALSE,
+#  napred = FALSE,
+#  alltree = FALSE,
+#  family="symmetric", 
+#  control=loess.control(surface = "direct")
+#)
+#grid.fit <- predloess(
+#  object = elev.fit,
+#  newdata = data.frame(
+#    lon = new.grid$lon,
+#    lat = new.grid$lat
+#  )
+#)
+#new.grid$elev2 <- log2(grid.fit + 128)
+#predNew(newdata=new.grid, input="/wsc/tongx/spatem/tmax/simo/bymth128", info="/wsc/tongx/spatem/stationinfo/a1950UStinfo.RData", model_control=you, cluster_control=me)
