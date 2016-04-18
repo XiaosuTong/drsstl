@@ -127,6 +127,8 @@ readIn <- function(input, output, info, cluster_control = mapreduce.control()) {
   job$mon.sec <- 10
   job.mr <- do.call("rhwatch", job)
 
+  return(job.mr[[1]]$jobid)
+
 }
 
 
