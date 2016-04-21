@@ -80,4 +80,6 @@ stlfit <- function(input, output, model_control=spacetime.control(), cluster_con
   job$jobname <- output
   job.mr <- do.call("rhwatch", job)
 
+  return(job.mr[[1]]$jobid)
+
 }
