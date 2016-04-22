@@ -105,6 +105,8 @@ swaptoLoc <- function(input, output, final=FALSE, cluster_control=mapreduce.cont
 
   job.mr <- do.call("rhwatch", job)
 
+  return(job.mr[[1]]$jobid)
+
 }
 
 
