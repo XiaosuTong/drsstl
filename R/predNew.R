@@ -428,4 +428,5 @@ predNew <- function(newdata, input, info, model_control=spacetime.control(), clu
 #  )
 #)
 #new.grid$elev2 <- log2(grid.fit + 128)
+
 #predNew(newdata=new.grid, input="/wsc/tongx/spatem/tmax/simo/bymth128", info="/wsc/tongx/spatem/stationinfo/a1950UStinfo.RData", model_control=you, cluster_control=me)
