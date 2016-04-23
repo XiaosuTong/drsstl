@@ -111,6 +111,8 @@ swaptoTime <- function(input, output, cluster_control=mapreduce.control(), model
 
   job.mr <- do.call("rhwatch", job)  
 
+  return(job.mr[[1]]$jobid)
+
 }
 
 
