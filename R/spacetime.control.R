@@ -49,13 +49,15 @@
 #'     )
 
 spacetime.control <- function(vari="resp", time="date", seaname="month", n, n.p=12, s.window, s.degree = 1,
-  t.window = NULL, t.degree = 1, inner=4, outer=1, statbytime = 2,
+  t.window = NULL, t.degree = 1, inner=4, outer=1, statbytime = 2, s.jump=10, t.jump=10, cell=0.2,
   degree, span, Edeg, surf = c("interpolate", "direct"), iterations = 1) {
   
   list(
     vari=vari, time=time, seaname=seaname, n=n, n.p=n.p, 
     s.window=s.window, s.degree=s.degree, 
     t.window=t.window, t.degree= t.degree, 
+    s.jump = s.jump, t.jump = t.jump,
+    cell = cell,
     inner=inner, outer=outer, degree=degree, span=span, Edeg=Edeg, 
     surf=match.arg(surf), iterations=iterations, statbytime=statbytime
   )
