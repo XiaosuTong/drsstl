@@ -77,7 +77,7 @@ sparfit <- function(input, output, info, model_control=spacetime.control(), clus
             family  = "symmetric",
             normalize = FALSE,
             distance = "Latlong",
-            control = loess.control(surface = Mlcontrol$surf, iterations = 2),
+            control = loess.control(surface = Mlcontrol$surf, iterations = 2, cell=Mlcontrol$cell),
             napred = FALSE,
             alltree = FALSE
           )
