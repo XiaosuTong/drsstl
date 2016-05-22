@@ -1,11 +1,11 @@
 #' @export
 
-predNew <- function(newdata, input, info, model_control=spacetime.control(), cluster_control=mapreduce.control()) {
+predNew <- function(newdata, input, output, info, model_control=spacetime.control(), cluster_control=mapreduce.control()) {
 	
 	if(!is.data.frame(newdata)) {
 		stop("new locations must be a data.frame")
 	}
-  output <- "/wsc/tongx/spatem/tmax/newpred/spaofit"
+  #output <- "/wsc/tongx/spatem/tmax/newpred/spaofit"
 
   D <- ncol(newdata)
   NM <- names(newdata)
