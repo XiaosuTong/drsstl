@@ -31,11 +31,11 @@
 #'     mapreduce.control()
 
 mapreduce.control <- function(
-  reduceTask=0, libLoc = NULL, BLK = 512, map_jvm = "-Xmx3000m", reduce_jvm = "-Xmx4096m",
-  map_memory = 5120, reduce_memory = 5120, slow_starts = 0.9,
-  spill_percent = 0.8, io_sort = 100, task_io_sort_factor = 10,
+  reduceTask=0, libLoc = NULL, BLK = 128, map_jvm = "-Xmx3000m", reduce_jvm = "-Xmx4096m",
+  map_memory = 5120, reduce_memory = 5120, slow_starts = 0.5,
+  spill_percent = 0.8, io_sort = 512, task_io_sort_factor = 100,
   reduce_parallelcopies = 5, reduce_shuffle_input_buffer_percent = 0.70,
-  reduce_shuffle_merge_percent = 0.66, reduce_merge_inmem = 1000,
+  reduce_shuffle_merge_percent = 0.66, reduce_merge_inmem = 0,
   reduce_input_buffer_percent = 0, reduce_buffer_read = 150, map_buffer_read = 150,
   reduce_buffer_size = 10000, map_buffer_size= 10000) {
   
