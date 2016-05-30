@@ -40,7 +40,8 @@ sstl <- function(data, model_control=spacetime.control()) {
     dropSq <- FALSE
     condParam <- FALSE
   }
-
+  
+  print("First spatial smoothing...")
   rst <- ddply(.data = data
     , .vari = c("year", "month")
     , .fun = function(v) {
@@ -68,6 +69,7 @@ sstl <- function(data, model_control=spacetime.control()) {
       }
   )
 
+  print("Temporal fitting...")
   rst <- ddply(.data = rst
     , .vari = "station.id"
     , .fun = function(v) {
@@ -75,7 +77,7 @@ sstl <- function(data, model_control=spacetime.control()) {
         fit <- stlplus::stlplus(
           x        = v$spaofit, 
           t        = 1:nrow(v), 
-          n.p      = n.p, 
+          n.p      = model_control$n.p, 
           s.window = model_control$s.window, 
           s.degree = model_control$s.degree, 
           t.window = model_control$t.window, 
@@ -94,6 +96,7 @@ sstl <- function(data, model_control=spacetime.control()) {
     fml <- as.formula("remainder ~ lon + lat")
   }
 
+  print("Second spatial smoothing...")
   rst <- ddply(.data = rst
     , .vari = c("year", "month")
     , .fun = function(v) {
