@@ -13,7 +13,7 @@
 #' @examples
 #'     head(tmax_all)
 #'     mcontrol <- spacetime.control(
-#'       vari="resp", n=576, n.p=12, stat_n=7738,
+#'       vari="tmax", n=576, n.p=12, stat_n=7738,
 #'       s.window=13, t.window = 241, degree=2, span=0.015, Edeg=2
 #'     )
 #'     sstl(tmax_all, model_control=mcontrol)
@@ -25,18 +25,18 @@ sstl <- function(data, model_control=spacetime.control()) {
   if(model_control$Edeg == 2) {
     stopifnot(all(c("lat","lon","elev") %in% names(data)))
     data$elev2 <- log2(data$elev + 128)
-    fml <- as.formula(paste(model_control$model_control$vari, "~ lon + lat + elev2"))
+    fml <- as.formula(paste(model_control$vari, "~ lon + lat + elev2"))
     dropSq <- FALSE
     condParam <- "elev2"
   } else if(model_control$Edeg == 1) {
     stopifnot(all(c("lat","lon","elev") %in% names(data)))
     data$elev2 <- log2(data$elev + 128)
-    fml <- as.formula(paste(model_control$model_control$vari, "~ lon + lat + elev2"))
+    fml <- as.formula(paste(model_control$vari, "~ lon + lat + elev2"))
     dropSq <- "elev2"
     condParam <- "elev2"
   } else if (model_control$Edeg == 0) {
     stopifnot(all(c("lat","lon") %in% names(data)))
-    fml <- as.formula(paste(model_control$model_control$vari, "~ lon + lat"))
+    fml <- as.formula(paste(model_control$vari, "~ lon + lat"))
     dropSq <- FALSE
     condParam <- FALSE
   }
