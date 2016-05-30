@@ -109,7 +109,7 @@ sstl <- function(data, model_control=spacetime.control()) {
           family    = "symmetric",
           normalize = FALSE,
           distance  = "Latlong",
-          control   = loess.control(surface = surf, iterations = 2),
+          control   = loess.control(surface = model_control$surf, iterations = 2),
           napred    = FALSE,
           alltree   = FALSE
         )
