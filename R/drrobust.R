@@ -1,5 +1,3 @@
-#' @export
-
 drrobust <- function(input, output, vari, Clcontrol, zero.weight=1e-6) {
 
   jobW <- list()

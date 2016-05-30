@@ -1,7 +1,6 @@
 #' @importFrom yaImpute ann
 #' @importFrom Rcpp sourceCpp
 #' @useDynLib drSpaceTime
-#' @export
 
 .loess_stlplus <- function(x = NULL, y, span, degree, weights = NULL,
   m = c(1:length(y)), y_idx = !is.na(y), noNA = all(y_idx), blend = 0,

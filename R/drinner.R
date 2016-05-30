@@ -1,6 +1,5 @@
 #' @importFrom stats frequency loess median predict quantile weighted.mean time
 #' @importFrom utils head stack tail
-#' @export
 
 drinner <- function(Inner_input, Inner_output, n, n.p, vari, time, seaname, 
   s.window, s.degree, t.window, t.degree, l.window, l.degree, periodic,
