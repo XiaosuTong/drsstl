@@ -27,22 +27,20 @@
 #'     \code{\link{spacetime.control}}, \code{\link{mapreduce.control}}
 #' @export
 #' @examples
-#'     FileInput <- "/wsc/tongx/spatem/tmax/sims/bystatfit"
-#'     FileOutput <- "/wsc/tongx/spatem/tmax/sims/bymth"
+#'     FileInput <- "/tmp/bystatfit"
+#'     FileOutput <- "/tmp/bymthse"
 #'     ccontrol <- mapreduce.control(
-#'       libLoc=lib.loc, reduceTask=358, io_sort=1024, BLK=128, slow_starts = 0.5,
+#'       libLoc=lib.loc, reduceTask=358, io_sort=512, BLK=128, slow_starts = 0.5,
 #'       map_jvm = "-Xmx3072m", reduce_jvm = "-Xmx4096m", 
 #'       map_memory = 5120, reduce_memory = 5120,
 #'       reduce_input_buffer_percent=0.2, reduce_parallelcopies=10,
 #'       reduce_merge_inmem=0, task_io_sort_factor=100,
 #'       spill_percent=0.9, reduce_shuffle_input_buffer_percent = 0.7,
-#'       reduce_shuffle_merge_percent = 0.5,
-#'       reduce_buffer_read = 100, map_buffer_read = 100,
-#'       reduce_buffer_size = 10000, map_buffer_size = 10
+#'       reduce_shuffle_merge_percent = 0.5
 #'     )
 #'     mcontrol <- spacetime.control(
 #'       vari = "resp", time = "date", seaname = "month", 
-#'       n = 786432, n.p = 12, s.window = "periodic", t.window = 241, 
+#'       n = 576, stat_n=7738, n.p = 12, s.window = "periodic", t.window = 241, 
 #'       degree = 2, span = 0.015, Edeg = 2, statbytime = 2
 #'     )
 #'     swaptoTime(FileInput, FileOutput, cluster_control=ccontrol, model_control=mcontrol)

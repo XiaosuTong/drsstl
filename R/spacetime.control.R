@@ -44,16 +44,16 @@
 #' @references R. B. Cleveland, W. S. Cleveland, J. E. McRae, and I. Terpenning (1990) STL: A Seasonal-Trend Decomposition Procedure Based on Loess. \emph{Journal of Official Statistics}, \bold{6}, 3--73.
 #' @examples
 #'     spacetime.control(
-#'	     n = 786432, n.p = 12, s.window = 21, s.degree = 1, t.window = 241, 
+#'	     n = 576, stat_n = 7738, n.p = 12, s.window = 21, s.degree = 1, t.window = 241, 
 #'       t.degree = 1, degree = 2, span = 0.015, Edeg = 2, surf = "interpolate"
 #'     )
 
-spacetime.control <- function(vari="resp", time="date", seaname="month", n, n.p=12, s.window, s.degree = 1,
+spacetime.control <- function(vari="resp", time="date", seaname="month", n, stat_n, n.p=12, s.window, s.degree = 1,
   t.window = NULL, t.degree = 1, inner=2, outer=1, statbytime = 2, s.jump=10, t.jump=10, cell=0.2,
   degree, span, Edeg, surf = c("interpolate", "direct"), siter = 2) {
   
   list(
-    vari=vari, time=time, seaname=seaname, n=n, n.p=n.p, 
+    vari=vari, time=time, seaname=seaname, n=n, n.p=n.p, stat_n = stat_n,
     s.window=s.window, s.degree=s.degree, 
     t.window=t.window, t.degree= t.degree, 
     s.jump = s.jump, t.jump = t.jump,

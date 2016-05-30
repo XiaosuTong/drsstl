@@ -1,5 +1,5 @@
 #' Conduct the spatial loess fitting on the original observations at 
-#' each location in parallel
+#' all location in each month in parallel
 #'
 #' Call \code{spaloess} function on the spatial domain at each time point in parallel.
 #' Every spatial domain uses the same smoothing parameters. NA observations will be
@@ -11,7 +11,8 @@
 #'     The path of output sequence file on HDFS. It is by location division but with 
 #'     seasonal and trend components
 #' @param info
-#'     The RData path on HDFS which contains all station metadata
+#'     The RData on HDFS which contains all station metadata. Make sure
+#'     copy the RData of station_info to HDFS first using rhput.
 #' @param cluster_control
 #'     Should be a list object generated from \code{mapreduce.control} function.
 #'     The list including all necessary Rhipe parameters and also user tunable 
@@ -23,19 +24,18 @@
 #'     Xiaosu Tong 
 #' @export
 #' @examples
-#'     FileInput <- "/wsc/tongx/spatem/tmax/sim/bymth"
-#'     FileOutput <- "/wsc/tongx/spatem/tmax/sim/bymthfit"
+#'     FileInput <- "/tmp/bymth"
+#'     FileOutput <- "/tmp/bymthfit"
 #'     ccontrol <- mapreduce.control(
-#'       libLoc=lib.loc, reduceTask=0, BLK=128, map_jvm = "-Xmx3584m", 
-#'       map_memory = 5120, map_buffer_read = 100, map_buffer_size = 1000
+#'       libLoc=lib.loc, reduceTask=0, map_jvm = "-Xmx3584m", map_memory = 5120
 #'     )
 #'     mcontrol <- spacetime.control(
-#'       vari="resp", time="date", seaname="month", n=786432, n.p=12, 
+#'       vari="resp", time="date", seaname="month", n=576, n.p=12, stat_n=7738,
 #'       s.window=13, t.window = 241, degree=2, span=0.015, Edeg=2
 #'     )
 #'     spaofit(
 #'       FileInput, FileOutput, target=you$vari, na=TRUE, 
-#'       info="/wsc/tongx/spatem/stationinfo/a1950UStinfo.RData", 
+#'       info="/tmp/station_info.RData", 
 #'       model_control=mcontrol, cluster_control=ccontrol
 #'     )
 
@@ -61,7 +61,7 @@ spaofit <- function(input, output, info, model_control=spacetime.control(), clus
       }
 
       value <- arrange(as.data.frame(map.values[[r]]), station.id)
-      value <- cbind(value, a1950UStinfo[, c("lon","lat","elev")])
+      value <- cbind(value, station_info[, c("lon","lat","elev")])
       value$elev2 <- log2(value$elev + 128)
       lo.fit <- spaloess( fml, 
         data    = value, 
@@ -72,7 +72,7 @@ spaofit <- function(input, output, info, model_control=spacetime.control(), clus
         family  = "symmetric",
         normalize = FALSE,
         distance = "Latlong",
-        control = loess.control(surface = Mlcontrol$surf, iterations = 2, cell = Mlcontrol$cell),
+        control = loess.control(surface = Mlcontrol$surf, iterations = Mlcontrol$siter, cell = Mlcontrol$cell),
         napred = TRUE,
         alltree = TRUE
       )

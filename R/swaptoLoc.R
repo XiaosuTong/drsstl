@@ -11,6 +11,9 @@
 #'     Should be a list object generated from \code{mapreduce.control} function.
 #'     The list including all necessary Rhipe parameters and also user tunable 
 #'     MapReduce parameters.
+#' @param model_control
+#'     Should be a list object generated from \code{spacetime.control} function.
+#'     The list including all necessary smoothing parameters of nonparametric fitting.
 #' @author 
 #'     Xiaosu Tong 
 #' @export
@@ -26,34 +29,34 @@
 #'     FileInput <- "/wsc/tongx/spatem/tmax/sim/bymthfit"
 #'     FileOutput <- "/wsc/tongx/spatem/tmax/sim/bystat"
 #'     ccontrol <- mapreduce.control(
-#'       libLoc=lib.loc, reduceTask=169, io_sort=768, BLK=256, slow_starts = 0.5,
+#'       libLoc=lib.loc, reduceTask=169, io_sort=512, BLK=128, slow_starts = 0.5,
 #'       map_jvm = "-Xmx3072m", reduce_jvm = "-Xmx4096m", 
 #'       map_memory = 5120, reduce_memory = 5120,
 #'       reduce_input_buffer_percent=0.4, reduce_parallelcopies=10,
 #'       reduce_merge_inmem=0, task_io_sort_factor=100,
 #'       spill_percent=0.9, reduce_shuffle_input_buffer_percent = 0.8,
-#'       reduce_shuffle_merge_percent = 0.4,
-#'       reduce_buffer_read = 100, map_buffer_read = 100,
-#'       reduce_buffer_size = 10000, map_buffer_size = 100
+#'       reduce_shuffle_merge_percent = 0.4
 #'     )
 #'     swaptoLoc(FileInput, FileOutput, cluster_control=ccontrol)
 
-swaptoLoc <- function(input, output, final=FALSE, cluster_control=mapreduce.control()) {
+swaptoLoc <- function(input, output, final=FALSE, cluster_control=mapreduce.control(), model_control=spacetime.control()) {
 
   job <- list()
   job$map <- expression({
     lapply(seq_along(map.values), function(r) {
       
       if(!final) {
-        date <- (as.numeric(map.keys[[r]][1]) - 1)*12 + as.numeric(map.keys[[r]][2])
+        date <- (as.numeric(map.keys[[r]][1]) - 1)*Mlcontrol$n.p + as.numeric(map.keys[[r]][2])
         lapply(1:length(map.values[[r]]), function(i){
           rhcollect(i, c(date, map.values[[r]][i]))
           NULL
         })
       } else {
+        N <- Mlcontrol$stat_n
         value <- unname(unlist(map.values[[r]]))
-        lapply(1:7738, function(i) {
-          rhcollect(i, c(map.keys[[r]], value[i], value[i+7738], value[i+7738*2], value[i+7738*3]))
+        lapply(1:N, function(i) {
+          rhcollect(i, c(map.keys[[r]], value[i], value[i+N], value[i+N*2], value[i+N*3]))
+          NULL
         })
       }
 
@@ -71,7 +74,8 @@ swaptoLoc <- function(input, output, final=FALSE, cluster_control=mapreduce.cont
     }
   )
   job$parameters <- list(
-   final = final
+    final = final,
+    Mlcontrol = model_control
   )
   job$combiner <- TRUE
   job$input <- rhfmt(input , type = "sequence")

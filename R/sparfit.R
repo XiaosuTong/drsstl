@@ -59,7 +59,7 @@ sparfit <- function(input, output, info, model_control=spacetime.control(), clus
       }
 
       value <- arrange(data.frame(matrix(map.values[[r]], ncol=5, byrow=TRUE)), X4, X5)
-      names(value) <- c("resp","seasonal","trend","date", "station.id")
+      names(value) <- c(Mlcontrol$vari,"seasonal","trend", Mlcontrol$time, "station.id")
       value$remainder <- with(value, resp - trend - seasonal)
 
       d_ply(
@@ -77,7 +77,7 @@ sparfit <- function(input, output, info, model_control=spacetime.control(), clus
             family  = "symmetric",
             normalize = FALSE,
             distance = "Latlong",
-            control = loess.control(surface = Mlcontrol$surf, iterations = 2, cell=Mlcontrol$cell),
+            control = loess.control(surface = Mlcontrol$surf, iterations = Mlcontrol$siter, cell=Mlcontrol$cell),
             napred = FALSE,
             alltree = FALSE
           )

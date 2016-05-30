@@ -9,7 +9,8 @@
 #' @param cluster_control
 #'     all parameters that are needed for mapreduce job
 #' @param info
-#'     The RData on HDFS which contains all station metadata
+#'     The RData on HDFS which contains all station metadata. Make sure
+#'     copy the RData of station_info to HDFS first using rhput.
 #' @author 
 #'     Xiaosu Tong 
 #' @export
@@ -22,8 +23,11 @@
 #'       spill_percent=0.9, reduce_shuffle_input_buffer_percent = 0.9,
 #'       reduce_shuffle_merge_percent = 0.5
 #'     )
+#'     \dontrun{
+#'       rhput("./station_info.RData", "/tmp/station_info.RData")
+#'     }
 #'     readIn(
-#'       FileInput, FileOutput, info="/tmp/a1950UStinfo.RData", cluster_control=ccontrol
+#'       FileInput, FileOutput, info="/tmp/station_info.RData", cluster_control=ccontrol
 #'     )
 
 
@@ -48,7 +52,7 @@ readIn <- function(input, output, info, cluster_control = mapreduce.control()) {
       matrix(as.numeric(y[, (1:12) + 3]), ncol = 12)
     )
 
-    name <- match(y[, 3], a1950UStinfo$station.id)
+    name <- match(y[, 3], station_info$station.id)
 
     year <- (as.numeric(y[, 2]) - 55) + (as.numeric(y[, 1]) - 1)*48
     tmp <- tmp/10
@@ -87,11 +91,14 @@ readIn <- function(input, output, info, cluster_control = mapreduce.control()) {
   job$setup <- expression(
     map = {
       library(plyr, lib.loc = Clcontrol$libLoc)
-      load("a1950UStinfo.RData")
+      load(strsplit(info, "/")[[1]][length(strsplit(info, "/")[[1]])])
     }
   )
   job$shared <- c(info)
-  job$parameters <- list(Clcontrol = cluster_control)
+  job$parameters <- list(
+    Clcontrol = cluster_control,
+    info = info
+  )
   job$input <- rhfmt(input, type = "text")
   job$output <- rhfmt(output, type = "sequence")
   job$mapred <- list( 
