@@ -11,7 +11,8 @@ readIn(input, output, info, cluster_control = mapreduce.control())
 
 \item{output}{The path of output file on HDFS. It is by time division.}
 
-\item{info}{The RData path on HDFS which contains all station metadata}
+\item{info}{The RData on HDFS which contains all station metadata. Make sure
+copy the RData of station_info to HDFS first using rhput.}
 
 \item{cluster_control}{all parameters that are needed for mapreduce job}
 }
@@ -19,20 +20,19 @@ readIn(input, output, info, cluster_control = mapreduce.control())
 Input raw text data file is divided into by time subsets and saved on HDFS
 }
 \examples{
-    FileInput <- "/wsc/tongx/spatem/nRaw/tmax"
-    FileOutput <- "/wsc/tongx/spatem/tmax/test/bymth"
+    FileInput <- "/tmp/tmax.txt"
+    FileOutput <- "/tmp/bymth"
     ccontrol <- mapreduce.control(
-      libLoc=lib.loc, reduceTask=179, io_sort=512, BLK=256, slow_starts = 0.8,
+      libLoc=lib.loc, reduceTask=179, io_sort=512, slow_starts = 0.8,
       reduce_input_buffer_percent=0.9, reduce_parallelcopies=5,
-      reduce_merge_inmem=0, task_io_sort_factor=100,
       spill_percent=0.9, reduce_shuffle_input_buffer_percent = 0.9,
-      reduce_shuffle_merge_percent = 0.5,
-      reduce_buffer_read = 100, map_buffer_read = 100,
-      reduce_buffer_size = 10000, map_buffer_size = 10000
+      reduce_shuffle_merge_percent = 0.5
     )
+    \dontrun{
+      rhput("./station_info.RData", "/tmp/station_info.RData")
+    }
     readIn(
-      FileInput, FileOutput, info="/hdfs/path/a1950UStinfo.RData", 
-      cluster_control=ccontrol
+      FileInput, FileOutput, info="/tmp/station_info.RData", cluster_control=ccontrol
     )
 }
 \author{

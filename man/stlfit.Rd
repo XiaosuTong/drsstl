@@ -27,7 +27,7 @@ Every station uses the same smoothing parameter
     ccontrol <- mapreduce.control(libLoc=lib.loc, reduceTask=0)
     mcontrol <- spacetime.control(
       vari = "resp", time = "date", seaname = "month", 
-      n = 786432, n.p = 12, s.window = "periodic", t.window = 241, 
+      n = 576, stat_n=7738, n.p = 12, s.window = "periodic", t.window = 241, 
       degree = 2, span = 0.015, Edeg = 2
     )
     stlfit(FileInput, FileOutput, model_control=mcontrol, cluster_control=ccontrol)

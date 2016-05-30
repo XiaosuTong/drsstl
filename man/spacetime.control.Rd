@@ -5,9 +5,10 @@
 \title{Set smoothing parameters for drSpaceTime fitting}
 \usage{
 spacetime.control(vari = "resp", time = "date", seaname = "month", n,
-  n.p = 12, s.window, s.degree = 1, t.window = NULL, t.degree = 1,
-  inner = 4, outer = 1, statbytime = 2, degree, span, Edeg,
-  surf = c("interpolate", "direct"), iterations = 1)
+  stat_n, n.p = 12, s.window, s.degree = 1, t.window = NULL,
+  t.degree = 1, inner = 2, outer = 1, statbytime = 2, s.jump = 10,
+  t.jump = 10, cell = 0.2, degree, span, Edeg, surf = c("interpolate",
+  "direct"), siter = 2)
 }
 \arguments{
 \item{vari}{variable name in string of the response variable}
@@ -53,7 +54,7 @@ Set control parameters for the smoothing fit
 }
 \examples{
     spacetime.control(
-     n = 786432, n.p = 12, s.window = 21, s.degree = 1, t.window = 241, 
+     n = 576, stat_n = 7738, n.p = 12, s.window = 21, s.degree = 1, t.window = 241, 
       t.degree = 1, degree = 2, span = 0.015, Edeg = 2, surf = "interpolate"
     )
 }

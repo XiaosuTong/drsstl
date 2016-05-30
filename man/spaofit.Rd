@@ -3,7 +3,7 @@
 \name{spaofit}
 \alias{spaofit}
 \title{Conduct the spatial loess fitting on the original observations at 
-each location in parallel}
+all location in each month in parallel}
 \usage{
 spaofit(input, output, info, model_control = spacetime.control(),
   cluster_control = mapreduce.control())
@@ -14,7 +14,8 @@ spaofit(input, output, info, model_control = spacetime.control(),
 \item{output}{The path of output sequence file on HDFS. It is by location division but with 
 seasonal and trend components}
 
-\item{info}{The RData path on HDFS which contains all station metadata}
+\item{info}{The RData on HDFS which contains all station metadata. Make sure
+copy the RData of station_info to HDFS first using rhput.}
 
 \item{model_control}{Should be a list object generated from \code{spacetime.control} function.
 The list including all necessary smoothing parameters of nonparametric fitting.}
@@ -29,19 +30,18 @@ Every spatial domain uses the same smoothing parameters. NA observations will be
 imputed.
 }
 \examples{
-    FileInput <- "/wsc/tongx/spatem/tmax/sim/bymth"
-    FileOutput <- "/wsc/tongx/spatem/tmax/sim/bymthfit"
+    FileInput <- "/tmp/bymth"
+    FileOutput <- "/tmp/bymthfit"
     ccontrol <- mapreduce.control(
-      libLoc=lib.loc, reduceTask=0, BLK=128, map_jvm = "-Xmx3584m", 
-      map_memory = 5120, map_buffer_read = 100, map_buffer_size = 1000
+      libLoc=lib.loc, reduceTask=0, map_jvm = "-Xmx3584m", map_memory = 5120
     )
     mcontrol <- spacetime.control(
-      vari="resp", time="date", seaname="month", n=786432, n.p=12, 
+      vari="resp", time="date", seaname="month", n=576, n.p=12, stat_n=7738,
       s.window=13, t.window = 241, degree=2, span=0.015, Edeg=2
     )
     spaofit(
       FileInput, FileOutput, target=you$vari, na=TRUE, 
-      info="/wsc/tongx/spatem/stationinfo/a1950UStinfo.RData", 
+      info="/tmp/station_info.RData", 
       model_control=mcontrol, cluster_control=ccontrol
     )
 }
