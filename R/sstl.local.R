@@ -16,11 +16,11 @@
 #'       vari="tmax", n=576, n.p=12, stat_n=7738,
 #'       s.window=13, t.window = 241, degree=2, span=0.015, Edeg=2
 #'     )
-#'     sstl(tmax_all, model_control=mcontrol)
+#'     sstl_local(tmax_all, model_control=mcontrol)
 
 
 
-sstl <- function(data, model_control=spacetime.control()) {
+sstl_local <- function(data, model_control=spacetime.control()) {
 
   if(model_control$Edeg == 2) {
     stopifnot(all(c("lat","lon","elev") %in% names(data)))
