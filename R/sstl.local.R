@@ -41,7 +41,7 @@ sstl <- function(data, model_control=spacetime.control()) {
     condParam <- FALSE
   }
   
-  print("First spatial smoothing...")
+  message("First spatial smoothing...")
   rst <- ddply(.data = data
     , .vari = c("year", "month")
     , .fun = function(v) {
@@ -69,7 +69,7 @@ sstl <- function(data, model_control=spacetime.control()) {
       }
   )
 
-  print("Temporal fitting...")
+  message("Temporal fitting...")
   rst <- ddply(.data = rst
     , .vari = "station.id"
     , .fun = function(v) {
@@ -96,7 +96,7 @@ sstl <- function(data, model_control=spacetime.control()) {
     fml <- as.formula("remainder ~ lon + lat")
   }
 
-  print("Second spatial smoothing...")
+  message("Second spatial smoothing...")
   rst <- ddply(.data = rst
     , .vari = c("year", "month")
     , .fun = function(v) {
