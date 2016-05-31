@@ -106,7 +106,8 @@ readIn <- function(input, output, info, cluster_control = mapreduce.control(), c
   job$shared <- c(info)
   job$parameters <- list(
     Clcontrol = cluster_control,
-    info = info
+    info = info,
+    cshift = cshift
   )
   job$input <- rhfmt(input, type = "text")
   job$output <- rhfmt(output, type = "sequence")
