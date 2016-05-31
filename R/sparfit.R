@@ -66,7 +66,7 @@ sparfit <- function(input, output, info, model_control=spacetime.control(), clus
         .data = value,
         .vari = "date",
         .fun = function(S) {
-          S <- cbind(S, a1950UStinfo[, c("lon","lat","elev")])
+          S <- cbind(S, station_info[, c("lon","lat","elev")])
           S$elev2 <- log2(S$elev + 128)
           lo.fit <- spaloess( fml, 
             data    = S, 
