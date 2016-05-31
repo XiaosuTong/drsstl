@@ -1,10 +1,13 @@
-#' Readin Raw text data files and save it as by time division on HDFS.
+#' Apply sstl routine to a data.frame of spatial-temporal dataset in the memory.
 #'
-#' Input raw text data file is divided into by time subsets and saved on HDFS
+#' Assuming data has been read into the memory as a data.frame. Each row of the data.frame
+#' contains the observation in a given month at given location. Month index and station 
+#' location information are saved in 5 columns of the data.frame. The name of these columns
+#' should be "lon", "lat", "elev", "year", and "month". 
 #'
 #' @param data
 #'     The input data.frame which contains observation, lon, lat, elev, and year, month
-#' @param model_control
+#' @param mlcontrol
 #'     Should be a list object generated from \code{spacetime.control} function.
 #'     The list including all necessary smoothing parameters of nonparametric fitting.
 #' @author 
@@ -16,27 +19,27 @@
 #'       vari="tmax", n=576, n.p=12, stat_n=7738,
 #'       s.window=13, t.window = 241, degree=2, span=0.015, Edeg=2
 #'     )
-#'     sstl_local(tmax_all, model_control=mcontrol)
+#'     sstl_local(tmax_all, mlcontrol=mcontrol)
 
 
 
-sstl_local <- function(data, model_control=spacetime.control()) {
+sstl_local <- function(data, mlcontrol=spacetime.control()) {
 
-  if(model_control$Edeg == 2) {
+  if(mlcontrol$Edeg == 2) {
     stopifnot(all(c("lat","lon","elev") %in% names(data)))
     data$elev2 <- log2(data$elev + 128)
-    fml <- as.formula(paste(model_control$vari, "~ lon + lat + elev2"))
+    fml <- as.formula(paste(mlcontrol$vari, "~ lon + lat + elev2"))
     dropSq <- FALSE
     condParam <- "elev2"
-  } else if(model_control$Edeg == 1) {
+  } else if(mlcontrol$Edeg == 1) {
     stopifnot(all(c("lat","lon","elev") %in% names(data)))
     data$elev2 <- log2(data$elev + 128)
-    fml <- as.formula(paste(model_control$vari, "~ lon + lat + elev2"))
+    fml <- as.formula(paste(mlcontrol$vari, "~ lon + lat + elev2"))
     dropSq <- "elev2"
     condParam <- "elev2"
-  } else if (model_control$Edeg == 0) {
+  } else if (mlcontrol$Edeg == 0) {
     stopifnot(all(c("lat","lon") %in% names(data)))
-    fml <- as.formula(paste(model_control$vari, "~ lon + lat"))
+    fml <- as.formula(paste(mlcontrol$vari, "~ lon + lat"))
     dropSq <- FALSE
     condParam <- FALSE
   }
@@ -47,21 +50,21 @@ sstl_local <- function(data, model_control=spacetime.control()) {
     , .fun = function(v) {
         lo.fit <- spaloess( fml, 
           data      = v, 
-          degree    = model_control$degree, 
-          span      = model_control$span,
+          degree    = mlcontrol$degree, 
+          span      = mlcontrol$span,
           para      = condParam,
           drop      = dropSq,
           family    = "symmetric",
           normalize = FALSE,
           distance  = "Latlong",
-          control   = loess.control(surface = model_control$surf, iterations = model_control$siter),
+          control   = loess.control(surface = mlcontrol$surf, iterations = mlcontrol$siter),
           napred    = TRUE,
           alltree   = TRUE
         )
-        indx <- which(!is.na(v[, model_control$vari]))
+        indx <- which(!is.na(v[, mlcontrol$vari]))
         rst <- rbind(
           cbind(indx, fitted=lo.fit$fitted), 
-          cbind(which(is.na(v[, model_control$vari])), fitted=lo.fit$pred$fitted)
+          cbind(which(is.na(v[, mlcontrol$vari])), fitted=lo.fit$pred$fitted)
         )
         rst <- arrange(as.data.frame(rst), indx)
         v$spaofit <- rst$fitted
@@ -77,20 +80,20 @@ sstl_local <- function(data, model_control=spacetime.control()) {
         fit <- stlplus::stlplus(
           x        = v$spaofit, 
           t        = 1:nrow(v), 
-          n.p      = model_control$n.p, 
-          s.window = model_control$s.window, 
-          s.degree = model_control$s.degree, 
-          t.window = model_control$t.window, 
-          t.degree = model_control$t.degree, 
-          inner    = model_control$inner, 
-          outer    = model_control$outer
+          n.p      = mlcontrol$n.p, 
+          s.window = mlcontrol$s.window, 
+          s.degree = mlcontrol$s.degree, 
+          t.window = mlcontrol$t.window, 
+          t.degree = mlcontrol$t.degree, 
+          inner    = mlcontrol$inner, 
+          outer    = mlcontrol$outer
         )$data        
         v <- cbind(v, fit[, c("seasonal", "trend", "remainder")])
         v
     }
   )
 
-  if(model_control$Edeg != 0) {
+  if(mlcontrol$Edeg != 0) {
     fml <- as.formula("remainder ~ lon + lat + elev2")
   } else {
     fml <- as.formula("remainder ~ lon + lat")
@@ -102,14 +105,14 @@ sstl_local <- function(data, model_control=spacetime.control()) {
     , .fun = function(v) {
         lo.fit <- spaloess( fml, 
           data      = v, 
-          degree    = model_control$degree, 
-          span      = model_control$span,
+          degree    = mlcontrol$degree, 
+          span      = mlcontrol$span,
           para      = condParam,
           drop      = dropSq,
           family    = "symmetric",
           normalize = FALSE,
           distance  = "Latlong",
-          control   = loess.control(surface = model_control$surf, iterations = model_control$siter),
+          control   = loess.control(surface = mlcontrol$surf, iterations = mlcontrol$siter),
           napred    = FALSE,
           alltree   = FALSE
         )

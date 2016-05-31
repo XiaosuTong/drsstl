@@ -2,18 +2,21 @@
 % Please edit documentation in R/sstl_local.R
 \name{sstl_local}
 \alias{sstl_local}
-\title{Readin Raw text data files and save it as by time division on HDFS.}
+\title{Apply sstl routine to a data.frame of spatial-temporal dataset in the memory.}
 \usage{
-sstl_local(data, model_control = spacetime.control())
+sstl_local(data, mlcontrol = spacetime.control())
 }
 \arguments{
 \item{data}{The input data.frame which contains observation, lon, lat, elev, and year, month}
 
-\item{model_control}{Should be a list object generated from \code{spacetime.control} function.
+\item{mlcontrol}{Should be a list object generated from \code{spacetime.control} function.
 The list including all necessary smoothing parameters of nonparametric fitting.}
 }
 \description{
-Input raw text data file is divided into by time subsets and saved on HDFS
+Assuming data has been read into the memory as a data.frame. Each row of the data.frame
+contains the observation in a given month at given location. Month index and station 
+location information are saved in 5 columns of the data.frame. The name of these columns
+should be "lon", "lat", "elev", "year", and "month".
 }
 \examples{
     head(tmax_all)
@@ -21,7 +24,7 @@ Input raw text data file is divided into by time subsets and saved on HDFS
       vari="tmax", n=576, n.p=12, stat_n=7738,
       s.window=13, t.window = 241, degree=2, span=0.015, Edeg=2
     )
-    sstl_local(tmax_all, model_control=mcontrol)
+    sstl_local(tmax_all, mlcontrol=mcontrol)
 }
 \author{
 Xiaosu Tong
