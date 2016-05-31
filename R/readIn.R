@@ -66,7 +66,7 @@ readIn <- function(input, output, info, cluster_control = mapreduce.control(), c
 
     tmp <- tmp/10
     tmp[miss == 1] <- NA
-    names(tmp) <- 1:12
+    names(tmp) <- month.abb
     tmp <- cbind(station.id = as.numeric(name), tmp, year = year, stringsAsFactors = FALSE)
     value <- data.frame(
       station.id = rep(tmp$station.id, 12),
