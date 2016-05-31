@@ -18,7 +18,9 @@
 #'     FileInput <- "/tmp/tmax.txt"
 #'     FileOutput <- "/tmp/bymth"
 #'     ccontrol <- mapreduce.control(
-#'       libLoc=lib.loc, reduceTask=179, io_sort=512, slow_starts = 0.8,
+#'       libLoc=lib.loc, reduceTask=95, io_sort=100, slow_starts = 0.5,
+#'       map_jvm = "-Xmx200m", reduce_jvm = "-Xmx200m", 
+#'       map_memory = 1024, reduce_memory = 1024,
 #'       reduce_input_buffer_percent=0.9, reduce_parallelcopies=5,
 #'       spill_percent=0.9, reduce_shuffle_input_buffer_percent = 0.9,
 #'       reduce_shuffle_merge_percent = 0.5
@@ -31,14 +33,14 @@
 #'     )
 
 
-readIn <- function(input, output, info, cluster_control = mapreduce.control()) {
+readIn <- function(input, output, info, cluster_control = mapreduce.control(), cshift=1) {
 
   job <- list()
   job$map <- expression({
     y <- do.call("rbind", 
       lapply(map.values, function(r) {
         row <- strsplit(r, " +")[[1]]
-        c(row[1:3], row[4:15], substring(row[16], 1:12, 1:12))
+        c(row[1:(13 + cshift)], substring(row[16], 1:12, 1:12))
       })
     )
     #file <- Sys.getenv("mapred.input.file") #get the file name that Hadoop is reading
@@ -46,15 +48,22 @@ readIn <- function(input, output, info, cluster_control = mapreduce.control()) {
     #  substr(tail(strsplit(tail(strsplit(file, "/")[[1]],1), "[.]")[[1]], 1), 2, 4)
     #)
     miss <- as.data.frame(
-      matrix(as.numeric(y[, (1:12) + 15]), ncol = 12)
+      matrix(as.numeric(y[, (1:12) + (13 + cshift)]), ncol = 12)
     )
     tmp <- as.data.frame(
-      matrix(as.numeric(y[, (1:12) + 3]), ncol = 12)
+      matrix(as.numeric(y[, (1:12) + (1 + cshift)]), ncol = 12)
     )
 
-    name <- match(y[, 3], station_info$station.id)
+    name <- match(y[, (1 + cshift)], station_info$station.id)
 
-    year <- (as.numeric(y[, 2]) - 55) + (as.numeric(y[, 1]) - 1)*48
+    if (cshift == 2) {
+      year <- (as.numeric(y[, 2]) - 55) + (as.numeric(y[, 1]) - 1)*48
+    } else if (cshift == 1) {
+      year <- as.numeric(y[, 1]) - 55
+    } else {
+      stop("the column shift cannot be other value than 1 or 2!")
+    }
+
     tmp <- tmp/10
     tmp[miss == 1] <- NA
     names(tmp) <- 1:12

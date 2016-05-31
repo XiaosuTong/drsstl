@@ -4,7 +4,8 @@
 \alias{readIn}
 \title{Readin Raw text data files and save it as by time division on HDFS.}
 \usage{
-readIn(input, output, info, cluster_control = mapreduce.control())
+readIn(input, output, info, cluster_control = mapreduce.control(),
+  cshift = 1)
 }
 \arguments{
 \item{input}{The path of input file on HDFS. It should be raw text file.}
@@ -23,7 +24,9 @@ Input raw text data file is divided into by time subsets and saved on HDFS
     FileInput <- "/tmp/tmax.txt"
     FileOutput <- "/tmp/bymth"
     ccontrol <- mapreduce.control(
-      libLoc=lib.loc, reduceTask=179, io_sort=512, slow_starts = 0.8,
+      libLoc=lib.loc, reduceTask=95, io_sort=100, slow_starts = 0.5,
+      map_jvm = "-Xmx200m", reduce_jvm = "-Xmx200m", 
+      map_memory = 1024, reduce_memory = 1024,
       reduce_input_buffer_percent=0.9, reduce_parallelcopies=5,
       spill_percent=0.9, reduce_shuffle_input_buffer_percent = 0.9,
       reduce_shuffle_merge_percent = 0.5
