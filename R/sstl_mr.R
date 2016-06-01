@@ -112,6 +112,4 @@ sstl_mr <- function(input, output, stat_info, mlcontrol=spacetime.control(), clc
     model_control   = mlcontrol
   )
 
-  return(NULL)
-
 }
