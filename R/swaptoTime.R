@@ -44,6 +44,7 @@
 #'       degree = 2, span = 0.015, Edeg = 2, statbytime = 2
 #'     )
 #'     swaptoTime(FileInput, FileOutput, cluster_control=ccontrol, model_control=mcontrol)
+
 swaptoTime <- function(input, output, cluster_control=mapreduce.control(), model_control=spacetime.control()){
 
   job <- list()

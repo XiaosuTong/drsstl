@@ -59,8 +59,8 @@ sparfit <- function(input, output, info, model_control=spacetime.control(), clus
       }
 
       value <- arrange(data.frame(matrix(map.values[[r]], ncol=5, byrow=TRUE)), X4, X5)
-      names(value) <- c(Mlcontrol$vari,"seasonal","trend", Mlcontrol$time, "station.id")
-      value$remainder <- with(value, resp - trend - seasonal)
+      names(value) <- c("smoothed","seasonal","trend", Mlcontrol$time, "station.id")
+      value$remainder <- with(value, smoothed - trend - seasonal)
 
       d_ply(
         .data = value,
