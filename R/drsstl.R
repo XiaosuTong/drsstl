@@ -57,7 +57,7 @@ drsstl <- function(data, output = NULL, stat_info, model_control=spacetime.contr
       stop("A cluster control must be specified for data on HDFS")
     }
 
-    sstl_mr(input = data, output = output, stat_info=stat_info, mlcontrol=model_control, clcontrol=cluster_clcontrol)
+    sstl_mr(input = data, output = output, stat_info=stat_info, mlcontrol=model_control, clcontrol=cluster_control)
 
   } else {
     stop("The input data should be either a data.frame in memory or a HDFS path of input data")
