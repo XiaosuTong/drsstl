@@ -55,28 +55,38 @@ swaptoLoc <- function(input, output, final=FALSE, cluster_control=mapreduce.cont
         N <- Mlcontrol$stat_n
         value <- unname(unlist(map.values[[r]]))
         lapply(1:N, function(i) {
-          rhcollect(i, c(map.keys[[r]], value[i], value[i+N], value[i+N*2], value[i+N*3]))
+          rhcollect(i, data.frame(date=map.keys[[r]], smoothed=value[i], seasonal=value[i+N], trend=value[i+N*2], Rspa=value[i+N*3]))
           NULL
         })
       }
 
     })
   })
-  job$reduce <- expression(
-    pre = {
-      combine <- numeric()
-    },
-    reduce = {
-      combine <- c(combine, do.call("c", reduce.values))
-    },
-    post = {
-      if(final) {
-        combine <- data.frame(matrix(combine, byrow=T, ncol=5))
-        names(combine) <- c("date", "smoothed", "seasonal", "trend", "Rspa")
+  if(!final) {
+    job$reduce <- expression(
+      pre = {
+        combine <- numeric()
+      },
+      reduce = {
+        combine <- c(combine, do.call("c", reduce.values))
+      },
+      post = {
+        rhcollect(reduce.key, combine)
       }
-      rhcollect(reduce.key, combine)
-    }
-  )
+    )
+  } else {
+    job$reduce <- expression(
+      pre = {
+        combine <- data.frame()
+      },
+      reduce = {
+        combine <- c(combine, do.call("rbind", reduce.values))
+      },
+      post = {
+        rhcollect(reduce.key, combine)
+      }
+    )
+  }
   job$parameters <- list(
     final = final,
     Mlcontrol = model_control
