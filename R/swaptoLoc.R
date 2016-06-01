@@ -80,7 +80,7 @@ swaptoLoc <- function(input, output, final=FALSE, cluster_control=mapreduce.cont
         combine <- data.frame()
       },
       reduce = {
-        combine <- c(combine, do.call("rbind", reduce.values))
+        combine <- rbind(combine, do.call("rbind", reduce.values))
       },
       post = {
         rhcollect(reduce.key, combine)
