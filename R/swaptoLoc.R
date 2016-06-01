@@ -83,6 +83,7 @@ swaptoLoc <- function(input, output, final=FALSE, cluster_control=mapreduce.cont
         combine <- rbind(combine, do.call("rbind", reduce.values))
       },
       post = {
+        combine <- arrange(combine, date)
         rhcollect(reduce.key, combine)
       }
     )
