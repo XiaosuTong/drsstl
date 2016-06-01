@@ -41,7 +41,7 @@
 #'     If the data is tmax_all which is in memory
 #'     drsstl(tmax_all, model_control=mcontrol, cluster_control=ccontrol)
 
-drsstl <- function(data, output = NULL, model_control=spacetime.control(), cluster_control=NULL) {
+drsstl <- function(data, output = NULL, stat_info, model_control=spacetime.control(), cluster_control=NULL) {
 
   if(class(data) == "data.frame") {
 
@@ -57,7 +57,7 @@ drsstl <- function(data, output = NULL, model_control=spacetime.control(), clust
       stop("A cluster control must be specified for data on HDFS")
     }
 
-    sstl_mr(input = data, output = output, mlcontrol=model_control, clcontrol=cluster_clcontrol)
+    sstl_mr(input = data, output = output, stat_info=stat_info, mlcontrol=model_control, clcontrol=cluster_clcontrol)
 
   } else {
     stop("The input data should be either a data.frame in memory or a HDFS path of input data")
