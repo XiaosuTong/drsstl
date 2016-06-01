@@ -40,7 +40,7 @@ readIn <- function(input, output, info, cluster_control = mapreduce.control(), c
     y <- do.call("rbind", 
       lapply(map.values, function(r) {
         row <- strsplit(r, " +")[[1]]
-        c(row[1:(13 + cshift)], substring(row[16], 1:12, 1:12))
+        c(row[1:(13 + cshift)], substring(row[13 + cshift + 1], 1:12, 1:12))
       })
     )
     #file <- Sys.getenv("mapred.input.file") #get the file name that Hadoop is reading
