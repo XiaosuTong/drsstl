@@ -46,7 +46,7 @@ swaptoLoc <- function(input, output, final=FALSE, cluster_control=mapreduce.cont
     lapply(seq_along(map.values), function(r) {
       
       if(!final) {
-        date <- (as.numeric(map.keys[[r]][1]) - 1)*Mlcontrol$n.p + as.numeric(map.keys[[r]][2])
+        date <- (as.numeric(map.keys[[r]][1]) - 1)*Mlcontrol$n.p + as.numeric(match(map.keys[[r]][2], month.abb))
         lapply(1:length(map.values[[r]]), function(i){
           rhcollect(i, c(date, map.values[[r]][i]))
           NULL
