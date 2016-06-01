@@ -90,7 +90,8 @@ swaptoLoc <- function(input, output, final=FALSE, cluster_control=mapreduce.cont
   }
   job$parameters <- list(
     final = final,
-    Mlcontrol = model_control
+    Mlcontrol = model_control,
+    Clcontrol = cluster_control
   )
   job$setup <- expression(
     reduce = {
