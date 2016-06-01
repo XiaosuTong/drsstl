@@ -92,6 +92,11 @@ swaptoLoc <- function(input, output, final=FALSE, cluster_control=mapreduce.cont
     final = final,
     Mlcontrol = model_control
   )
+  job$setup <- expression(
+    reduce = {
+      suppressMessages(library(plyr, lib.loc=Clcontrol$libLoc))
+    }
+  )
   job$combiner <- TRUE
   job$input <- rhfmt(input , type = "sequence")
   job$output <- rhfmt(output, type = "sequence")
