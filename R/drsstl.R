@@ -53,7 +53,7 @@ drsstl <- function(data, output = NULL, stat_info, model_control=spacetime.contr
     if(is.null(output)) {
       stop("An output path on HDFS should be specified")
     }
-    if(is.null(cluster_clcontrol)) {
+    if(is.null(cluster_control)) {
       stop("A cluster control must be specified for data on HDFS")
     }
 
