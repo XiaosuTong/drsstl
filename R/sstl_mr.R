@@ -34,6 +34,7 @@
 
 sstl_mr <- function(input, output, stat_info, mlcontrol=spacetime.control(), clcontrol=mapreduce.control()) {
 
+  RTSK <- clcontrol$reduceTask
   FileInput <- input
   FileOutput <- file.path(output, "bymth")
 
@@ -46,7 +47,7 @@ sstl_mr <- function(input, output, stat_info, mlcontrol=spacetime.control(), clc
 
   FileInput <- FileOutput
   FileOutput <- file.path(output, "bymthfit")
-
+  clcontrol$reduceTask <- 0
   spaofit(
   	input  = FileInput, 
   	output = FileOutput, 
@@ -57,7 +58,7 @@ sstl_mr <- function(input, output, stat_info, mlcontrol=spacetime.control(), clc
 
   FileInput <- FileOutput
   FileOutput <- file.path(output, "bystat")
-
+  clcontrol$reduceTask <- RTSK
   swaptoLoc(
   	input = FileInput, 
   	output = FileOutput, 
@@ -67,7 +68,7 @@ sstl_mr <- function(input, output, stat_info, mlcontrol=spacetime.control(), clc
 
   FileInput <- FileOutput
   FileOutput <- file.path(output, "bystatfit")
-
+  clcontrol$reduceTask <- 0
   stlfit(
   	input  = FileInput, 
   	output = FileOutput, 
@@ -78,7 +79,7 @@ sstl_mr <- function(input, output, stat_info, mlcontrol=spacetime.control(), clc
   
   FileInput <- FileOutput
   FileOutput <- file.path(output, "bymthse")
-
+  clcontrol$reduceTask <- RTSK
   swaptoTime(
   	input  = FileInput, 
   	output = FileOutput, 
@@ -89,7 +90,7 @@ sstl_mr <- function(input, output, stat_info, mlcontrol=spacetime.control(), clc
 
   FileInput <- FileOutput
   FileOutput <- file.path(output, "output_bymth")
-
+  clcontrol$reduceTask <- 0
   sparfit(
   	input  = FileInput, 
   	output = FileOutput,
@@ -101,7 +102,7 @@ sstl_mr <- function(input, output, stat_info, mlcontrol=spacetime.control(), clc
 
   FileInput <- FileOutput
   FileOutput <- file.path(output, "output_bystat")
-
+  clcontrol$reduceTask <- RTSK
   swaptoLoc(
   	input  = FileInput, 
   	output = FileOutput, 
