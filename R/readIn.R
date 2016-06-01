@@ -71,7 +71,7 @@ readIn <- function(input, output, info, cluster_control = mapreduce.control(), c
     value <- data.frame(
       station.id = rep(tmp$station.id, 12),
       year = rep(tmp$year, 12),
-      month = rep(names(tmp)[1:12], each = dim(tmp)[1]),
+      month = rep(names(tmp)[2:13], each = dim(tmp)[1]),
       resp = c(
         tmp[, 2], tmp[, 3], tmp[, 4], tmp[, 5], tmp[, 6], tmp[, 7], 
         tmp[, 8], tmp[, 9], tmp[, 10], tmp[, 11], tmp[, 12], tmp[, 13]
