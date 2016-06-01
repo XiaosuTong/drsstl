@@ -34,7 +34,7 @@
 #'       s.window=13, t.window = 241, degree=2, span=0.015, Edeg=2
 #'     )
 #'     spaofit(
-#'       FileInput, FileOutput, target=you$vari, na=TRUE, 
+#'       FileInput, FileOutput,
 #'       info="/tmp/station_info.RData", 
 #'       model_control=mcontrol, cluster_control=ccontrol
 #'     )
@@ -63,6 +63,8 @@ spaofit <- function(input, output, info, model_control=spacetime.control(), clus
       value <- arrange(as.data.frame(map.values[[r]]), station.id)
       value <- cbind(value, station_info[, c("lon","lat","elev")])
       value$elev2 <- log2(value$elev + 128)
+      NApred <- any(is.na(value$resp))
+
       lo.fit <- spaloess( fml, 
         data    = value, 
         degree  = Mlcontrol$degree, 
@@ -73,13 +75,19 @@ spaofit <- function(input, output, info, model_control=spacetime.control(), clus
         normalize = FALSE,
         distance = "Latlong",
         control = loess.control(surface = Mlcontrol$surf, iterations = Mlcontrol$siter, cell = Mlcontrol$cell),
-        napred = TRUE,
-        alltree = TRUE
+        napred = NApred,
+        alltree = NApred
       )
-      indx <- which(!is.na(value$resp))
-      rst <- rbind(cbind(indx, fitted=lo.fit$fitted), cbind(which(is.na(value$resp)), fitted=lo.fit$pred$fitted))
-      rst <- arrange(as.data.frame(rst), indx)
-      rhcollect(map.keys[[r]], rst$fitted)
+
+      if(NApred) {
+        indx <- which(!is.na(value$resp))
+        rst <- rbind(cbind(indx, fitted=lo.fit$fitted), cbind(which(is.na(value$resp)), fitted=lo.fit$pred$fitted))
+        rst <- arrange(as.data.frame(rst), indx)
+        rhcollect(map.keys[[r]], rst$fitted)
+      } else {
+        rhcollect(map.keys[[r]], lo.fit$fitted)
+      }
+      
     })
   })
   job$parameters <- list(
