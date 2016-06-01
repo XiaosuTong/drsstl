@@ -70,6 +70,10 @@ swaptoLoc <- function(input, output, final=FALSE, cluster_control=mapreduce.cont
       combine <- c(combine, do.call("c", reduce.values))
     },
     post = {
+      if(final) {
+        combine <- data.frame(matrix(combine, byrow=T, ncol=5))
+        names(combine) <- c("date", "smoothed", "seasonal", "trend", "Rspa")
+      }
       rhcollect(reduce.key, combine)
     }
   )
