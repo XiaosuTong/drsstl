@@ -48,7 +48,6 @@ sstl_mr <- function(input, output, stat_info, mlcontrol=spacetime.control(), clc
   FileInput <- FileOutput
   FileOutput <- file.path(output, "bymthfit")
   clcontrol$reduceTask <- 0
-  print(clcontrol)
   spaofit(
   	input  = FileInput, 
   	output = FileOutput, 
@@ -63,7 +62,8 @@ sstl_mr <- function(input, output, stat_info, mlcontrol=spacetime.control(), clc
   swaptoLoc(
   	input = FileInput, 
   	output = FileOutput, 
-  	cluster_control = clcontrol
+  	cluster_control = clcontrol,
+    model_control = mlcontrol
   )
 
 
@@ -108,7 +108,8 @@ sstl_mr <- function(input, output, stat_info, mlcontrol=spacetime.control(), clc
   	input  = FileInput, 
   	output = FileOutput, 
   	final = TRUE, 
-  	cluster_control = clcontrol
+  	cluster_control = clcontrol,
+    model_control   = mlcontrol
   )
 
   return(NULL)
