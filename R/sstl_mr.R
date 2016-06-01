@@ -48,6 +48,7 @@ sstl_mr <- function(input, output, stat_info, mlcontrol=spacetime.control(), clc
   FileInput <- FileOutput
   FileOutput <- file.path(output, "bymthfit")
   clcontrol$reduceTask <- 0
+  print(clcontrol)
   spaofit(
   	input  = FileInput, 
   	output = FileOutput, 
