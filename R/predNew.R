@@ -1,11 +1,80 @@
+#' Prediction at new locations based on the fitting results on HDFS.
+#'
+#' The prediction at new locations are calculated based on the fitting results
+#' saved on HDFS based on the original dataset.
+#'
+#' @param newdata
+#'     A data.frame includes all locations' longitude, latitude, and elevation,
+#'     where the prediction is to be calculated.
+#' @param input
+#'     The path of input file on HDFS. It should be by-month division with all fitting results
+#'     of original dataset
+#' @param output
+#'     The path of output on HDFS where all the intermediate outputs will be saved.
+#' @param info
+#'     The RData path on HDFS which contains all station metadata of original dataset
+#' @param cluster_control
+#'     Should be a list object generated from \code{mapreduce.control} function.
+#'     The list including all necessary Rhipe parameters and also user tunable 
+#'     MapReduce parameters.
+#' @param model_control
+#'     Should be a list object generated from \code{spacetime.control} function.
+#'     The list including all necessary smoothing parameters of nonparametric fitting.
+#' @author 
+#'     Xiaosu Tong 
 #' @export
+#' @seealso
+#'     \code{\link{spacetime.control}}, \code{\link{mapreduce.control}}
+#'
+#' @examples
+#'     cluster_control <- mapreduce.control(libLoc=NULL, reduceTask=95, io_sort=100, slow_starts = 0.5)
+#'     model_control <- spacetime.control(
+#'       vari="resp", time="date", n=576, n.p=12, stat_n=7738,
+#'       s.window="periodic", t.window = 241, degree=2, span=0.015, Edeg=2
+#'     ) 
+#'
+#'     new.grid <- expand.grid(
+#'       lon = seq(-126, -67, by = 0.1),
+#'       lat = seq(25, 49, by = 0.1)
+#'     )
+#'     instate <- !is.na(map.where("state", new.grid$lon, new.grid$lat))
+#'     new.grid <- new.grid[instate, ] 
+#'
+#'     elev.fit <- spaloess( elev ~ lon + lat,
+#'       data = UStinfo,
+#'       degree = 2, 
+#'       span = 0.015,
+#'       distance = "Latlong",
+#'       normalize = FALSE,
+#'       napred = FALSE,
+#'       alltree = FALSE,
+#'       family="symmetric", 
+#'       control=loess.control(surface = "direct")
+#'     )
+#'     grid.fit <- predloess(
+#'       object = elev.fit,
+#'       newdata = data.frame(
+#'         lon = new.grid$lon,
+#'         lat = new.grid$lat
+#'       )
+#'     )
+#'     new.grid$elev2 <- log2(grid.fit + 128) 
+#'
+#'     predNew_mr(
+#'       newdata=new.grid, input="/tmp/output_bymth", output = "/tmp", 
+#'       info="/tmp/station_info.RData", model_control=model_control, cluster_control=cluster_control
+#'     )
 
-predNew <- function(newdata, input, output, info, model_control=spacetime.control(), cluster_control=mapreduce.control()) {
+
+predNew_mr <- function(newdata, input, output, info, model_control=spacetime.control(), cluster_control=mapreduce.control()) {
 	
 	if(!is.data.frame(newdata)) {
 		stop("new locations must be a data.frame")
 	}
+
   #output <- "/wsc/tongx/spatem/tmax/newpred/spaofit"
+  FileInput <- input
+  FileOutput <- file.path(output, "newpred/bymth")
 
   D <- ncol(newdata)
   NM <- names(newdata)
@@ -28,39 +97,44 @@ predNew <- function(newdata, input, output, info, model_control=spacetime.contro
   job1$map <- expression({
     lapply(seq_along(map.values), function(r) {
       if(Mlcontrol$Edeg == 2) {
-        fml <- as.formula("resp ~ lon + lat + elev2")
+        fml <- as.formula("smoothed ~ lon + lat + elev2")
         dropSq <- FALSE
         condParam <- "elev2"
       } else if(Mlcontrol$Edeg == 1) {
-        fml <- as.formula("resp ~ lon + lat + elev2")
+        fml <- as.formula("smoothed ~ lon + lat + elev2")
         dropSq <- "elev2"
         condParam <- "elev2"
       } else if (Mlcontrol$Edeg == 0) {
-        fml <- as.formula("resp ~ lon + lat")
+        fml <- as.formula("smoothed ~ lon + lat")
         dropSq <- FALSE
         condParam <- FALSE
       }
 
-      if(nchar(map.keys[[r]][2]) >= 3) {
-        date <- (as.numeric(map.keys[[r]][1]) - 1)*12 + match(map.keys[[r]][2], month.abb)
-      } else {
-        date <- (as.numeric(map.keys[[r]][1]) - 1)*12 + as.numeric(map.keys[[r]][2])
+      if (length(map.keys[[r]]) == 2) {
+        if(nchar(map.keys[[r]][2]) >= 3) {
+          date <- (as.numeric(map.keys[[r]][1]) - 1)*12 + match(map.keys[[r]][2], month.abb)
+        } else {
+          date <- (as.numeric(map.keys[[r]][1]) - 1)*12 + as.numeric(map.keys[[r]][2])
+        }
+      } else if (length(map.keys[[r]]) == 1) {
+        date <- map.keys[[r]]
       }
 
       value <- arrange(as.data.frame(map.values[[r]]), station.id)
-      value <- cbind(value, a1950UStinfo[, c("lon","lat","elev")])
+      value <- cbind(value, station_info[, c("lon","lat","elev")])
       value <- subset(value, select = -c(station.id))
       value$elev2 <- log2(value$elev + 128)
+
       lo.fit <- spaloess( fml, 
         data    = value, 
         degree  = Mlcontrol$degree, 
         span    = Mlcontrol$span,
         para    = condParam,
         drop    = dropSq,
-        family  = "symmetric",
+        family  = Mlcontrol$family,
         normalize = FALSE,
         distance = "Latlong",
-        control = loess.control(surface = Mlcontrol$surf),
+        control = loess.control(surface = Mlcontrol$surf, iterations = Mlcontrol$siter, cell = Mlcontrol$cell),
         napred = FALSE,
         alltree = TRUE
       )
@@ -101,7 +175,7 @@ predNew <- function(newdata, input, output, info, model_control=spacetime.contro
     map = {
       load(strsplit(info, "/")[[1]][length(strsplit(info, "/")[[1]])])
       suppressMessages(library(plyr, lib.loc=Clcontrol$libLoc))
-      library(Spaloess, lib.loc=Clcontrol$libLoc)
+      suppressMessages(library(Spaloess, lib.loc=Clcontrol$libLoc))
     }
   )
   job1$mapred <- list(
@@ -115,15 +189,15 @@ predNew <- function(newdata, input, output, info, model_control=spacetime.contro
     mapreduce.map.output.compress = TRUE,
     mapreduce.output.fileoutputformat.compress.type = "BLOCK"
   )
-  job1$input <- rhfmt(input, type="sequence")
-  job1$output <- rhfmt(output, type="sequence")
+  job1$input <- rhfmt(FileInput, type="sequence")
+  job1$output <- rhfmt(FileOutput, type="sequence")
   job1$mon.sec <- 10
-  job1$jobname <- output
+  job1$jobname <- FileOutput
   job1$readback <- FALSE  
   job.mr <- do.call("rhwatch", job1)  
 
-  input <- output
-  output <- "/wsc/tongx/spatem/tmax/newpred/stlfit"
+  FileInput <- FileOutput
+  FileOutput <- file.path(output, "newpred/stlfit")
 
   job2 <- list()
   job2$map <- expression({
@@ -164,11 +238,11 @@ predNew <- function(newdata, input, output, info, model_control=spacetime.contro
   job2$setup <- expression(
     map = {
       suppressMessages(library(stlplus, lib.loc=Clcontrol$libLoc))
-      library(plyr, lib.loc=Clcontrol$libLoc)
+      suppressMessages(library(plyr, lib.loc=Clcontrol$libLoc))
     }
   )
-  job2$input <- rhfmt(input, type = "sequence")
-  job2$output <- rhfmt(output, type = "sequence")
+  job2$input <- rhfmt(FileInput, type = "sequence")
+  job2$output <- rhfmt(FileOutput, type = "sequence")
   job2$mapred <- list(
     mapreduce.task.timeout = 0,
     mapreduce.job.reduces = cluster_control$reduceTask,  #cdh5
@@ -184,12 +258,13 @@ predNew <- function(newdata, input, output, info, model_control=spacetime.contro
   )
   job2$mon.sec <- 10
   job2$readback <- FALSE
-  job2$jobname <- output
+  job2$jobname <- FileOutput
   job.mr <- do.call("rhwatch", job2)
   
-
-  input <- c(output, "/wsc/tongx/spatem/tmax/simo/bymthse256")
-  output <- "/wsc/tongx/spatem/tmax/newpred/merge"
+  
+  prefix <- strsplit(input, "/")[[1]][1:(length(strsplit(input, "/")[[1]])-1)]
+  FileInput <- c(file.path(do.call("file.path", as.list(prefix)), "bymthse"), FileOutput)
+  FileOutput <- file.path(output, "newpred/merge")
 
 
   job3 <- list()
@@ -197,8 +272,8 @@ predNew <- function(newdata, input, output, info, model_control=spacetime.contro
     lapply(seq_along(map.keys), function(r) {
       file <- Sys.getenv("mapred.input.file")
       value <- arrange(data.frame(matrix(map.values[[r]], ncol=5, byrow=TRUE)), X4, X5)
-      names(value) <- c("resp","seasonal","trend", "date", "station.id")
-      value$remainder <- with(value, resp - trend - seasonal)
+      names(value) <- c("smoothed","seasonal","trend", "date", "station.id")
+      value$remainder <- with(value, smoothed - trend - seasonal)
       if (grepl(input, file)) {
         value$new <- 1
       } else {
@@ -223,14 +298,14 @@ predNew <- function(newdata, input, output, info, model_control=spacetime.contro
     Mlcontrol = model_control,
     Clcontrol = cluster_control,
     info = info,
-    input = input
+    input = FileInput[2]
   )
   job3$shared <- c(info)
   job3$setup <- expression(
     map = {
       load(strsplit(info, "/")[[1]][length(strsplit(info, "/")[[1]])])
       suppressMessages(library(plyr, lib.loc=Clcontrol$libLoc))
-      library(Spaloess, lib.loc=Clcontrol$libLoc)
+      suppressMessages(library(Spaloess, lib.loc=Clcontrol$libLoc))
     }
   )
   job3$mapred <- list(
@@ -244,16 +319,16 @@ predNew <- function(newdata, input, output, info, model_control=spacetime.contro
     mapreduce.map.output.compress = TRUE,
     mapreduce.output.fileoutputformat.compress.type = "BLOCK"
   )
-  job3$input <- rhfmt(input, type="sequence")
-  job3$output <- rhfmt(output, type="sequence")
+  job3$input <- rhfmt(FileInput, type="sequence")
+  job3$output <- rhfmt(FileOutput, type="sequence")
   job3$mon.sec <- 10
-  job3$jobname <- output
+  job3$jobname <- FileOutput
   job3$readback <- FALSE  
   job.mr <- do.call("rhwatch", job3)  
 
 
-  input <- output
-  output <- "/wsc/tongx/spatem/tmax/newpred/sparfit"
+  FileInput <- FileOutput
+  FileOutput <- file.path(output, "newpred/result_bymth")
 
 
   job4 <- list()
@@ -274,8 +349,8 @@ predNew <- function(newdata, input, output, info, model_control=spacetime.contro
       }
       
       value <- arrange(map.values[[r]], new, station.id)
-      a1950UStinfo$elev2 <- log2(a1950UStinfo$elev + 128)
-      value <- cbind(value, rbind(a1950UStinfo[, c("lon","lat","elev2")], newdata))
+      station_info$elev2 <- log2(station_info$elev + 128)
+      value <- cbind(value, rbind(station_info[, c("lon","lat","elev2")], newdata))
 
       lo.fit <- spaloess( fml, 
         data    = value, 
@@ -283,16 +358,18 @@ predNew <- function(newdata, input, output, info, model_control=spacetime.contro
         span    = Mlcontrol$span,
         para    = condParam,
         drop    = dropSq,
-        family  = "symmetric",
+        family  = Mlcontrol$family,
         normalize = FALSE,
         distance = "Latlong",
-        control = loess.control(surface = Mlcontrol$surf),
+        control = loess.control(surface = Mlcontrol$surf, iterations = Mlcontrol$siter, cell = Mlcontrol$cell),
         napred = FALSE,
         alltree = FALSE
       )
       value$Rspa <- lo.fit$fitted
       value <- subset(value, new == 1)
-      rhcollect(map.keys[[r]], subset(value, select = -c(remainder, lon, lat, elev2, date, new)))
+      value <- subset(value, select = -c(remainder, lon, lat, elev2, date, new))
+      rownames(value) <- NULL
+      rhcollect(map.keys[[r]], value)
 
     })
   })
@@ -307,7 +384,7 @@ predNew <- function(newdata, input, output, info, model_control=spacetime.contro
     map = {
       load(strsplit(info, "/")[[1]][length(strsplit(info, "/")[[1]])])
       suppressMessages(library(plyr, lib.loc=Clcontrol$libLoc))
-      library(Spaloess, lib.loc=Clcontrol$libLoc)
+      suppressMessages(library(Spaloess, lib.loc=Clcontrol$libLoc))
     }
   )
   job4$mapred <- list(
@@ -321,16 +398,16 @@ predNew <- function(newdata, input, output, info, model_control=spacetime.contro
     mapreduce.map.output.compress = TRUE,
     mapreduce.output.fileoutputformat.compress.type = "BLOCK"
   )
-  job4$input <- rhfmt(input, type="sequence")
-  job4$output <- rhfmt(output, type="sequence")
+  job4$input <- rhfmt(FileInput, type="sequence")
+  job4$output <- rhfmt(FileOutput, type="sequence")
   job4$mon.sec <- 10
-  job4$jobname <- output
+  job4$jobname <- FileOutput
   job4$readback <- FALSE  
   job.mr <- do.call("rhwatch", job4)  
 
   
-  input <- output
-  output <- "/wsc/tongx/spatem/tmax/newpred/sparfit.bystat"
+  FileInput <- FileOutput
+  FileOutput <- file.path(output, "newpred/result_bystat")
 
 
   job5 <- list()
@@ -350,8 +427,14 @@ predNew <- function(newdata, input, output, info, model_control=spacetime.contro
       combine <- rbind(combine, do.call("rbind", reduce.values))
     },
     post = {
+      combine <- arrange(combine, date)
       rownames(combine) <- NULL
       rhcollect(reduce.key, combine)
+    }
+  )
+  job5$setup <- expression(
+    reduce = {
+      suppressMessages(library(plyr, lib.loc=cluster_control$libLoc))
     }
   )
   job5$mapred <- list(
@@ -378,55 +461,12 @@ predNew <- function(newdata, input, output, info, model_control=spacetime.contro
     rhipe_map_bytes_read = cluster_control$map_buffer_read
   )
   job5$combiner <- TRUE
-  job5$input <- rhfmt(input, type="sequence")
-  job5$output <- rhfmt(output, type="sequence")
+  job5$input <- rhfmt(FileInput, type="sequence")
+  job5$output <- rhfmt(FileOutput, type="sequence")
   job5$mon.sec <- 10
-  job5$jobname <- output
+  job5$jobname <- FileOutput
   job5$readback <- FALSE  
   job.mr <- do.call("rhwatch", job5)  
 
 }
 
-#you <- spacetime.control(
-#      vari="resp", time="date", seaname="month", n=576, n.p=12, 
-#      s.window="periodic", t.window = 241, degree=2, span=0.015, Edeg=2
-#    )
-#me <- mapreduce.control(
-#        libLoc=lib.loc, reduceTask=45, io_sort=512, BLK=128, slow_starts = 0.9,
-#        map_jvm = "-Xmx3584m", reduce_jvm = "-Xmx4096m", map_memory = 5120, reduce_memory = 5120,
-#        reduce_input_buffer_percent=0.8, reduce_parallelcopies=20,
-#        reduce_merge_inmem=0, task_io_sort_factor=50,
-#        spill_percent=0.8, reduce_shuffle_input_buffer_percent = 0.8,
-#        reduce_shuffle_merge_percent = 0.8,
-#        reduce_buffer_read = 100, map_buffer_read = 100,
-#        reduce_buffer_size = 10000, map_buffer_size = 10000
-#      )#
-
-#new.grid <- expand.grid(
-#  lon = seq(-126, -67, by = 0.1),
-#  lat = seq(25, 49, by = 0.1)
-#)
-#instate <- !is.na(map.where("state", new.grid$lon, new.grid$lat))
-#new.grid <- new.grid[instate, ]#
-
-#elev.fit <- spaloess( elev ~ lon + lat,
-#  data = UStinfo,
-#  degree = 2, 
-#  span = 0.05,
-#  distance = "Latlong",
-#  normalize = FALSE,
-#  napred = FALSE,
-#  alltree = FALSE,
-#  family="symmetric", 
-#  control=loess.control(surface = "direct")
-#)
-#grid.fit <- predloess(
-#  object = elev.fit,
-#  newdata = data.frame(
-#    lon = new.grid$lon,
-#    lat = new.grid$lat
-#  )
-#)
-#new.grid$elev2 <- log2(grid.fit + 128)
-
-#predNew(newdata=new.grid, input="/wsc/tongx/spatem/tmax/simo/bymth128", info="/wsc/tongx/spatem/stationinfo/a1950UStinfo.RData", model_control=you, cluster_control=me)
