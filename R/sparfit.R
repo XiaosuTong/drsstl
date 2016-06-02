@@ -1,13 +1,13 @@
-#' Conduct the spatial loess fitting on the remainder at each location in parallel
+#' Apply the spatial loess fitting on the remainder at all location for each month in parallel
 #'
 #' Call \code{spaloess} function on the spatial domain at each time point in parallel.
 #' Every spatial domain uses the same smoothing parameters
 #'
 #' @param input
-#'     The path of input file on HDFS. It should be by location division.
+#'     The path of input file on HDFS. It should be by-month division with temporal fitting results.
 #' @param output
-#'     The path of output file on HDFS. It is by location division but with 
-#'     seasonal and trend components
+#'     The path of output file on HDFS. It is by-month division but with added spatial fitted value for 
+#'     remainder, named Rspa. 
 #' @param info
 #'     The RData path on HDFS which contains all station metadata
 #' @param cluster_control
@@ -21,23 +21,18 @@
 #'     Xiaosu Tong 
 #' @export
 #' @examples
-#'     FileInput <- "/wsc/tongx/spatem/tmax/sim/bymthse"
-#'     FileOutput <- "/wsc/tongx/spatem/tmax/sim/bymthfitse"
-#'     ccontrol <- mapreduce.control(
-#'       libLoc=lib.loc, reduceTask=0, BLK=128, map_jvm = "-Xmx3584m", 
-#'       map_memory = 5120, map_buffer_read = 100, map_buffer_size = 1000
-#'     )
+#'     FileInput <- "/tmp/bymthse"
+#'     FileOutput <- "/tmp/bymthfitse"
+#'     ccontrol <- mapreduce.control(libLoc=NULL, reduceTask=0, BLK=128)
 #'     mcontrol <- spacetime.control(
 #'       vari="remainder", time="date", seaname="month", n=786432, n.p=12, 
 #'       s.window=13, t.window = 241, degree=2, span=0.015, Edeg=2
 #'     )
+#'
 #'     sparfit(
-#'       FileInput, FileOutput, target=you$vari, na=TRUE, 
-#'       info="/wsc/tongx/spatem/stationinfo/a1950UStinfo.RData", 
+#'       FileInput, FileOutput, info="/tmp/station_info.RData", 
 #'       model_control=mcontrol, cluster_control=ccontrol
 #'     )
-
-
 
 sparfit <- function(input, output, info, model_control=spacetime.control(), cluster_control=mapreduce.control()) {
 
@@ -74,7 +69,7 @@ sparfit <- function(input, output, info, model_control=spacetime.control(), clus
             span    = Mlcontrol$span,
             para    = condParam,
             drop    = dropSq,
-            family  = "symmetric",
+            family  = Mlcontrol$family,
             normalize = FALSE,
             distance = "Latlong",
             control = loess.control(surface = Mlcontrol$surf, iterations = Mlcontrol$siter, cell=Mlcontrol$cell),
@@ -82,7 +77,9 @@ sparfit <- function(input, output, info, model_control=spacetime.control(), clus
             alltree = FALSE
           )
           S$Rspa <- lo.fit$fitted
-          rhcollect(unique(S$date), subset(S, select = -c(remainder, lon, lat, elev2, elev, date))[,c(4,1,2,3,5)])
+          S <- subset(S, select = -c(remainder, lon, lat, elev2, elev, date))[,c(4,1,2,3,5)]
+          rownames(S) <- NULL
+          rhcollect(unique(S$date), S)
           NULL
       })
     })
@@ -119,6 +116,6 @@ sparfit <- function(input, output, info, model_control=spacetime.control(), clus
 
   job.mr <- do.call("rhwatch", job)  
 
-  return(job.mr[[1]]$jobid)
+  #return(job.mr[[1]]$jobid)
 
 }

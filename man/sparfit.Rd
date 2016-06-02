@@ -2,16 +2,16 @@
 % Please edit documentation in R/sparfit.R
 \name{sparfit}
 \alias{sparfit}
-\title{Conduct the spatial loess fitting on the remainder at each location in parallel}
+\title{Apply the spatial loess fitting on the remainder at all location for each month in parallel}
 \usage{
 sparfit(input, output, info, model_control = spacetime.control(),
   cluster_control = mapreduce.control())
 }
 \arguments{
-\item{input}{The path of input file on HDFS. It should be by location division.}
+\item{input}{The path of input file on HDFS. It should be by-month division with temporal fitting results.}
 
-\item{output}{The path of output file on HDFS. It is by location division but with 
-seasonal and trend components}
+\item{output}{The path of output file on HDFS. It is by-month division but with added spatial fitted value for 
+remainder, named Rspa.}
 
 \item{info}{The RData path on HDFS which contains all station metadata}
 
@@ -27,19 +27,16 @@ Call \code{spaloess} function on the spatial domain at each time point in parall
 Every spatial domain uses the same smoothing parameters
 }
 \examples{
-    FileInput <- "/wsc/tongx/spatem/tmax/sim/bymthse"
-    FileOutput <- "/wsc/tongx/spatem/tmax/sim/bymthfitse"
-    ccontrol <- mapreduce.control(
-      libLoc=lib.loc, reduceTask=0, BLK=128, map_jvm = "-Xmx3584m", 
-      map_memory = 5120, map_buffer_read = 100, map_buffer_size = 1000
-    )
+    FileInput <- "/tmp/bymthse"
+    FileOutput <- "/tmp/bymthfitse"
+    ccontrol <- mapreduce.control(libLoc=NULL, reduceTask=0, BLK=128)
     mcontrol <- spacetime.control(
       vari="remainder", time="date", seaname="month", n=786432, n.p=12, 
       s.window=13, t.window = 241, degree=2, span=0.015, Edeg=2
     )
+
     sparfit(
-      FileInput, FileOutput, target=you$vari, na=TRUE, 
-      info="/wsc/tongx/spatem/stationinfo/a1950UStinfo.RData", 
+      FileInput, FileOutput, info="/tmp/station_info.RData", 
       model_control=mcontrol, cluster_control=ccontrol
     )
 }
