@@ -2,16 +2,21 @@
 % Please edit documentation in R/swaptoLoc.R
 \name{swaptoLoc}
 \alias{swaptoLoc}
-\title{Swap to division by location}
+\title{Swap to division by-location}
 \usage{
 swaptoLoc(input, output, final = FALSE,
   cluster_control = mapreduce.control(),
   model_control = spacetime.control())
 }
 \arguments{
-\item{input}{The path of input file on HDFS. It should be by location division.}
+\item{input}{The path of input file on HDFS. It should be by-month division.}
 
-\item{output}{The path of output file on HDFS. It is by time division.}
+\item{output}{The path of output file on HDFS. It is by-location division.}
+
+\item{final}{There two steps of switching to by-location division in the routine. In the 
+first one, which final is set to be FALSE, the intermediate value is vectorized
+to minimize the size. In the second one, which final is set to be TRUE, the output
+value is saved as data.frame.}
 
 \item{cluster_control}{Should be a list object generated from \code{mapreduce.control} function.
 The list including all necessary Rhipe parameters and also user tunable 
@@ -21,29 +26,24 @@ MapReduce parameters.}
 The list including all necessary smoothing parameters of nonparametric fitting.}
 }
 \description{
-Switch input key-value pairs which is division by time
-to the key-value pairs which is division by location.
-}
-\details{
-The value of each input key-value pair is a vector of spatial smoothed
-    value in the same order based on location index. For each of element
-    of this vector a intermediate key-value pair is collected. The value 
-    of final output key-value pair is a vector in order to keep the size
-    as small as possible, and also guarantee the combiner can set to be TRUE.
+Switch input key-value pairs which is division by-month
+to the key-value pairs which is division by-location.
 }
 \examples{
-    FileInput <- "/wsc/tongx/spatem/tmax/sim/bymthfit"
-    FileOutput <- "/wsc/tongx/spatem/tmax/sim/bystat"
+    FileInput <- "/tmp/bymthfit"
+    FileOutput <- "/tmp/bystat"
     ccontrol <- mapreduce.control(
-      libLoc=lib.loc, reduceTask=169, io_sort=512, BLK=128, slow_starts = 0.5,
-      map_jvm = "-Xmx3072m", reduce_jvm = "-Xmx4096m", 
-      map_memory = 5120, reduce_memory = 5120,
+      libLoc=NULL, reduceTask=5, io_sort=128, slow_starts = 0.5,
       reduce_input_buffer_percent=0.4, reduce_parallelcopies=10,
       reduce_merge_inmem=0, task_io_sort_factor=100,
       spill_percent=0.9, reduce_shuffle_input_buffer_percent = 0.8,
       reduce_shuffle_merge_percent = 0.4
     )
-    swaptoLoc(FileInput, FileOutput, cluster_control=ccontrol)
+    mcontrol <- spacetime.control(
+      vari="resp", time="date", n=576, n.p=12, stat_n=7738,
+      s.window=13, t.window = 241, degree=2, span=0.015, Edeg=2
+    )
+    swaptoLoc(FileInput, FileOutput, cluster_control=ccontrol, model_control=mcontrol)
 }
 \author{
 Xiaosu Tong
