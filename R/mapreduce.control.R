@@ -6,8 +6,6 @@
 #'     The reduce task number, also the number of output files. If set to be 0, then there is no shuffle and sort stage after map.
 #' @param spill_percent
 #'     For mapreduce.sort.spill.percent parameter, 
-#'     the threshold usage proportion for both the map output memory buffer and record boundaries 
-#'     index to start the process of spilling to disk.
 #' @param io_sort
 #'     For mapreduce.task.io.sort.mb, the size, in megabytes, of the memory buffer to use while sorting map output.
 #' @param task_io_sort_factor
@@ -31,9 +29,9 @@
 #'     mapreduce.control()
 
 mapreduce.control <- function(
-  reduceTask=0, libLoc = NULL, BLK = 128, map_jvm = "-Xmx3000m", reduce_jvm = "-Xmx4096m",
-  map_memory = 5120, reduce_memory = 5120, slow_starts = 0.5,
-  spill_percent = 0.8, io_sort = 512, task_io_sort_factor = 100,
+  reduceTask=0, libLoc = NULL, BLK = 128, map_jvm = "-Xmx200m", reduce_jvm = "-Xmx200m",
+  map_memory = 1024, reduce_memory = 1024, slow_starts = 0.5,
+  spill_percent = 0.8, io_sort = 128, task_io_sort_factor = 100,
   reduce_parallelcopies = 5, reduce_shuffle_input_buffer_percent = 0.70,
   reduce_shuffle_merge_percent = 0.66, reduce_merge_inmem = 0,
   reduce_input_buffer_percent = 0, reduce_buffer_read = 150, map_buffer_read = 150,
