@@ -1,6 +1,8 @@
 #' Readin Raw text data files and save it as by time division on HDFS.
 #'
-#' Input raw text data file is divided into by time subsets and saved on HDFS
+#' Input raw text data file is download from NCDC, and is available in the
+#' drSpaceTime package in ./inst/extdata. It is read in and divided into by-month
+#' division saved on HDFS
 #'
 #' @param input
 #'     The path of input file on HDFS. It should be raw text file.
@@ -10,24 +12,23 @@
 #'     all parameters that are needed for mapreduce job
 #' @param info
 #'     The RData on HDFS which contains all station metadata. Make sure
-#'     copy the RData of station_info to HDFS first using rhput.
+#'     copy the RData of station_info.RData, which is also available in the drSpaceTime
+#'     package, to HDFS first using rhput.
 #' @author 
 #'     Xiaosu Tong 
 #' @export
 #' @examples
+#'     \dontrun{
+#'       rhput("./station_info.RData", "/tmp/station_info.RData")
+#'     }
 #'     FileInput <- "/tmp/tmax.txt"
 #'     FileOutput <- "/tmp/bymth"
 #'     ccontrol <- mapreduce.control(
-#'       libLoc=lib.loc, reduceTask=95, io_sort=100, slow_starts = 0.5,
-#'       map_jvm = "-Xmx200m", reduce_jvm = "-Xmx200m", 
-#'       map_memory = 1024, reduce_memory = 1024,
+#'       libLoc=NULL, reduceTask=5, io_sort=100, slow_starts = 0.5,
 #'       reduce_input_buffer_percent=0.9, reduce_parallelcopies=5,
 #'       spill_percent=0.9, reduce_shuffle_input_buffer_percent = 0.9,
 #'       reduce_shuffle_merge_percent = 0.5
 #'     )
-#'     \dontrun{
-#'       rhput("./station_info.RData", "/tmp/station_info.RData")
-#'     }
 #'     readIn(
 #'       FileInput, FileOutput, info="/tmp/station_info.RData", cluster_control=ccontrol
 #'     )
@@ -141,19 +142,6 @@ readIn <- function(input, output, info, cluster_control = mapreduce.control(), c
   job$mon.sec <- 10
   job.mr <- do.call("rhwatch", job)
 
-  return(job.mr[[1]]$jobid)
+  #return(job.mr[[1]]$jobid)
 
 }
-
-
-## tmaxs128 or tmaxs256 did not have too much difference about time
-## for tmaxs128, io_sort is 512 can avoid spilling
-## reduce_parallelcopies is not quite helpful
-## 0.52 is the best slow_starts
-## reduce_input_buffer_percent is 0.0 is slow, 0.7 is the optimal
-## reduce_shuffle_input_buffer_percent and reduce_shuffle_merge_percent together cannot to be too small like all 0.1
-## reduce_shuffle_input_buffer_percent = 0.7 and reduce_shuffle_merge_percent =0.4 can aviod spill
-## even though the multplication of these two kept the same, larger reduce_shuffle_input_buffer_percent be faster
-
-## for tmaxs256, io_sort is 768 can avoid spilling
-## small slow_starts value may be faster

@@ -13,27 +13,28 @@ readIn(input, output, info, cluster_control = mapreduce.control(),
 \item{output}{The path of output file on HDFS. It is by time division.}
 
 \item{info}{The RData on HDFS which contains all station metadata. Make sure
-copy the RData of station_info to HDFS first using rhput.}
+copy the RData of station_info.RData, which is also available in the drSpaceTime
+package, to HDFS first using rhput.}
 
 \item{cluster_control}{all parameters that are needed for mapreduce job}
 }
 \description{
-Input raw text data file is divided into by time subsets and saved on HDFS
+Input raw text data file is download from NCDC, and is available in the
+drSpaceTime package in ./inst/extdata. It is read in and divided into by-month
+division saved on HDFS
 }
 \examples{
+    \dontrun{
+      rhput("./station_info.RData", "/tmp/station_info.RData")
+    }
     FileInput <- "/tmp/tmax.txt"
     FileOutput <- "/tmp/bymth"
     ccontrol <- mapreduce.control(
-      libLoc=lib.loc, reduceTask=95, io_sort=100, slow_starts = 0.5,
-      map_jvm = "-Xmx200m", reduce_jvm = "-Xmx200m", 
-      map_memory = 1024, reduce_memory = 1024,
+      libLoc=NULL, reduceTask=5, io_sort=100, slow_starts = 0.5,
       reduce_input_buffer_percent=0.9, reduce_parallelcopies=5,
       spill_percent=0.9, reduce_shuffle_input_buffer_percent = 0.9,
       reduce_shuffle_merge_percent = 0.5
     )
-    \dontrun{
-      rhput("./station_info.RData", "/tmp/station_info.RData")
-    }
     readIn(
       FileInput, FileOutput, info="/tmp/station_info.RData", cluster_control=ccontrol
     )
