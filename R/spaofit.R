@@ -1,14 +1,14 @@
-#' Conduct the spatial loess fitting on the original observations at 
-#' all location in each month in parallel
+#' Apply the spatial loess fitting to the original observations at 
+#' all locations in each month in parallel
 #'
-#' Call \code{spaloess} function on the spatial domain at each time point in parallel.
+#' Call \code{spaloess} function on the spatial domain in each month in parallel.
 #' Every spatial domain uses the same smoothing parameters. NA observations will be
 #' imputed.
 #'
 #' @param input
-#'     The path of input sequence file on HDFS. It should be by location division.
+#'     The path of input sequence file on HDFS. It should be by-month division.
 #' @param output
-#'     The path of output sequence file on HDFS. It is by location division but with 
+#'     The path of output sequence file on HDFS. It is also by-month division but with 
 #'     seasonal and trend components
 #' @param info
 #'     The RData on HDFS which contains all station metadata. Make sure
@@ -26,20 +26,17 @@
 #' @examples
 #'     FileInput <- "/tmp/bymth"
 #'     FileOutput <- "/tmp/bymthfit"
-#'     ccontrol <- mapreduce.control(
-#'       libLoc=lib.loc, reduceTask=0, map_jvm = "-Xmx3584m", map_memory = 5120
-#'     )
+#'     ccontrol <- mapreduce.control(libLoc=NULL, reduceTask=0)
 #'     mcontrol <- spacetime.control(
-#'       vari="resp", time="date", seaname="month", n=576, n.p=12, stat_n=7738,
+#'       vari="resp", time="date", n=576, n.p=12, stat_n=7738,
 #'       s.window=13, t.window = 241, degree=2, span=0.015, Edeg=2
 #'     )
+#'
 #'     spaofit(
 #'       FileInput, FileOutput,
 #'       info="/tmp/station_info.RData", 
 #'       model_control=mcontrol, cluster_control=ccontrol
 #'     )
-
-
 
 spaofit <- function(input, output, info, model_control=spacetime.control(), cluster_control=mapreduce.control()) {
 
@@ -71,7 +68,7 @@ spaofit <- function(input, output, info, model_control=spacetime.control(), clus
         span    = Mlcontrol$span,
         para    = condParam,
         drop    = dropSq,
-        family  = "symmetric",
+        family  = Mlcontrol$family,
         normalize = FALSE,
         distance = "Latlong",
         control = loess.control(surface = Mlcontrol$surf, iterations = Mlcontrol$siter, cell = Mlcontrol$cell),
@@ -122,6 +119,6 @@ spaofit <- function(input, output, info, model_control=spacetime.control(), clus
 
   job.mr <- do.call("rhwatch", job)  
 
-  return(job.mr[[1]]$jobid)
+  #return(job.mr[[1]]$jobid)
 
 }
