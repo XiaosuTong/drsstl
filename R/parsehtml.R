@@ -1,8 +1,8 @@
 #' @export
 
-parsehtml <- function(jobid, type="map") {
+parsehtml <- function(jobid, html, type="map") {
 
-  theurl <- paste("http://wsc-adm.rcac.purdue.edu:19888/jobhistory/jobcounters/", jobid, sep="")
+  theurl <- file.path("http://wsc-adm.rcac.purdue.edu:19888/jobhistory/jobcounters", jobid)
   
   a <- html_nodes(read_html(theurl), "tr")
   L <- length(a)
