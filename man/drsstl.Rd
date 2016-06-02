@@ -4,7 +4,7 @@
 \alias{drsstl}
 \title{Apply sstl routine to spatial-temporal dataset}
 \usage{
-drsstl(data, output = NULL, model_control = spacetime.control(),
+drsstl(data, output = NULL, stat_info, model_control = spacetime.control(),
   cluster_control = NULL)
 }
 \arguments{
