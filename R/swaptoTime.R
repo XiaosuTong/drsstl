@@ -1,12 +1,12 @@
-#' Swap to division by time
+#' Swap to division by-month from by-location division
 #'
-#' Switch input key-value pairs which is division by location
-#' to the key-value pairs which is division by time.
+#' Switch input key-value pairs which is division by-location
+#' to the key-value pairs which is division by-month.
 #'
 #' @param input
-#'     The path of input file on HDFS. It should be by location division.
+#'     The path of input file on HDFS. It should be by-location division.
 #' @param output
-#'     The path of output file on HDFS. It is by time division.
+#'     The path of output file on HDFS. It is by-month division.
 #' @param cluster_control
 #'     Should be a list object generated from \code{mapreduce.control} function.
 #'     The list including all necessary Rhipe parameters and also user tunable 
@@ -15,9 +15,9 @@
 #'     Should be a list object generated from \code{spacetime.control} function.
 #'     The list including all necessary smoothing parameters of nonparametric fitting.
 #' @details
-#'     \code{swaptoTime} is used for switching division by location to division by time.
+#'     \code{swaptoTime} is used for switching division by-location to division by-month.
 #'     The input key is location index, and input value is a vectorized matrix with 
-#'     \code{Mlcontrol$n} rows and 3 columns in order of resp, seasonal, trend. For each row 
+#'     \code{Mlcontrol$n} rows and 3 columns in order of smoothed, seasonal, trend. For each row 
 #'     of matrix, a new key-value pair is generated. Since the matrix is vectorized
 #'     by column, the trend in ith row is \code{i+Mlcontrol$n}. Index \code{j} controls the index 
 #'     of multiple location in one time point.
@@ -29,20 +29,20 @@
 #' @examples
 #'     FileInput <- "/tmp/bystatfit"
 #'     FileOutput <- "/tmp/bymthse"
+#'
 #'     ccontrol <- mapreduce.control(
-#'       libLoc=lib.loc, reduceTask=358, io_sort=512, BLK=128, slow_starts = 0.5,
-#'       map_jvm = "-Xmx3072m", reduce_jvm = "-Xmx4096m", 
-#'       map_memory = 5120, reduce_memory = 5120,
+#'       libLoc=NULL, reduceTask=5, io_sort=128, slow_starts = 0.5,
 #'       reduce_input_buffer_percent=0.2, reduce_parallelcopies=10,
 #'       reduce_merge_inmem=0, task_io_sort_factor=100,
 #'       spill_percent=0.9, reduce_shuffle_input_buffer_percent = 0.7,
 #'       reduce_shuffle_merge_percent = 0.5
 #'     )
 #'     mcontrol <- spacetime.control(
-#'       vari = "resp", time = "date", seaname = "month", 
-#'       n = 576, stat_n=7738, n.p = 12, s.window = "periodic", t.window = 241, 
-#'       degree = 2, span = 0.015, Edeg = 2, statbytime = 2
+#'       vari = "resp", time = "date", n = 576, stat_n=7738, n.p = 12, 
+#'       s.window = "periodic", t.window = 241, 
+#'       degree = 2, span = 0.015, Edeg = 2
 #'     )
+#'
 #'     swaptoTime(FileInput, FileOutput, cluster_control=ccontrol, model_control=mcontrol)
 
 swaptoTime <- function(input, output, cluster_control=mapreduce.control(), model_control=spacetime.control()){
@@ -110,29 +110,7 @@ swaptoTime <- function(input, output, cluster_control=mapreduce.control(), model
 
   job.mr <- do.call("rhwatch", job)  
 
-  return(job.mr[[1]]$jobid)
+  #return(job.mr[[1]]$jobid)
 
 }
 
-
-## bystatfit128 or bystatfit256 did have difference about time
-## for bystatfit128, io_sort is 1024 can avoid spilling
-## opt_jvm can be 3072 but no difference with 2560
-## reduce_parallelcopies is not quite helpful
-## 0.5 is the best slow_starts
-## reduce_input_buffer_percent is 0.0 is slow, 0.7 is the optimal
-## reduce_shuffle_input_buffer_percent and reduce_shuffle_merge_percent together cannot to be too small like all 0.1
-## reduce_shuffle_input_buffer_percent = 0.7 and reduce_shuffle_merge_percent =0.5 can aviod spill
-## even though the multplication of these two kept the same, larger reduce_shuffle_input_buffer_percent be faster
-
-## for bystatfit256, spilling cannot be avioded because of the size
-## jvm_opt cannot larger than 2048
-
-## io_sort 128, 512
-## spill_percent 0.5, 0.9
-## slow_starts 0.1, 0.5
-## reduce_parallelcopies 5, 10
-## reduce_shuffle_input_buffer_percent 0.1, 0.9
-## reduce_shuffle_merge_percent 0.5, 0.9
-## reduce_input_buffer_percent 0.1, 0.9
-## task_io_sort_factor 10, 20
