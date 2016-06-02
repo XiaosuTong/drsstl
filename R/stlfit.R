@@ -1,4 +1,4 @@
-#' Conduct the stlplus fitting at each location in parallel
+#' Apply the stlplus fitting at each location in parallel
 #'
 #' Calling \code{stlplus} function from Ryan Hafen's \code{stlplus} 
 #' package on time series at each location in parallel.
@@ -20,13 +20,12 @@
 #' @seealso
 #'     \code{\link{spacetime.control}}, \code{\link{mapreduce.control}}
 #' @examples
-#'     FileInput <- "/wsc/tongx/spatem/tmax/sim/bystat"
-#'     FileOutput <- "/wsc/tongx/spatem/tmax/sim/bystatfit"
-#'     ccontrol <- mapreduce.control(libLoc=lib.loc, reduceTask=0)
+#'     FileInput <- "/tmp/bystat"
+#'     FileOutput <- "/tmp/bystatfit"
+#'     ccontrol <- mapreduce.control(libLoc=NULL, reduceTask=0)
 #'     mcontrol <- spacetime.control(
-#'       vari = "resp", time = "date", seaname = "month", 
-#'       n = 576, stat_n=7738, n.p = 12, s.window = "periodic", t.window = 241, 
-#'       degree = 2, span = 0.015, Edeg = 2
+#'       vari = "resp", time = "date", n = 576, stat_n=7738, n.p = 12, s.window = "periodic", 
+#'       t.window = 241, degree = 2, span = 0.015, Edeg = 2
 #'     )
 #'     stlfit(FileInput, FileOutput, model_control=mcontrol, cluster_control=ccontrol)
 

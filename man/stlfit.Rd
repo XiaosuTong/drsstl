@@ -2,7 +2,7 @@
 % Please edit documentation in R/stlfit.R
 \name{stlfit}
 \alias{stlfit}
-\title{Conduct the stlplus fitting at each location in parallel}
+\title{Apply the stlplus fitting at each location in parallel}
 \usage{
 stlfit(input, output, model_control = spacetime.control(),
   cluster_control = mapreduce.control())
@@ -22,13 +22,12 @@ package on time series at each location in parallel.
 Every station uses the same smoothing parameter
 }
 \examples{
-    FileInput <- "/wsc/tongx/spatem/tmax/sim/bystat"
-    FileOutput <- "/wsc/tongx/spatem/tmax/sim/bystatfit"
-    ccontrol <- mapreduce.control(libLoc=lib.loc, reduceTask=0)
+    FileInput <- "/tmp/bystat"
+    FileOutput <- "/tmp/bystatfit"
+    ccontrol <- mapreduce.control(libLoc=NULL, reduceTask=0)
     mcontrol <- spacetime.control(
-      vari = "resp", time = "date", seaname = "month", 
-      n = 576, stat_n=7738, n.p = 12, s.window = "periodic", t.window = 241, 
-      degree = 2, span = 0.015, Edeg = 2
+      vari = "resp", time = "date", n = 576, stat_n=7738, n.p = 12, s.window = "periodic", 
+      t.window = 241, degree = 2, span = 0.015, Edeg = 2
     )
     stlfit(FileInput, FileOutput, model_control=mcontrol, cluster_control=ccontrol)
 }
