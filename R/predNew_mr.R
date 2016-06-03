@@ -13,11 +13,11 @@
 #'     The path of output on HDFS where all the intermediate outputs will be saved.
 #' @param info
 #'     The RData path on HDFS which contains all station metadata of original dataset
-#' @param cluster_control
+#' @param clcontrol
 #'     Should be a list object generated from \code{mapreduce.control} function.
 #'     The list including all necessary Rhipe parameters and also user tunable 
 #'     MapReduce parameters.
-#' @param model_control
+#' @param mlcontrol
 #'     Should be a list object generated from \code{spacetime.control} function.
 #'     The list including all necessary smoothing parameters of nonparametric fitting.
 #' @author 
@@ -27,8 +27,8 @@
 #'     \code{\link{spacetime.control}}, \code{\link{mapreduce.control}}
 #'
 #' @examples
-#'     cluster_control <- mapreduce.control(libLoc=NULL, reduceTask=95, io_sort=100, slow_starts = 0.5)
-#'     model_control <- spacetime.control(
+#'     clcontrol <- mapreduce.control(libLoc=NULL, reduceTask=95, io_sort=100, slow_starts = 0.5)
+#'     mlcontrol <- spacetime.control(
 #'       vari="resp", time="date", n=576, n.p=12, stat_n=7738,
 #'       s.window="periodic", t.window = 241, degree=2, span=0.015, Edeg=2
 #'     ) 
@@ -41,7 +41,7 @@
 #'     new.grid <- new.grid[instate, ] 
 #'
 #'     elev.fit <- spaloess( elev ~ lon + lat,
-#'       data = UStinfo,
+#'       data = station_info,
 #'       degree = 2, 
 #'       span = 0.015,
 #'       distance = "Latlong",
@@ -62,11 +62,11 @@
 #'
 #'     predNew_mr(
 #'       newdata=new.grid, input="/tmp/output_bymth", output = "/tmp", 
-#'       info="/tmp/station_info.RData", model_control=model_control, cluster_control=cluster_control
+#'       info="/tmp/station_info.RData", mlcontrol=mlcontrol, clcontrol=clcontrol
 #'     )
 
 
-predNew_mr <- function(newdata, input, output, info, model_control=spacetime.control(), cluster_control=mapreduce.control()) {
+predNew_mr <- function(newdata, input, output, info, mlcontrol=spacetime.control(), clcontrol=mapreduce.control()) {
 	
 	if(!is.data.frame(newdata)) {
 		stop("new locations must be a data.frame")
@@ -80,7 +80,7 @@ predNew_mr <- function(newdata, input, output, info, model_control=spacetime.con
   NM <- names(newdata)
   N <- nrow(newdata)
 
-  if(D == 2 & model_control$Edeg != 0) {
+  if(D == 2 & mlcontrol$Edeg != 0) {
     stop("elevation is not in the spatial attributes")
   }
   if(D > 3) {
@@ -167,8 +167,8 @@ predNew_mr <- function(newdata, input, output, info, model_control=spacetime.con
   	newdata = newdata,
     info = info,
   	N = N,
-  	Clcontrol = cluster_control,
-    Mlcontrol = model_control
+  	Clcontrol = clcontrol,
+    Mlcontrol = mlcontrol
   )
   job1$shared <- c(info)
   job1$setup <- expression(
@@ -180,12 +180,12 @@ predNew_mr <- function(newdata, input, output, info, model_control=spacetime.con
   )
   job1$mapred <- list(
     mapreduce.task.timeout = 0,
-    mapreduce.job.reduces = cluster_control$reduceTask,  #cdh5
-    mapreduce.map.java.opts = cluster_control$map_jvm,
-    mapreduce.map.memory.mb = cluster_control$map_memory,     
-    dfs.blocksize = cluster_control$BLK,
-    rhipe_map_bytes_read = cluster_control$map_buffer_read,
-    rhipe_map_buffer_size = cluster_control$map_buffer_size,
+    mapreduce.job.reduces = clcontrol$reduceTask,  #cdh5
+    mapreduce.map.java.opts = clcontrol$map_jvm,
+    mapreduce.map.memory.mb = clcontrol$map_memory,     
+    dfs.blocksize = clcontrol$BLK,
+    rhipe_map_bytes_read = clcontrol$map_buffer_read,
+    rhipe_map_buffer_size = clcontrol$map_buffer_size,
     mapreduce.map.output.compress = TRUE,
     mapreduce.output.fileoutputformat.compress.type = "BLOCK"
   )
@@ -232,8 +232,8 @@ predNew_mr <- function(newdata, input, output, info, model_control=spacetime.con
   	}
   )
   job2$parameters <- list(
-    Mlcontrol = model_control,
-    Clcontrol = cluster_control
+    Mlcontrol = mlcontrol,
+    Clcontrol = clcontrol
   )
   job2$setup <- expression(
     map = {
@@ -245,14 +245,14 @@ predNew_mr <- function(newdata, input, output, info, model_control=spacetime.con
   job2$output <- rhfmt(FileOutput, type = "sequence")
   job2$mapred <- list(
     mapreduce.task.timeout = 0,
-    mapreduce.job.reduces = cluster_control$reduceTask,  #cdh5
-    mapreduce.map.java.opts = cluster_control$map_jvm,
-    mapreduce.map.memory.mb = cluster_control$map_memory,     
-    dfs.blocksize = cluster_control$BLK,
-    rhipe_reduce_buff_size = cluster_control$reduce_buffer_size,
-    rhipe_reduce_bytes_read = cluster_control$reduce_buffer_read,
-    rhipe_map_buff_size = cluster_control$map_buffer_size, 
-    rhipe_map_bytes_read = cluster_control$map_buffer_read,
+    mapreduce.job.reduces = clcontrol$reduceTask,  #cdh5
+    mapreduce.map.java.opts = clcontrol$map_jvm,
+    mapreduce.map.memory.mb = clcontrol$map_memory,     
+    dfs.blocksize = clcontrol$BLK,
+    rhipe_reduce_buff_size = clcontrol$reduce_buffer_size,
+    rhipe_reduce_bytes_read = clcontrol$reduce_buffer_read,
+    rhipe_map_buff_size = clcontrol$map_buffer_size, 
+    rhipe_map_bytes_read = clcontrol$map_buffer_read,
     mapreduce.map.output.compress = TRUE,
     mapreduce.output.fileoutputformat.compress.type = "BLOCK"
   )
@@ -295,8 +295,8 @@ predNew_mr <- function(newdata, input, output, info, model_control=spacetime.con
     }
   )
   job3$parameters <- list(
-    Mlcontrol = model_control,
-    Clcontrol = cluster_control,
+    Mlcontrol = mlcontrol,
+    Clcontrol = clcontrol,
     info = info,
     input = FileInput[2]
   )
@@ -310,12 +310,12 @@ predNew_mr <- function(newdata, input, output, info, model_control=spacetime.con
   )
   job3$mapred <- list(
     mapreduce.task.timeout = 0,
-    mapreduce.job.reduces = cluster_control$reduceTask,  #cdh5
-    mapreduce.map.java.opts = cluster_control$map_jvm,
-    mapreduce.map.memory.mb = cluster_control$map_memory,     
-    dfs.blocksize = cluster_control$BLK,
-    rhipe_map_bytes_read = cluster_control$map_buffer_read,
-    rhipe_map_buffer_size = cluster_control$map_buffer_size,
+    mapreduce.job.reduces = clcontrol$reduceTask,  #cdh5
+    mapreduce.map.java.opts = clcontrol$map_jvm,
+    mapreduce.map.memory.mb = clcontrol$map_memory,     
+    dfs.blocksize = clcontrol$BLK,
+    rhipe_map_bytes_read = clcontrol$map_buffer_read,
+    rhipe_map_buffer_size = clcontrol$map_buffer_size,
     mapreduce.map.output.compress = TRUE,
     mapreduce.output.fileoutputformat.compress.type = "BLOCK"
   )
@@ -374,8 +374,8 @@ predNew_mr <- function(newdata, input, output, info, model_control=spacetime.con
     })
   })
   job4$parameters <- list(
-    Mlcontrol = model_control,
-    Clcontrol = cluster_control,
+    Mlcontrol = mlcontrol,
+    Clcontrol = clcontrol,
     info = info,
     newdata = newdata
   )
@@ -390,11 +390,11 @@ predNew_mr <- function(newdata, input, output, info, model_control=spacetime.con
   job4$mapred <- list(
     mapreduce.task.timeout = 0,
     mapreduce.job.reduces = 0,  #cdh5
-    mapreduce.map.java.opts = cluster_control$map_jvm,
-    mapreduce.map.memory.mb = cluster_control$map_memory,     
-    dfs.blocksize = cluster_control$BLK,
-    rhipe_map_bytes_read = cluster_control$map_buffer_read,
-    rhipe_map_buffer_size = cluster_control$map_buffer_size,
+    mapreduce.map.java.opts = clcontrol$map_jvm,
+    mapreduce.map.memory.mb = clcontrol$map_memory,     
+    dfs.blocksize = clcontrol$BLK,
+    rhipe_map_bytes_read = clcontrol$map_buffer_read,
+    rhipe_map_buffer_size = clcontrol$map_buffer_size,
     mapreduce.map.output.compress = TRUE,
     mapreduce.output.fileoutputformat.compress.type = "BLOCK"
   )
@@ -434,31 +434,31 @@ predNew_mr <- function(newdata, input, output, info, model_control=spacetime.con
   )
   job5$setup <- expression(
     reduce = {
-      suppressMessages(library(plyr, lib.loc=cluster_control$libLoc))
+      suppressMessages(library(plyr, lib.loc=clcontrol$libLoc))
     }
   )
   job5$mapred <- list(
-    mapreduce.map.java.opts = cluster_control$map_jvm,
-    mapreduce.map.memory.mb = cluster_control$map_memory, 
-    mapreduce.reduce.java.opts = cluster_control$reduce_jvm,
-    mapreduce.reduce.memory.mb = cluster_control$reduce_memory,
-    mapreduce.job.reduces = cluster_control$reduceTask,  #cdh5
-    dfs.blocksize = cluster_control$BLK,
-    mapreduce.task.io.sort.mb = cluster_control$io_sort,
-    mapreduce.map.sort.spill.percent = cluster_control$spill_percent,
-    mapreduce.reduce.shuffle.parallelcopies = cluster_control$reduce_parallelcopies,
-    mapreduce.task.io.sort.factor = cluster_control$task_io_sort_factor,
-    mapreduce.reduce.shuffle.merge.percent = cluster_control$reduce_shuffle_merge_percent,
-    mapreduce.reduce.merge.inmem.threshold = cluster_control$reduce_merge_inmem,
-    mapreduce.reduce.input.buffer.percent = cluster_control$reduce_input_buffer_percent,
-    mapreduce.reduce.shuffle.input.buffer.percent = cluster_control$reduce_shuffle_input_buffer_percent,
+    mapreduce.map.java.opts = clcontrol$map_jvm,
+    mapreduce.map.memory.mb = clcontrol$map_memory, 
+    mapreduce.reduce.java.opts = clcontrol$reduce_jvm,
+    mapreduce.reduce.memory.mb = clcontrol$reduce_memory,
+    mapreduce.job.reduces = clcontrol$reduceTask,  #cdh5
+    dfs.blocksize = clcontrol$BLK,
+    mapreduce.task.io.sort.mb = clcontrol$io_sort,
+    mapreduce.map.sort.spill.percent = clcontrol$spill_percent,
+    mapreduce.reduce.shuffle.parallelcopies = clcontrol$reduce_parallelcopies,
+    mapreduce.task.io.sort.factor = clcontrol$task_io_sort_factor,
+    mapreduce.reduce.shuffle.merge.percent = clcontrol$reduce_shuffle_merge_percent,
+    mapreduce.reduce.merge.inmem.threshold = clcontrol$reduce_merge_inmem,
+    mapreduce.reduce.input.buffer.percent = clcontrol$reduce_input_buffer_percent,
+    mapreduce.reduce.shuffle.input.buffer.percent = clcontrol$reduce_shuffle_input_buffer_percent,
     mapreduce.output.fileoutputformat.compress.type = "BLOCK",
     mapreduce.task.timeout  = 0,
-    mapreduce.job.reduce.slowstart.completedmaps = cluster_control$slow_starts,
-    rhipe_reduce_buff_size = cluster_control$reduce_buffer_size,
-    rhipe_reduce_bytes_read = cluster_control$reduce_buffer_read,
-    rhipe_map_buff_size = cluster_control$map_buffer_size, 
-    rhipe_map_bytes_read = cluster_control$map_buffer_read
+    mapreduce.job.reduce.slowstart.completedmaps = clcontrol$slow_starts,
+    rhipe_reduce_buff_size = clcontrol$reduce_buffer_size,
+    rhipe_reduce_bytes_read = clcontrol$reduce_buffer_read,
+    rhipe_map_buff_size = clcontrol$map_buffer_size, 
+    rhipe_map_bytes_read = clcontrol$map_buffer_read
   )
   job5$combiner <- TRUE
   job5$input <- rhfmt(FileInput, type="sequence")
