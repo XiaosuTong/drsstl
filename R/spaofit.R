@@ -78,7 +78,10 @@ spaofit <- function(input, output, info, model_control=spacetime.control(), clus
 
       if(NApred) {
         indx <- which(!is.na(value$resp))
-        rst <- rbind(cbind(indx, fitted=lo.fit$fitted), cbind(which(is.na(value$resp)), fitted=lo.fit$pred$fitted))
+        rst <- rbind(
+          cbind(indx, fitted=lo.fit$fitted), 
+          cbind(which(is.na(value$resp)), fitted=lo.fit$pred$fitted)
+        )
         rst <- arrange(as.data.frame(rst), indx)
         rhcollect(map.keys[[r]], rst$fitted)
       } else {
