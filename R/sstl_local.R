@@ -48,6 +48,7 @@ sstl_local <- function(data, mlcontrol=spacetime.control()) {
   rst <- ddply(.data = data
     , .vari = c("year", "month")
     , .fun = function(v) {
+
         lo.fit <- spaloess( fml, 
           data      = v, 
           degree    = mlcontrol$degree, 
@@ -57,7 +58,7 @@ sstl_local <- function(data, mlcontrol=spacetime.control()) {
           family    = "symmetric",
           normalize = FALSE,
           distance  = "Latlong",
-          control   = loess.control(surface = mlcontrol$surf, iterations = mlcontrol$siter),
+          control   = loess.control(surface = mlcontrol$surf, iterations = mlcontrol$siter, cell = Mlcontrol$cell),
           napred    = TRUE,
           alltree   = TRUE
         )
@@ -117,7 +118,7 @@ sstl_local <- function(data, mlcontrol=spacetime.control()) {
           alltree   = FALSE
         )
         v$Rspa <- lo.fit$fitted
-        v
+        subset(v, select = -c(remainder))
       }
   )
 
