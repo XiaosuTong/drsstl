@@ -48,7 +48,7 @@ sstl_local <- function(data, mlcontrol=spacetime.control()) {
   rst <- ddply(.data = data
     , .vari = c("year", "month")
     , .fun = function(v) {
-
+        NApred <- any(is.na(v[, mlcontrol$vari]))
         lo.fit <- spaloess( fml, 
           data      = v, 
           degree    = mlcontrol$degree, 
@@ -59,16 +59,20 @@ sstl_local <- function(data, mlcontrol=spacetime.control()) {
           normalize = FALSE,
           distance  = "Latlong",
           control   = loess.control(surface = mlcontrol$surf, iterations = mlcontrol$siter, cell = Mlcontrol$cell),
-          napred    = TRUE,
+          napred    = NApred,
           alltree   = TRUE
         )
-        indx <- which(!is.na(v[, mlcontrol$vari]))
-        rst <- rbind(
-          cbind(indx, fitted=lo.fit$fitted), 
-          cbind(which(is.na(v[, mlcontrol$vari])), fitted=lo.fit$pred$fitted)
-        )
-        rst <- arrange(as.data.frame(rst), indx)
-        v$spaofit <- rst$fitted
+        if (NApred) {
+          indx <- which(!is.na(v[, mlcontrol$vari]))
+          rst <- rbind(
+            cbind(indx, fitted=lo.fit$fitted), 
+            cbind(which(is.na(v[, mlcontrol$vari])), fitted=lo.fit$pred$fitted)
+          )
+          rst <- arrange(as.data.frame(rst), indx)
+          v$spaofit <- rst$fitted
+        } else {
+          v$spaofit <- lo.fit$fitted
+        }
         v
       }
   )
