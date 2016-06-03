@@ -58,7 +58,7 @@ sstl_local <- function(data, mlcontrol=spacetime.control()) {
           family    = "symmetric",
           normalize = FALSE,
           distance  = "Latlong",
-          control   = loess.control(surface = mlcontrol$surf, iterations = mlcontrol$siter, cell = Mlcontrol$cell),
+          control   = loess.control(surface = mlcontrol$surf, iterations = mlcontrol$siter, cell = mlcontrol$cell),
           napred    = NApred,
           alltree   = TRUE
         )
