@@ -8,6 +8,9 @@
 #'     The output path of fitting results on HDFS. If data is a data.frame object,
 #'     the output should be set as default NULL. Since the drsstl function will return
 #'     the fitting results in memory.
+#' @param stat_info
+#'     The RData on HDFS which contains all station metadata. Make sure
+#'     copy the RData of station_info to HDFS first using rhput.
 #' @param model_control
 #'     Should be a list object generated from \code{spacetime.control} function.
 #'     The list including all necessary smoothing parameters of nonparametric fitting.
@@ -26,7 +29,7 @@
 #'       s.window=13, t.window = 241, degree=2, span=0.015, Edeg=2
 #'     )
 #'     ccontrol <- mapreduce.control(
-#'       libLoc=lib.loc, reduceTask=169, io_sort=512, BLK=128, slow_starts = 0.5,
+#'       libLoc=lib.loc, reduceTask=169, io_sort=128, slow_starts = 0.5,
 #'       map_jvm = "-Xmx200m", reduce_jvm = "-Xmx200m", 
 #'       map_memory = 1024, reduce_memory = 1024,
 #'       reduce_input_buffer_percent=0.4, reduce_parallelcopies=10,
@@ -35,13 +38,13 @@
 #'       reduce_shuffle_merge_percent = 0.4
 #'     )
 #'
-#'     If the data is on HDFS
-#'     drsstl("/tmp/tmax.txt","/tmp/output", model_control=mcontrol, cluster_control=ccontrol)
+#'     #If the data is on HDFS
+#'     drsstl("/tmp/tmax.txt","/tmp/output", stat_info="/tmp/station_info.RData", model_control=mcontrol, cluster_control=ccontrol)
 #'
-#'     If the data is tmax_all which is in memory
+#'     #If the data is tmax_all which is in memory
 #'     drsstl(tmax_all, model_control=mcontrol, cluster_control=ccontrol)
 
-drsstl <- function(data, output = NULL, stat_info, model_control=spacetime.control(), cluster_control=NULL) {
+drsstl <- function(data, output = NULL, stat_info=NULL, model_control=spacetime.control(), cluster_control=NULL) {
 
   if(class(data) == "data.frame") {
 
