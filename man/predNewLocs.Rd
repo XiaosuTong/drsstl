@@ -87,7 +87,8 @@ Prediction at new locations based on the fitting results of original dataset
     #if the fitting results are on HDFS
     predNewLocs(
       fitted="/tmp/output/output_bymth", newdata=new.grid, output = "/tmp", 
-      station_info="/tmp/station_info.RData", model_control = mcontrol, cluster_control = ccontrol
+      station_info="/tmp/station_info.RData", model_control = mcontrol, 
+      cluster_control = ccontrol
     ) 
 }
 \author{
