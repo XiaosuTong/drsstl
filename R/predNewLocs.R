@@ -82,7 +82,8 @@
 #'     #if the fitting results are on HDFS
 #'     predNewLocs(
 #'       fitted="/tmp/output/output_bymth", newdata=new.grid, output = "/tmp", 
-#'       station_info="/tmp/station_info.RData", model_control = mcontrol, cluster_control = ccontrol
+#'       station_info="/tmp/station_info.RData", model_control = mcontrol, 
+#'       cluster_control = ccontrol
 #'     ) 
 predNewLocs <- function(fitted, newdata, output = NULL, stat_info=NULL, model_control=spacetime.control(), cluster_control=NULL) {
 	
