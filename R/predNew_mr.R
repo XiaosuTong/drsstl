@@ -337,10 +337,14 @@ predNew_mr <- function(newdata, input, output, info, mlcontrol=spacetime.control
   job4$map <- expression({
     lapply(seq_along(map.values), function(r) {
       if(Mlcontrol$Edeg == 2) {
+        newdata$elev2 <- log2(newdata$elev + 128)
+        station_info$elev2 <- log2(station_info$elev + 128)
         fml <- as.formula("remainder ~ lon + lat + elev2")
         dropSq <- FALSE
         condParam <- "elev2"
       } else if(Mlcontrol$Edeg == 1) {
+        newdata$elev2 <- log2(newdata$elev + 128)
+        station_info$elev2 <- log2(station_info$elev + 128)
         fml <- as.formula("remainder ~ lon + lat + elev2")
         dropSq <- "elev2"
         condParam <- "elev2"
@@ -351,9 +355,11 @@ predNew_mr <- function(newdata, input, output, info, mlcontrol=spacetime.control
       }
       
       value <- arrange(map.values[[r]], new, station.id)
-      station_info$elev2 <- log2(station_info$elev + 128)
-      value <- cbind(value, rbind(station_info[, c("lon","lat","elev2")], newdata))
-
+      if (Mlcontrol$Edeg != 0) {
+        value <- cbind(value, rbind(station_info[, c("lon","lat","elev2")], newdata[, c("lon","lat","elev2")]))
+      } else {
+        value <- cbind(value, rbind(station_info[, c("lon","lat")], newdata[, c("lon","lat")]))
+      }
       lo.fit <- spaloess( fml, 
         data    = value, 
         degree  = Mlcontrol$degree, 
