@@ -45,7 +45,11 @@ sstl routine is applied to a spatial-temporal dataset either in memory or on HDF
     )
 
     #If the data is on HDFS
-    drsstl("/tmp/tmax.txt","/tmp/output", stat_info="/tmp/station_info.RData", model_control=mcontrol, cluster_control=ccontrol)
+    drsstl(
+      data = "/tmp/tmax.txt", output = "/tmp/output", 
+      stat_info = "/tmp/station_info.RData", model_control = mcontrol, 
+      cluster_control=ccontrol
+    )
 
     #If the data is tmax_all which is in memory
     drsstl(tmax_all, model_control=mcontrol, cluster_control=ccontrol)
