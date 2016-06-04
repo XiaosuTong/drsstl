@@ -77,9 +77,10 @@ sparfit <- function(input, output, info, model_control=spacetime.control(), clus
             alltree = FALSE
           )
           S$Rspa <- lo.fit$fitted
+          key <- unique(S$date)
           S <- subset(S, select = -c(remainder, lon, lat, elev2, elev, date))[,c(4,1,2,3,5)]
           rownames(S) <- NULL
-          rhcollect(unique(S$date), S)
+          rhcollect(key, S)
           NULL
       })
     })
