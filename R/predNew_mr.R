@@ -375,7 +375,7 @@ predNew_mr <- function(newdata, input, output, info, mlcontrol=spacetime.control
       )
       value$Rspa <- lo.fit$fitted
       value <- subset(value, new == 1)
-      value <- subset(value, select = -c(remainder, lon, lat, elev2, date, new))[,c(4,1,2,3)]
+      value <- subset(value, select = -c(remainder, lon, lat, elev2, date, new))[,c(4,1,2,3,5)]
       rownames(value) <- NULL
       rhcollect(map.keys[[r]], value)
 
