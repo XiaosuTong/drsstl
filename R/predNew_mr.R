@@ -89,7 +89,7 @@ predNew_mr <- function(newdata, input, output, info, mlcontrol=spacetime.control
   if(D == 2) {
   	newdata$elev <- 1
   }
-  if(!all(NM %in% c("lon","lat","elev2"))) {
+  if(!all(NM %in% c("lon","lat","elev"))) {
   	stop("new locations have different spatial attributes than the historical data on HDFS")
   }
 
