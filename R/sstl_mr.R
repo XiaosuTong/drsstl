@@ -30,7 +30,11 @@
 #'       spill_percent=0.9, reduce_shuffle_input_buffer_percent = 0.8,
 #'       reduce_shuffle_merge_percent = 0.4
 #'     )
-#'     sstl_mr("/tmp/tmax.txt","/tmp/output", stat_info="/tmp/station_info.RData", mlcontrol=mcontrol, clcontrol=clcontrol)
+#'     sstl_mr(
+#'       input = "/tmp/tmax.txt", output = "/tmp/output", 
+#'       stat_info = "/tmp/station_info.RData", mlcontrol = mcontrol, 
+#'       clcontrol = clcontrol
+#'     )
 
 sstl_mr <- function(input, output, stat_info, mlcontrol=spacetime.control(), clcontrol=mapreduce.control()) {
 
