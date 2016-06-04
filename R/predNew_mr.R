@@ -375,7 +375,7 @@ predNew_mr <- function(newdata, input, output, info, mlcontrol=spacetime.control
       )
       value$Rspa <- lo.fit$fitted
       value <- subset(value, new == 1)
-      value <- subset(value, select = -c(remainder, lon, lat, elev2, date, new))
+      value <- subset(value, select = -c(remainder, lon, lat, elev2, date, new))[,c(4,1,2,3)]
       rownames(value) <- NULL
       rhcollect(map.keys[[r]], value)
 
@@ -423,7 +423,7 @@ predNew_mr <- function(newdata, input, output, info, mlcontrol=spacetime.control
     lapply(seq_along(map.keys), function(r) {
       map.values[[r]]$date <- map.keys[[r]]
       lapply(1:nrow(map.values[[r]]), function(i) {
-        rhcollect(map.values[[r]][i, 4], map.values[[r]][i, -4])
+        rhcollect(map.values[[r]][i, 1], map.values[[r]][i, -1])
       })
     })
   })
@@ -442,8 +442,11 @@ predNew_mr <- function(newdata, input, output, info, mlcontrol=spacetime.control
   )
   job5$setup <- expression(
     reduce = {
-      suppressMessages(library(plyr, lib.loc=clcontrol$libLoc))
+      suppressMessages(library(plyr, lib.loc=Clcontrol$libLoc))
     }
+  )
+  job5$parameters <- list(
+    Clcontrol = clcontrol
   )
   job5$mapred <- list(
     mapreduce.map.java.opts = clcontrol$map_jvm,
