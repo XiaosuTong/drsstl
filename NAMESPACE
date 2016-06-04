@@ -2,9 +2,10 @@
 
 export(drsstl)
 export(drstlplus)
-export(c_ma)
 export(mapreduce.control)
 export(parsehtml)
+export(predNewLocs)
+export(predNew_local)
 export(predNew_mr)
 export(readIn)
 export(spacetime.control)
