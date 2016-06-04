@@ -4,8 +4,8 @@
 \alias{predNew_mr}
 \title{Prediction at new locations based on the fitting results on HDFS.}
 \usage{
-predNew_mr(newdata, input, output, info, model_control = spacetime.control(),
-  cluster_control = mapreduce.control())
+predNew_mr(newdata, input, output, info, mlcontrol = spacetime.control(),
+  clcontrol = mapreduce.control())
 }
 \arguments{
 \item{newdata}{A data.frame includes all locations' longitude, latitude, and elevation,
@@ -18,10 +18,10 @@ of original dataset}
 
 \item{info}{The RData path on HDFS which contains all station metadata of original dataset}
 
-\item{model_control}{Should be a list object generated from \code{spacetime.control} function.
+\item{mlcontrol}{Should be a list object generated from \code{spacetime.control} function.
 The list including all necessary smoothing parameters of nonparametric fitting.}
 
-\item{cluster_control}{Should be a list object generated from \code{mapreduce.control} function.
+\item{clcontrol}{Should be a list object generated from \code{mapreduce.control} function.
 The list including all necessary Rhipe parameters and also user tunable 
 MapReduce parameters.}
 }
@@ -30,8 +30,8 @@ The prediction at new locations are calculated based on the fitting results
 saved on HDFS based on the original dataset.
 }
 \examples{
-    cluster_control <- mapreduce.control(libLoc=NULL, reduceTask=95, io_sort=100, slow_starts = 0.5)
-    model_control <- spacetime.control(
+    clcontrol <- mapreduce.control(libLoc=NULL, reduceTask=95, io_sort=100, slow_starts = 0.5)
+    mlcontrol <- spacetime.control(
       vari="resp", time="date", n=576, n.p=12, stat_n=7738,
       s.window="periodic", t.window = 241, degree=2, span=0.015, Edeg=2
     ) 
@@ -44,7 +44,7 @@ saved on HDFS based on the original dataset.
     new.grid <- new.grid[instate, ] 
 
     elev.fit <- spaloess( elev ~ lon + lat,
-      data = UStinfo,
+      data = station_info,
       degree = 2, 
       span = 0.015,
       distance = "Latlong",
@@ -65,7 +65,7 @@ saved on HDFS based on the original dataset.
 
     predNew_mr(
       newdata=new.grid, input="/tmp/output_bymth", output = "/tmp", 
-      info="/tmp/station_info.RData", model_control=model_control, cluster_control=cluster_control
+      info="/tmp/station_info.RData", mlcontrol=mlcontrol, clcontrol=clcontrol
     )
 }
 \author{
