@@ -1,4 +1,4 @@
-#install_github("XiaosuTong/Spaloess")
+##install_github("XiaosuTong/Spaloess")
 #source("Rhipe/hathi.initial.R")
 #library(drSpaceTime)
 #library(Spaloess)
