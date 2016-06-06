@@ -14,7 +14,8 @@ devtools::install_github("XiaosuTong/drSpaceTime")
 
 ## Fitting
 
-The main function to call in the package is `r drsstl`
+The main function to call in the package is `drsstl` function, which is a
+wrapper function of `sstl_mr` and `sstl_local` two functions
 
 
 
