@@ -1,4 +1,7 @@
+#' @import Spaloess plyr Rcpp yaImpute stlplus
 #' @importFrom stats as.formula loess.control
+#' @importFrom stats median
+#' @importFrom utils head tail
 NULL
 
 
