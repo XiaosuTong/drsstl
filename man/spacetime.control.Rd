@@ -19,12 +19,19 @@ instead of year and month.}
 
 \item{n}{the number of total observations in the time series at each location.}
 
+\item{stat_n}{The number of stations.}
+
 \item{n.p}{the number of observations in each subseries. It should be 12 for monthly data for example.}
 
 \item{s.window}{either the character string \code{"periodic"} or the span (in lags) of
 the loess window for seasonal extraction, which should be odd. This has no default.}
 
 \item{s.degree}{degree of locally-fitted polynomial in seasonal extraction. Should be 0, 1, or 2.}
+
+\item{t.window}{the span (in lags) of the loess window for trend extraction, which should be odd. If \code{NULL}, 
+the default, \code{nextodd(ceiling((1.5*period) / (1-(1.5/s.window))))}, is taken.}
+
+\item{t.degree}{degree of locally-fitted polynomial in trend extraction. Should be 0, 1, or 2.}
 
 \item{inner}{The iteration time for inner loop of stlplus for time dimension fitting}
 
@@ -37,13 +44,12 @@ overhead caused by \code{rhcollect}. So every \code{statbytime} time point are c
 into one key-value pair. It is save to leave it as default 1. If the time series
 is extremely long, it can be set to be 2.}
 
-\item{s.jump, }{t.jump
-integers at least one to increase speed of the respective smoother. Linear interpolation
+\item{s.jump, t.jump}{integers at least one to increase speed of the respective smoother. Linear interpolation
 happens between every '*.jump'th value.}
 
 \item{cell}{if interpolation is used this controls the accuracy of the
 approximation via the maximum number of points in a cell in
-the kd-tree. Cells with more than ‘floor(n*span*cell)’ points
+the kd-tree. Cells with more than 'floor(n*span*cell)' points
 are subdivided.}
 
 \item{degree}{smoothing degree for the spatial loess smoothing. It can be 0, 1, or 2.}
@@ -54,7 +60,7 @@ are subdivided.}
 
 \item{surf}{should the fitted surface be computed exactly or via interpolation from a kd tree.}
 
-\item{family}{if ‘"gaussian"’ fitting is by least-squares, and if '"symmetric"' a re-descending M estimator
+\item{family}{if '"gaussian"' fitting is by least-squares, and if '"symmetric"' a re-descending M estimator
 is used with Tukey's biweight function.}
 
 \item{siter}{the number of iterations used for the spatial smoothing procedure if family is set to be

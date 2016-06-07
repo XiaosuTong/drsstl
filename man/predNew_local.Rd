@@ -21,14 +21,12 @@ The prediction at new locations are calculated based on the fitting results
 saved in memory based on the original dataset.
 }
 \examples{
-    mlcontrol <- spacetime.control(
-      vari="resp", time="date", n=576, n.p=12, stat_n=7738,
-      s.window="periodic", t.window = 241, degree=2, span=0.015, Edeg=2
-    )
+    library(maps)
+    library(Spaloess)
 
     new.grid <- expand.grid(
-      lon = seq(-126, -67, by = 0.5),
-      lat = seq(25, 49, by = 0.5)
+      lon = seq(-126, -67, by = 1),
+      lat = seq(25, 49, by = 1)
     )
     instate <- !is.na(map.where("state", new.grid$lon, new.grid$lat))
     new.grid <- new.grid[instate, ]
@@ -36,7 +34,7 @@ saved in memory based on the original dataset.
     elev.fit <- spaloess( elev ~ lon + lat,
       data = station_info,
       degree = 2,
-      span = 0.015,
+      span = 0.05,
       distance = "Latlong",
       normalize = FALSE,
       napred = FALSE,
@@ -51,11 +49,22 @@ saved in memory based on the original dataset.
         lat = new.grid$lat
       )
     )
-    new.grid$elev2 <- log2(grid.fit + 128)
+    new.grid$elev <- log2(grid.fit + 128)
+
+    n <- 1000 # just use 1000 stations as example
+    set.seed(99)
+    first_stations <- sample(unique(tmax_all$station.id), n)
+    small_dt <- subset(tmax_all, station.id \%in\% first_stations)
+    small_dt$station.id <- as.character(small_dt$station.id)
+    small_dt$month <- as.character(small_dt$month)
+    mlcontrol <- spacetime.control(
+      vari="tmax", time="date", n=576, n.p=12, stat_n=n, surf = "interpolate",
+      s.window="periodic", t.window = 241, degree=2, span=0.15, Edeg=0
+    )
+
     fitted <- drsstl(
-      data=tmax_all,
+      data=small_dt,
       output=NULL,
-      stat_info="station_info",
       model_control=mlcontrol
     )
     predNew_local(

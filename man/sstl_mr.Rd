@@ -10,6 +10,11 @@ sstl_mr(input, output, stat_info, mlcontrol = spacetime.control(),
 \arguments{
 \item{input}{The input path of raw text file on HDFS}
 
+\item{output}{The output path of final fitting results on HDFS.}
+
+\item{stat_info}{The RData on HDFS which contains all station metadata. Make sure
+copy the RData of station_info to HDFS first using rhput.}
+
 \item{mlcontrol}{Should be a list object generated from \code{spacetime.control} function.
 The list including all necessary smoothing parameters of nonparametric fitting.}
 

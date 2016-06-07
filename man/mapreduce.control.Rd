@@ -17,7 +17,18 @@ mapreduce.control(reduceTask = 0, libLoc = NULL, BLK = 128,
 \arguments{
 \item{reduceTask}{The reduce task number, also the number of output files. If set to be 0, then there is no shuffle and sort stage after map.}
 
-\item{spill_percent}{For mapreduce.sort.spill.percent parameter,}
+\item{libLoc}{The library path where each worker should go to load R packages. If all R packages have been push to HDFS, leave this 
+parameter as default NULL.}
+
+\item{BLK}{The block size of output file on HDFS.}
+
+\item{map_jvm, reduce_jvm}{For mapreduce.map.java.opts and mapreduce.reduce.java.opts}
+
+\item{map_memory, reduce_memory}{For mapreduce.map.memory.mb and mapreduce.reduce.memory.mb}
+
+\item{slow_starts}{For mapreduce.job.reduce.slowstart.completedmaps}
+
+\item{spill_percent}{For mapreduce.sort.spill.percent parameter}
 
 \item{io_sort}{For mapreduce.task.io.sort.mb, the size, in megabytes, of the memory buffer to use while sorting map output.}
 
@@ -32,6 +43,8 @@ mapreduce.control(reduceTask = 0, libLoc = NULL, BLK = 128,
 \item{reduce_merge_inmem}{For mapreduce.reduce.merge.inmem.shreshold}
 
 \item{reduce_input_buffer_percent}{For mapreduce.reduce.input.buffer.percent}
+
+\item{reduce_buffer_read, map_buffer_read, reduce_buffer_size, map_buffer_size}{For all rhipe arguments.}
 }
 \value{
 A list with mapreduce tuning parameters.

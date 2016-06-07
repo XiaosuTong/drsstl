@@ -20,11 +20,19 @@ should be "lon", "lat", "elev", "year", and "month".
 }
 \examples{
     head(tmax_all)
+    n <- 1000 # just use 1000 stations as example
+    set.seed(99)
+    first_stations <- sample(unique(tmax_all$station.id), n)
+    small_dt <- subset(tmax_all, station.id \%in\% first_stations)
+    small_dt$station.id <- as.character(small_dt$station.id)
+    small_dt$month <- as.character(small_dt$month)
+
     mcontrol <- spacetime.control(
-      vari="tmax", n=576, n.p=12, stat_n=7738,
-      s.window=13, t.window = 241, degree=2, span=0.015, Edeg=2
+      vari="tmax", n=576, n.p=12, stat_n=n, surf = "interpolate",
+      s.window=13, t.window = 241, degree=2, span=0.15, Edeg=0
     )
-    sstl_local(tmax_all, mlcontrol=mcontrol)
+
+    sstl_local(small_dt, mlcontrol=mcontrol)
 }
 \author{
 Xiaosu Tong
