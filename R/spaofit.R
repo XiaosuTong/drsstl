@@ -1,3 +1,5 @@
+utils::globalVariables(c("rhfmt"))
+
 #' Apply the spatial loess fitting to the original observations at
 #' all locations in each month in parallel
 #'
