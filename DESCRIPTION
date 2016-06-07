@@ -5,7 +5,7 @@ Authors@R: person("Xiaosu", "Tong", email = "xiaosutong@gmail.com", role = c("au
 Description: Apply loess smoothing to spatial-temporal data using divide and recombined concept.
      Divide the data either by time or by location, and then apply either spatial loess smoothing
      fit to the by time division or stlplus fit to the by location division.
-Date: 2016-04-06
+Date: 2016-06-06
 Depends:
     R (>= 3.1.1)
 Imports:
