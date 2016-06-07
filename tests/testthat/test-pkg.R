@@ -39,7 +39,8 @@ test_that("local fit and pred", {
 
   #if the fitting results are in memory#
 
-  n <- 1000
+  n <- length(unique(tmax_all$station.id)
+  # n <- 1000
 
   mcontrol <- spacetime.control(
    vari = "tmax", time = "date", n = 576, n.p = 12, stat_n = n, surf = "direct",
