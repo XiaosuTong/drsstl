@@ -14,13 +14,14 @@
 #'     The RData on HDFS which contains all station metadata. Make sure
 #'     copy the RData of station_info.RData, which is also available in the drSpaceTime
 #'     package, to HDFS first using rhput.
-#' @author 
-#'     Xiaosu Tong 
+#' @param cshift
+#'     number of columns to be shifted when reading raw text file
+#' @author
+#'     Xiaosu Tong
 #' @export
 #' @examples
-#'     \dontrun{
-#'       rhput("./station_info.RData", "/tmp/station_info.RData")
-#'     }
+#' \dontrun{
+#'     rhput("./station_info.RData", "/tmp/station_info.RData")
 #'     FileInput <- "/tmp/tmax.txt"
 #'     FileOutput <- "/tmp/bymth"
 #'     ccontrol <- mapreduce.control(
@@ -32,13 +33,13 @@
 #'     readIn(
 #'       FileInput, FileOutput, info="/tmp/station_info.RData", cluster_control=ccontrol
 #'     )
-
+#' }
 
 readIn <- function(input, output, info, cluster_control = mapreduce.control(), cshift=1) {
 
   job <- list()
   job$map <- expression({
-    y <- do.call("rbind", 
+    y <- do.call("rbind",
       lapply(map.values, function(r) {
         row <- strsplit(r, " +")[[1]]
         c(row[1:(13 + cshift)], substring(row[13 + cshift + 1], 1:12, 1:12))
@@ -74,7 +75,7 @@ readIn <- function(input, output, info, cluster_control = mapreduce.control(), c
       year = rep(tmp$year, 12),
       month = rep(names(tmp)[2:13], each = dim(tmp)[1]),
       resp = c(
-        tmp[, 2], tmp[, 3], tmp[, 4], tmp[, 5], tmp[, 6], tmp[, 7], 
+        tmp[, 2], tmp[, 3], tmp[, 4], tmp[, 5], tmp[, 6], tmp[, 7],
         tmp[, 8], tmp[, 9], tmp[, 10], tmp[, 11], tmp[, 12], tmp[, 13]
       ),
       stringsAsFactors = FALSE
@@ -113,9 +114,9 @@ readIn <- function(input, output, info, cluster_control = mapreduce.control(), c
   )
   job$input <- rhfmt(input, type = "text")
   job$output <- rhfmt(output, type = "sequence")
-  job$mapred <- list( 
+  job$mapred <- list(
     mapreduce.map.java.opts = cluster_control$map_jvm,
-    mapreduce.map.memory.mb = cluster_control$map_memory, 
+    mapreduce.map.memory.mb = cluster_control$map_memory,
     mapreduce.reduce.java.opts = cluster_control$reduce_jvm,
     mapreduce.reduce.memory.mb = cluster_control$reduce_memory,
     mapreduce.job.reduces = cluster_control$reduceTask,  #cdh5
@@ -133,7 +134,7 @@ readIn <- function(input, output, info, cluster_control = mapreduce.control(), c
     mapreduce.job.reduce.slowstart.completedmaps = cluster_control$slow_starts,
     rhipe_reduce_buff_size = cluster_control$reduce_buffer_size,
     rhipe_reduce_bytes_read = cluster_control$reduce_buffer_read,
-    rhipe_map_buff_size = cluster_control$map_buffer_size, 
+    rhipe_map_buff_size = cluster_control$map_buffer_size,
     rhipe_map_bytes_read = cluster_control$map_buffer_read
   )
   job$combiner <- TRUE

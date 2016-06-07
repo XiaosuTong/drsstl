@@ -26,6 +26,7 @@
 #'     \code{\link{spacetime.control}}, \code{\link{mapreduce.control}}
 
 #' @examples
+#' \dontrun{
 #'     FileInput <- "/tmp/bymthfit"
 #'     FileOutput <- "/tmp/bystat"
 #'     ccontrol <- mapreduce.control(
@@ -40,6 +41,7 @@
 #'       s.window=13, t.window = 241, degree=2, span=0.015, Edeg=2
 #'     )
 #'     swaptoLoc(FileInput, FileOutput, cluster_control=ccontrol, model_control=mcontrol)
+#' }
 
 swaptoLoc <- function(input, output, final=FALSE, cluster_control=mapreduce.control(), model_control=spacetime.control()) {
 

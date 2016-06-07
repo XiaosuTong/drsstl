@@ -48,7 +48,7 @@
 #'     are subdivided.
 #' @param s.jump, t.jump
 #'     integers at least one to increase speed of the respective smoother. Linear interpolation
-#'     happens between every ‘*.jump’th value.
+#'     happens between every '*.jump'th value.
 #' @return
 #'     A list with space-time fitting parameters.
 #' @author
