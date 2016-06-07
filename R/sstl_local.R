@@ -1,4 +1,4 @@
-utils::globalVariables(c("year"))
+utils::globalVariables(c("year", "month"))
 
 #' Apply sstl routine to a data.frame of spatial-temporal dataset in the memory.
 #'
@@ -17,13 +17,19 @@ utils::globalVariables(c("year"))
 #' @export
 #' @examples
 #'     head(tmax_all)
+#'     n <- 1000 # just use 1000 stations as example
+#'     set.seed(99)
+#'     first_stations <- sample(unique(tmax_all$station.id), n)
+#'     small_dt <- subset(tmax_all, station.id %in% first_stations)
+#'     small_dt$station.id <- as.character(small_dt$station.id)
+#'     small_dt$month <- as.character(small_dt$month)
+#'
 #'     mcontrol <- spacetime.control(
-#'       vari="tmax", n=576, n.p=12, stat_n=7738,
-#'       s.window=13, t.window = 241, degree=2, span=0.015, Edeg=2
+#'       vari="tmax", n=576, n.p=12, stat_n=n, surf = "interpolate",
+#'       s.window=13, t.window = 241, degree=2, span=0.15, Edeg=0
 #'     )
-#'     sstl_local(tmax_all, mlcontrol=mcontrol)
-
-
+#'
+#'     sstl_local(small_dt, mlcontrol=mcontrol)
 
 sstl_local <- function(data, mlcontrol=spacetime.control()) {
 
@@ -48,21 +54,21 @@ sstl_local <- function(data, mlcontrol=spacetime.control()) {
 
   message("First spatial smoothing...")
   rst <- ddply(.data = data
-    , .vari = c("year", "month")
+    , .variables = c("year", "month")
     , .fun = function(v) {
         NApred <- any(is.na(v[, mlcontrol$vari]))
         lo.fit <- spaloess( fml,
-          data      = v,
-          degree    = mlcontrol$degree,
-          span      = mlcontrol$span,
-          para      = condParam,
-          drop      = dropSq,
-          family    = mlcontrol$family,
-          normalize = FALSE,
-          distance  = "Latlong",
-          control   = loess.control(surface = mlcontrol$surf, iterations = mlcontrol$siter, cell = mlcontrol$cell),
-          napred    = NApred,
-          alltree   = TRUE
+          data        = v,
+          degree      = mlcontrol$degree,
+          span        = mlcontrol$span,
+          parametric  = condParam,
+          drop.square = dropSq,
+          family      = mlcontrol$family,
+          normalize   = FALSE,
+          distance    = "Latlong",
+          control     = loess.control(surface = mlcontrol$surf, iterations = mlcontrol$siter, cell = mlcontrol$cell),
+          napred      = NApred,
+          alltree     = match.arg(mlcontrol$surf, c("interpolate", "direct")) == "interpolate"
         )
         if (NApred) {
           indx <- which(!is.na(v[, mlcontrol$vari]))
@@ -81,7 +87,7 @@ sstl_local <- function(data, mlcontrol=spacetime.control()) {
 
   message("Temporal fitting...")
   rst <- ddply(.data = rst
-    , .vari = "station.id"
+    , .variables = "station.id"
     , .fun = function(v) {
         v <- arrange(v, year, match(month, month.abb))
         fit <- stlplus::stlplus(
@@ -108,20 +114,20 @@ sstl_local <- function(data, mlcontrol=spacetime.control()) {
 
   message("Second spatial smoothing...")
   rst <- ddply(.data = rst
-    , .vari = c("year", "month")
+    , .variables = c("year", "month")
     , .fun = function(v) {
         lo.fit <- spaloess(fml,
-          data      = v,
-          degree    = mlcontrol$degree,
-          span      = mlcontrol$span,
-          para      = condParam,
-          drop      = dropSq,
-          family    = mlcontrol$family,
-          normalize = FALSE,
-          distance  = "Latlong",
-          control   = loess.control(surface = mlcontrol$surf, iterations = mlcontrol$siter),
-          napred    = FALSE,
-          alltree   = FALSE
+          data        = v,
+          degree      = mlcontrol$degree,
+          span        = mlcontrol$span,
+          parametric  = condParam,
+          drop.square = dropSq,
+          family      = mlcontrol$family,
+          normalize   = FALSE,
+          distance    = "Latlong",
+          control     = loess.control(surface = mlcontrol$surf, iterations = mlcontrol$siter, cell = mlcontrol$cell),
+          napred      = FALSE,
+          alltree     = match.arg(mlcontrol$surf, c("interpolate", "direct")) == "interpolate"
         )
         v$Rspa <- lo.fit$fitted
         subset(v, select = -c(remainder))

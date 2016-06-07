@@ -66,17 +66,17 @@ spaofit <- function(input, output, info, model_control=spacetime.control(), clus
       NApred <- any(is.na(value$resp))
 
       lo.fit <- spaloess( fml,
-        data    = value,
-        degree  = Mlcontrol$degree,
-        span    = Mlcontrol$span,
-        para    = condParam,
-        drop    = dropSq,
-        family  = Mlcontrol$family,
-        normalize = FALSE,
-        distance = "Latlong",
-        control = loess.control(surface = Mlcontrol$surf, iterations = Mlcontrol$siter, cell = Mlcontrol$cell),
-        napred = NApred,
-        alltree = NApred
+        data        = value,
+        degree      = Mlcontrol$degree,
+        span        = Mlcontrol$span,
+        parametric  = condParam,
+        drop.square = dropSq,
+        family      = Mlcontrol$family,
+        normalize   = FALSE,
+        distance    = "Latlong",
+        control     = loess.control(surface = Mlcontrol$surf, iterations = Mlcontrol$siter, cell = Mlcontrol$cell),
+        napred      = NApred,
+        alltree     = match.arg(Mlcontrol$surf, c("interpolate", "direct")) == "interpolate"
       )
 
       if(NApred) {

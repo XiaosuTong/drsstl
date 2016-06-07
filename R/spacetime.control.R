@@ -9,6 +9,8 @@
 #'     instead of year and month.
 #' @param n
 #'     the number of total observations in the time series at each location.
+#' @param stat_n
+#'     The number of stations.
 #' @param n.p
 #'     the number of observations in each subseries. It should be 12 for monthly data for example.
 #' @param s.window
@@ -16,6 +18,11 @@
 #'     the loess window for seasonal extraction, which should be odd. This has no default.
 #' @param s.degree
 #'     degree of locally-fitted polynomial in seasonal extraction. Should be 0, 1, or 2.
+#' @param t.window
+#'     the span (in lags) of the loess window for trend extraction, which should be odd. If \code{NULL}, 
+#'     the default, \code{nextodd(ceiling((1.5*period) / (1-(1.5/s.window))))}, is taken.
+#' @param t.degree
+#'     degree of locally-fitted polynomial in trend extraction. Should be 0, 1, or 2.
 #' @param inner
 #'     The iteration time for inner loop of stlplus for time dimension fitting
 #' @param outer
@@ -46,7 +53,7 @@
 #'     approximation via the maximum number of points in a cell in
 #'     the kd-tree. Cells with more than 'floor(n*span*cell)' points
 #'     are subdivided.
-#' @param s.jump, t.jump
+#' @param s.jump,t.jump
 #'     integers at least one to increase speed of the respective smoother. Linear interpolation
 #'     happens between every '*.jump'th value.
 #' @return

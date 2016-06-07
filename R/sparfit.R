@@ -61,22 +61,22 @@ sparfit <- function(input, output, info, model_control=spacetime.control(), clus
 
       d_ply(
         .data = value,
-        .vari = "date",
+        .variables = "date",
         .fun = function(S) {
           S <- cbind(S, station_info[, c("lon","lat","elev")])
           S$elev2 <- log2(S$elev + 128)
           lo.fit <- spaloess( fml,
-            data    = S,
-            degree  = Mlcontrol$degree,
-            span    = Mlcontrol$span,
-            para    = condParam,
-            drop    = dropSq,
-            family  = Mlcontrol$family,
-            normalize = FALSE,
-            distance = "Latlong",
-            control = loess.control(surface = Mlcontrol$surf, iterations = Mlcontrol$siter, cell=Mlcontrol$cell),
-            napred = FALSE,
-            alltree = FALSE
+            data        = S,
+            degree      = Mlcontrol$degree,
+            span        = Mlcontrol$span,
+            parametric  = condParam,
+            drop.square = dropSq,
+            family      = Mlcontrol$family,
+            normalize   = FALSE,
+            distance    = "Latlong",
+            control     = loess.control(surface = Mlcontrol$surf, iterations = Mlcontrol$siter, cell=Mlcontrol$cell),
+            napred      = FALSE,
+            alltree     = match.arg(mlcontrol$surf, c("interpolate", "direct")) == "interpolate"
           )
           S$Rspa <- lo.fit$fitted
           key <- unique(S$date)

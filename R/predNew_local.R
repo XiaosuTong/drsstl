@@ -1,3 +1,5 @@
+utils::globalVariables(c("year", "month", "station.id", "lon", "lat", "elev2"))
+
 #' Prediction at new locations based on the fitting results in memory.
 #'
 #' The prediction at new locations are calculated based on the fitting results
@@ -20,14 +22,11 @@
 #'
 #' @examples
 #'     library(maps)
-#'     mlcontrol <- spacetime.control(
-#'       vari="resp", time="date", n=576, n.p=12, stat_n=7738,
-#'       s.window="periodic", t.window = 241, degree=2, span=0.015, Edeg=2
-#'     )
+#'     library(Spaloess)
 #'
 #'     new.grid <- expand.grid(
-#'       lon = seq(-126, -67, by = 0.5),
-#'       lat = seq(25, 49, by = 0.5)
+#'       lon = seq(-126, -67, by = 1),
+#'       lat = seq(25, 49, by = 1)
 #'     )
 #'     instate <- !is.na(map.where("state", new.grid$lon, new.grid$lat))
 #'     new.grid <- new.grid[instate, ]
@@ -35,7 +34,7 @@
 #'     elev.fit <- spaloess( elev ~ lon + lat,
 #'       data = station_info,
 #'       degree = 2,
-#'       span = 0.015,
+#'       span = 0.05,
 #'       distance = "Latlong",
 #'       normalize = FALSE,
 #'       napred = FALSE,
@@ -50,11 +49,22 @@
 #'         lat = new.grid$lat
 #'       )
 #'     )
-#'     new.grid$elev2 <- log2(grid.fit + 128)
+#'     new.grid$elev <- log2(grid.fit + 128)
+#'
+#'     n <- 1000 # just use 1000 stations as example
+#'     set.seed(99)
+#'     first_stations <- sample(unique(tmax_all$station.id), n)
+#'     small_dt <- subset(tmax_all, station.id %in% first_stations)
+#'     small_dt$station.id <- as.character(small_dt$station.id)
+#'     small_dt$month <- as.character(small_dt$month)
+#'     mlcontrol <- spacetime.control(
+#'       vari="tmax", time="date", n=576, n.p=12, stat_n=n, surf = "interpolate",
+#'       s.window="periodic", t.window = 241, degree=2, span=0.15, Edeg=0
+#'     )
+#' 
 #'     fitted <- drsstl(
-#'       data=tmax_all,
+#'       data=small_dt,
 #'       output=NULL,
-#'       stat_info="station_info",
 #'       model_control=mlcontrol
 #'     )
 #'     predNew_local(
@@ -85,22 +95,22 @@ predNew_local <- function(original, newdata, mlcontrol=spacetime.control()) {
 
   message("First spatial smoothing...")
   rst <- dlply(.data = original
-    , .vari = c("year", "month")
+    , .variables = c("year", "month")
     , .fun = function(v) {
         value <- cbind(data.frame(station.id = 1:N), newdata)
         NApred <- any(is.na(v[, mlcontrol$vari]))
-        lo.fit <- spaloess( fml,
-          data      = v,
-          degree    = mlcontrol$degree,
-          span      = mlcontrol$span,
-          para      = condParam,
-          drop      = dropSq,
-          family    = mlcontrol$family,
-          normalize = FALSE,
-          distance  = "Latlong",
-          control   = loess.control(surface = mlcontrol$surf, iterations = mlcontrol$siter, cell = mlcontrol$cell),
-          napred    = NApred,
-          alltree   = TRUE
+        lo.fit <- spaloess(fml,
+          data        = v,
+          degree      = mlcontrol$degree,
+          span        = mlcontrol$span,
+          parametric  = condParam,
+          drop.square = dropSq,
+          family      = mlcontrol$family,
+          normalize   = FALSE,
+          distance    = "Latlong",
+          control     = loess.control(surface = mlcontrol$surf, iterations = mlcontrol$siter, cell = mlcontrol$cell),
+          napred      = NApred,
+          alltree     = match.arg(mlcontrol$surf, c("interpolate", "direct")) == "interpolate"
         )
         if (mlcontrol$Edeg != 0) {
           newPred <- unname(predloess(
@@ -137,7 +147,7 @@ predNew_local <- function(original, newdata, mlcontrol=spacetime.control()) {
 
   message("Temporal fitting...")
   rst <- ddply(.data = rst
-    , .vari = "station.id"
+    , .variables = "station.id"
     , .fun = function(v) {
         v <- arrange(v, year, match(month, month.abb))
         fit <- stlplus::stlplus(
@@ -165,28 +175,28 @@ predNew_local <- function(original, newdata, mlcontrol=spacetime.control()) {
   } else {
     fml <- as.formula("remainder ~ lon + lat")
     tmp <- rbind(
-      subset(original, select = c(station.id, lon, lat, elev2, year, month, spaofit, seasonal, trend)),
-      subset(rst, select = c(station.id, lon, lat, elev2, year, month, spaofit, seasonal, trend))
+      subset(original, select = c(station.id, lon, lat, year, month, spaofit, seasonal, trend)),
+      subset(rst, select = c(station.id, lon, lat, year, month, spaofit, seasonal, trend))
     )
   }
 
   message("Second spatial smoothing...")
   rst <- ddply(.data = tmp
-    , .vari = c("year", "month")
+    , .variables = c("year", "month")
     , .fun = function(v) {
         v$remainder <- with(v, spaofit - trend - seasonal)
-        lo.fit <- spaloess( fml,
-          data      = v,
-          degree    = mlcontrol$degree,
-          span      = mlcontrol$span,
-          para      = condParam,
-          drop      = dropSq,
-          family    = mlcontrol$family,
-          normalize = FALSE,
-          distance  = "Latlong",
-          control   = loess.control(surface = mlcontrol$surf, iterations = mlcontrol$siter, cell = mlcontrol$cell),
-          napred    = FALSE,
-          alltree   = FALSE
+        lo.fit <- spaloess(fml,
+          data        = v,
+          degree      = mlcontrol$degree,
+          span        = mlcontrol$span,
+          parametric  = condParam,
+          drop.square = dropSq,
+          family      = mlcontrol$family,
+          normalize   = FALSE,
+          distance    = "Latlong",
+          control     = loess.control(surface = mlcontrol$surf, iterations = mlcontrol$siter, cell = mlcontrol$cell),
+          napred      = FALSE,
+          alltree     = match.arg(mlcontrol$surf, c("interpolate", "direct")) == "interpolate"
         )
         v$Rspa <- lo.fit$fitted
         subset(v, station.id %in% 1:N, select = -c(remainder))

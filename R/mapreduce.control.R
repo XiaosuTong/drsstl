@@ -4,8 +4,21 @@
 #'
 #' @param reduceTask
 #'     The reduce task number, also the number of output files. If set to be 0, then there is no shuffle and sort stage after map.
+#' @param libLoc
+#'     The library path where each worker should go to load R packages. If all R packages have been push to HDFS, leave this 
+#'     parameter as default NULL.
+#' @param BLK
+#'     The block size of output file on HDFS.
+#' @param map_jvm,reduce_jvm
+#'     For mapreduce.map.java.opts and mapreduce.reduce.java.opts
+#' @param map_memory,reduce_memory
+#'     For mapreduce.map.memory.mb and mapreduce.reduce.memory.mb
+#' @param slow_starts
+#'     For mapreduce.job.reduce.slowstart.completedmaps
+#' @param reduce_buffer_read,map_buffer_read,reduce_buffer_size,map_buffer_size
+#'     For all rhipe arguments.
 #' @param spill_percent
-#'     For mapreduce.sort.spill.percent parameter,
+#'     For mapreduce.sort.spill.percent parameter
 #' @param io_sort
 #'     For mapreduce.task.io.sort.mb, the size, in megabytes, of the memory buffer to use while sorting map output.
 #' @param task_io_sort_factor
@@ -35,7 +48,7 @@ mapreduce.control <- function(
   reduce_parallelcopies = 5, reduce_shuffle_input_buffer_percent = 0.70,
   reduce_shuffle_merge_percent = 0.66, reduce_merge_inmem = 0,
   reduce_input_buffer_percent = 0, reduce_buffer_read = 150, map_buffer_read = 150,
-  reduce_buffer_size = 10000, map_buffer_size= 10000) {
+  reduce_buffer_size = 10000, map_buffer_size = 10000) {
 
   list(
     reduceTask = reduceTask, libLoc=libLoc,

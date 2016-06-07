@@ -6,6 +6,11 @@
 #'
 #' @param input
 #'     The input path of raw text file on HDFS
+#' @param output
+#'     The output path of final fitting results on HDFS.
+#' @param stat_info
+#'     The RData on HDFS which contains all station metadata. Make sure
+#'     copy the RData of station_info to HDFS first using rhput.
 #' @param mlcontrol
 #'     Should be a list object generated from \code{spacetime.control} function.
 #'     The list including all necessary smoothing parameters of nonparametric fitting.

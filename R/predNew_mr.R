@@ -126,7 +126,10 @@ predNew_mr <- function(newdata, input, output, info, mlcontrol=spacetime.control
       value <- arrange(as.data.frame(map.values[[r]]), station.id)
       value <- cbind(value, station_info[, c("lon","lat","elev")])
       value <- subset(value, select = -c(station.id))
-      value$elev2 <- log2(value$elev + 128)
+      if (Mlcontrol$Edeg != 0) {
+        value$elev2 <- log2(value$elev + 128)
+      }
+      NApred <- any(is.na(value[, Mlcontrol$vari]))
 
       lo.fit <- spaloess( fml,
         data    = value,
@@ -138,17 +141,27 @@ predNew_mr <- function(newdata, input, output, info, mlcontrol=spacetime.control
         normalize = FALSE,
         distance = "Latlong",
         control = loess.control(surface = Mlcontrol$surf, iterations = Mlcontrol$siter, cell = Mlcontrol$cell),
-        napred = FALSE,
-        alltree = TRUE
+        napred = NApred,
+        alltree = match.arg(Mlcontrol$surf, c("interpolate", "direct")) == "interpolate"
       )
-      newPred <- unname(predloess(
-        object = lo.fit,
-        newdata = data.frame(
-          lon = newdata$lon,
-          lat = newdata$lat,
-          elev2 = newdata$elev2
-        )
-      ))
+      if (Mlcontrol$Edeg != 0) {
+        newPred <- unname(predloess(
+          object = lo.fit,
+          newdata = data.frame(
+            lon = newdata$lon,
+            lat = newdata$lat,
+            elev2 = newdata$elev2
+          )
+        ))
+      } else {
+        newPred <- unname(predloess(
+          object = lo.fit,
+          newdata = data.frame(
+            lon = newdata$lon,
+            lat = newdata$lat
+          )
+        ))
+      }
 
       for (i in 1:N) {
         rhcollect(i, c(date, newPred[i]))
@@ -362,21 +375,25 @@ predNew_mr <- function(newdata, input, output, info, mlcontrol=spacetime.control
         value <- cbind(value, rbind(station_info[, c("lon","lat")], newdata[, c("lon","lat")]))
       }
       lo.fit <- spaloess( fml,
-        data    = value,
-        degree  = Mlcontrol$degree,
-        span    = Mlcontrol$span,
-        para    = condParam,
-        drop    = dropSq,
-        family  = Mlcontrol$family,
-        normalize = FALSE,
-        distance = "Latlong",
-        control = loess.control(surface = Mlcontrol$surf, iterations = Mlcontrol$siter, cell = Mlcontrol$cell),
-        napred = FALSE,
-        alltree = FALSE
+        data        = value,
+        degree      = Mlcontrol$degree,
+        span        = Mlcontrol$span,
+        parametric  = condParam,
+        drop.square = dropSq,
+        family      = Mlcontrol$family,
+        normalize   = FALSE,
+        distance    = "Latlong",
+        control     = loess.control(surface = Mlcontrol$surf, iterations = Mlcontrol$siter, cell = Mlcontrol$cell),
+        napred      = FALSE,
+        alltree     = match.arg(Mlcontrol$surf, c("interpolate", "direct")) == "interpolate"
       )
       value$Rspa <- lo.fit$fitted
       value <- subset(value, new == 1)
-      value <- subset(value, select = -c(remainder, lon, lat, elev2, date, new))[,c(4,1,2,3,5)]
+      if (Mlcontrol$Edeg != 0) {
+        value <- subset(value, select = -c(remainder, lon, lat, elev2, date, new))[,c(4,1,2,3,5)]
+      } else {
+        value <- subset(value, select = -c(remainder, lon, lat, date, new))[,c(4,1,2,3,5)]
+      }
       rownames(value) <- NULL
       rhcollect(map.keys[[r]], value)
 
