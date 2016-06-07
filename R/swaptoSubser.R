@@ -1,3 +1,4 @@
+# nolint start
 #swaptoSubser <- function(input, output, cluster_control, model_control) {#
 #
 #  job <- list()
@@ -46,3 +47,4 @@
 #  job.mr <- do.call("rhwatch", job)#
 #
 #}
+# nolint end

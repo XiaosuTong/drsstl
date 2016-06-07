@@ -69,11 +69,10 @@
 
 predNew_mr <- function(newdata, input, output, info, mlcontrol=spacetime.control(), clcontrol=mapreduce.control()) {
 
-	if(!is.data.frame(newdata)) {
-		stop("new locations must be a data.frame")
-	}
+  if(!is.data.frame(newdata)) {
+    stop("new locations must be a data.frame")
+  }
 
-  #output <- "/wsc/tongx/spatem/tmax/newpred/spaofit"
   FileInput <- input
   FileOutput <- file.path(output, "newpred/bymth")
 
@@ -81,17 +80,17 @@ predNew_mr <- function(newdata, input, output, info, mlcontrol=spacetime.control
   NM <- names(newdata)
   N <- nrow(newdata)
 
-  if(D == 2 & mlcontrol$Edeg != 0) {
+  if (D == 2 & mlcontrol$Edeg != 0) {
     stop("elevation is not in the spatial attributes")
   }
-  if(D > 3) {
-  	stop("spatial dimension cannot over 3")
+  if (D > 3) {
+    stop("spatial dimension cannot over 3")
   }
-  if(D == 2) {
-  	newdata$elev <- 1
+  if (D == 2) {
+    newdata$elev <- 1
   }
-  if(!all(NM %in% c("lon","lat","elev"))) {
-  	stop("new locations have different spatial attributes than the historical data on HDFS")
+  if (!all(NM %in% c("lon","lat","elev"))) {
+    stop("new locations have different spatial attributes than the historical data on HDFS")
   }
 
   job1 <- list()
@@ -115,9 +114,9 @@ predNew_mr <- function(newdata, input, output, info, mlcontrol=spacetime.control
 
       if (length(map.keys[[r]]) == 2) {
         if(nchar(map.keys[[r]][2]) >= 3) {
-          date <- (as.numeric(map.keys[[r]][1]) - 1)*12 + match(map.keys[[r]][2], month.abb)
+          date <- (as.numeric(map.keys[[r]][1]) - 1) * 12 + match(map.keys[[r]][2], month.abb)
         } else {
-          date <- (as.numeric(map.keys[[r]][1]) - 1)*12 + as.numeric(map.keys[[r]][2])
+          date <- (as.numeric(map.keys[[r]][1]) - 1) * 12 + as.numeric(map.keys[[r]][2])
         }
       } else if (length(map.keys[[r]]) == 1) {
         date <- map.keys[[r]]
@@ -169,21 +168,21 @@ predNew_mr <- function(newdata, input, output, info, mlcontrol=spacetime.control
     })
   })
   job1$reduce <- expression(
-  	pre = {
+    pre = {
       combine <- numeric()
-  	},
-  	reduce = {
+    },
+    reduce = {
       combine <- c(combine, do.call("c", reduce.values))
-  	},
-  	post = {
+    },
+    post = {
       rhcollect(reduce.key, combine)
-  	}
+    }
   )
   job1$parameters <- list(
-  	newdata = newdata,
+    newdata = newdata,
     info = info,
-  	N = N,
-  	Clcontrol = clcontrol,
+    N = N,
+    Clcontrol = clcontrol,
     Mlcontrol = mlcontrol
   )
   job1$shared <- c(info)
@@ -210,7 +209,7 @@ predNew_mr <- function(newdata, input, output, info, mlcontrol=spacetime.control
   job1$mon.sec <- 10
   job1$jobname <- FileOutput
   job1$readback <- FALSE
-  job.mr <- do.call("rhwatch", job1)
+  do.call("rhwatch", job1)
 
   FileInput <- FileOutput
   FileOutput <- file.path(output, "newpred/stlfit")
@@ -230,22 +229,22 @@ predNew_mr <- function(newdata, input, output, info, mlcontrol=spacetime.control
       names(value) <- c(Mlcontrol$time, Mlcontrol$vari)
       value <- unname(unlist(cbind(subset(value, select = -c(date)), subset(fit, select = c(seasonal, trend)))))
 
-      lapply((1:Mlcontrol$n), function(i) {
-        rhcollect(i, c(value[c(i, i+Mlcontrol$n, i+Mlcontrol$n*2)], i, map.keys[[r]]))
+      lapply( (1:Mlcontrol$n), function(i) {
+        rhcollect(i, c(value[c(i, i + Mlcontrol$n, i + Mlcontrol$n * 2)], i, map.keys[[r]]))
       })
 
     })
   })
   job2$reduce <- expression(
-  	pre = {
+    pre = {
       combine <- numeric()
-  	},
-  	reduce = {
+    },
+    reduce = {
       combine <- c(combine, do.call("c", reduce.values))
-  	},
-  	post = {
+    },
+    post = {
       rhcollect(reduce.key, combine)
-  	}
+    }
   )
   job2$parameters <- list(
     Mlcontrol = mlcontrol,
@@ -275,10 +274,10 @@ predNew_mr <- function(newdata, input, output, info, mlcontrol=spacetime.control
   job2$mon.sec <- 10
   job2$readback <- FALSE
   job2$jobname <- FileOutput
-  job.mr <- do.call("rhwatch", job2)
+  do.call("rhwatch", job2)
 
 
-  prefix <- strsplit(input, "/")[[1]][1:(length(strsplit(input, "/")[[1]])-1)]
+  prefix <- strsplit(input, "/")[[1]][1:(length(strsplit(input, "/")[[1]]) - 1)]
   FileInput <- c(file.path(do.call("file.path", as.list(prefix)), "bymthse"), FileOutput)
   FileOutput <- file.path(output, "newpred/merge")
 
@@ -340,7 +339,7 @@ predNew_mr <- function(newdata, input, output, info, mlcontrol=spacetime.control
   job3$mon.sec <- 10
   job3$jobname <- FileOutput
   job3$readback <- FALSE
-  job.mr <- do.call("rhwatch", job3)
+  do.call("rhwatch", job3)
 
 
   FileInput <- FileOutput
@@ -429,7 +428,7 @@ predNew_mr <- function(newdata, input, output, info, mlcontrol=spacetime.control
   job4$mon.sec <- 10
   job4$jobname <- FileOutput
   job4$readback <- FALSE
-  job.mr <- do.call("rhwatch", job4)
+  do.call("rhwatch", job4)
 
 
   FileInput <- FileOutput
@@ -495,6 +494,6 @@ predNew_mr <- function(newdata, input, output, info, mlcontrol=spacetime.control
   job5$mon.sec <- 10
   job5$jobname <- FileOutput
   job5$readback <- FALSE
-  job.mr <- do.call("rhwatch", job5)
+  do.call("rhwatch", job5)
 
 }

@@ -65,11 +65,11 @@ mapreduce.control <- function(
     # mapreduce.reduce.input.buffer.percent
     reduce_input_buffer_percent = reduce_input_buffer_percent,
     # Rhipe argument
-    reduce_buffer_read = reduce_buffer_read*2^20,
+    reduce_buffer_read = reduce_buffer_read * 2 ^ 20,
     reduce_buffer_size = reduce_buffer_size,
-    map_buffer_read = map_buffer_read*2^20,
+    map_buffer_read = map_buffer_read * 2 ^ 20,
     map_buffer_size = map_buffer_size,
-    BLK = BLK*2^20,
+    BLK = BLK * 2 ^ 20,
     # mapreduce.map.java.opts
     map_jvm = map_jvm,
     reduce_jvm = reduce_jvm,

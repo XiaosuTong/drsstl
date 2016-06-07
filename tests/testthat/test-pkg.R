@@ -1,14 +1,9 @@
-# install_github("XiaosuTong/Spaloess")
-# source("Rhipe/hathi.initial.R")
-
 library(Spaloess)
 library(maps)
 library(plyr)
 
 
 test_that("local fit and pred", {
-
-#  expect_true(FALSE)
 
   new.grid <- expand.grid(
    lon = seq(-126, -67, by = 1),
@@ -69,7 +64,7 @@ test_that("local fit and pred", {
 
 })
 
-
+# nolint start
 # load("Projects/Spatial/NCAR/RData/USinfo.RData") ##hathi
 # names(UStinfo) <- c("station.id","elev","lon","lat")#
 #
@@ -102,3 +97,4 @@ test_that("local fit and pred", {
 #  fitted="/user/tongx/spatem/output/output_bymth", newdata=new.grid, output = "/user/tongx/spatem",
 #  stat_info="/user/tongx/spatem/station_info.RData", model_control = mcontrol, cluster_control = ccontrol
 # )
+# nolint end

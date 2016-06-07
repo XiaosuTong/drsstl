@@ -119,6 +119,6 @@ sparfit <- function(input, output, info, model_control=spacetime.control(), clus
 
   job.mr <- do.call("rhwatch", job)
 
-  #return(job.mr[[1]]$jobid)
+  #return(job.mr[[1]]$jobid) # nolint
 
 }

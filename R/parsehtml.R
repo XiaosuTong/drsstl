@@ -1,3 +1,4 @@
+# nolint start
 # # ' @export
 #
 # parsehtml <- function(jobid, html, type="map") {
@@ -37,3 +38,4 @@
 #
 #   }
 # }
+# nolint end

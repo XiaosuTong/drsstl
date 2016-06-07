@@ -45,10 +45,10 @@ readIn <- function(input, output, info, cluster_control = mapreduce.control(), c
         c(row[1:(13 + cshift)], substring(row[13 + cshift + 1], 1:12, 1:12))
       })
     )
-    #file <- Sys.getenv("mapred.input.file") #get the file name that Hadoop is reading
-    #k <- as.numeric(
-    #  substr(tail(strsplit(tail(strsplit(file, "/")[[1]],1), "[.]")[[1]], 1), 2, 4)
-    #)
+    #file <- Sys.getenv("mapred.input.file") #get the file name that Hadoop is reading # nolint
+    #k <- as.numeric( # nolint
+    #  substr(tail(strsplit(tail(strsplit(file, "/")[[1]],1), "[.]")[[1]], 1), 2, 4) # nolint
+    #)# nolint
     miss <- as.data.frame(
       matrix(as.numeric(y[, (1:12) + (13 + cshift)]), ncol = 12)
     )
@@ -59,14 +59,14 @@ readIn <- function(input, output, info, cluster_control = mapreduce.control(), c
     name <- match(y[, (1 + cshift)], station_info$station.id)
 
     if (cshift == 2) {
-      year <- (as.numeric(y[, 2]) - 55) + (as.numeric(y[, 1]) - 1)*48
+      year <- (as.numeric(y[, 2]) - 55) + (as.numeric(y[, 1]) - 1) * 48
     } else if (cshift == 1) {
       year <- as.numeric(y[, 1]) - 55
     } else {
       stop("the column shift cannot be other value than 1 or 2!")
     }
 
-    tmp <- tmp/10
+    tmp <- tmp / 10
     tmp[miss == 1] <- NA
     names(tmp) <- month.abb
     tmp <- cbind(station.id = as.numeric(name), tmp, year = year, stringsAsFactors = FALSE)
@@ -143,6 +143,6 @@ readIn <- function(input, output, info, cluster_control = mapreduce.control(), c
   job$mon.sec <- 10
   job.mr <- do.call("rhwatch", job)
 
-  #return(job.mr[[1]]$jobid)
+  #return(job.mr[[1]]$jobid) # nolint
 
 }

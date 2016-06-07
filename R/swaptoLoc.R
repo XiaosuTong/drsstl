@@ -50,7 +50,7 @@ swaptoLoc <- function(input, output, final=FALSE, cluster_control=mapreduce.cont
     lapply(seq_along(map.values), function(r) {
 
       if(!final) {
-        date <- (as.numeric(map.keys[[r]][1]) - 1)*Mlcontrol$n.p + as.numeric(match(map.keys[[r]][2], month.abb))
+        date <- (as.numeric(map.keys[[r]][1]) - 1) * Mlcontrol$n.p + as.numeric(match(map.keys[[r]][2], month.abb))
         lapply(1:length(map.values[[r]]), function(i){
           rhcollect(i, c(date, map.values[[r]][i]))
           NULL
@@ -59,7 +59,7 @@ swaptoLoc <- function(input, output, final=FALSE, cluster_control=mapreduce.cont
         N <- Mlcontrol$stat_n
         value <- unname(unlist(map.values[[r]]))
         lapply(1:N, function(i) {
-          rhcollect(i, data.frame(date=map.keys[[r]], smoothed=value[i+N], seasonal=value[i+N*2], trend=value[i+N*3], Rspa=value[i+N*4]))
+          rhcollect(i, data.frame(date=map.keys[[r]], smoothed=value[i + N], seasonal=value[i + N * 2], trend=value[i + N * 3], Rspa=value[i + N * 4]))
           NULL
         })
       }
@@ -138,6 +138,6 @@ swaptoLoc <- function(input, output, final=FALSE, cluster_control=mapreduce.cont
 
   job.mr <- do.call("rhwatch", job)
 
-  #return(job.mr[[1]]$jobid)
+  #return(job.mr[[1]]$jobid) # nolint
 
 }

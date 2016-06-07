@@ -1,3 +1,4 @@
+# nolint start
 ##install_github("XiaosuTong/Spaloess")
 #source("Rhipe/hathi.initial.R")
 #library(drSpaceTime)
@@ -84,3 +85,5 @@
 #  fitted="/user/tongx/spatem/output/output_bymth", newdata=new.grid, output = "/user/tongx/spatem",
 #  stat_info="/user/tongx/spatem/station_info.RData", model_control = mcontrol, cluster_control = ccontrol
 #)
+
+# nolint end

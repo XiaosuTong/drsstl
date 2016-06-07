@@ -43,8 +43,8 @@ stlfit <- function(input, output, model_control=spacetime.control(), cluster_con
         s.window=Mlcontrol$s.window, s.degree=Mlcontrol$s.degree,
         t.window=Mlcontrol$t.window, t.degree=Mlcontrol$t.degree,
         inner=Mlcontrol$inner, outer=Mlcontrol$outer,
-        s.jump = ceiling(Mlcontrol$s.window/Mlcontrol$s.jump),
-        t.jump = ceiling(Mlcontrol$t.window/Mlcontrol$t.jump),
+        s.jump = ceiling(Mlcontrol$s.window / Mlcontrol$s.jump),
+        t.jump = ceiling(Mlcontrol$t.window / Mlcontrol$t.jump),
       )$data
       # value originally is a data.frame with 3 columns, vectorize it
       names(value) <- c(Mlcontrol$time, Mlcontrol$vari)
