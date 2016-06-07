@@ -108,7 +108,7 @@ sstl_local <- function(data, mlcontrol=spacetime.control()) {
   rst <- ddply(.data = rst
     , .vari = c("year", "month")
     , .fun = function(v) {
-        lo.fit <- spaloess( fml,
+        lo.fit <- spaloess(fml,
           data      = v,
           degree    = mlcontrol$degree,
           span      = mlcontrol$span,

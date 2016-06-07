@@ -10,7 +10,6 @@ linters: with_defaults(
     commented_code_linter = NULL, # 39
     commas_linter = NULL, # 37
     object_length_linter = NULL, # 6
-    single_quotes_linter = NULL, # 6
     NULL
   )
 exclusions:
