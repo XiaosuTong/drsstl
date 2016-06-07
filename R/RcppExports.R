@@ -12,4 +12,3 @@ c_loess <- function(xx, yy, degree, span, ww, m, l_idx, max_dist) {
 c_ma <- function(x, n_p) {
     .Call('drSpaceTime_c_ma', PACKAGE = 'drSpaceTime', x, n_p)
 }
-

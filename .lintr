@@ -1,0 +1,21 @@
+cache_directory: ".lintr_cache"
+linters: with_defaults(
+    camel_case_linter = NULL, # 242
+    infix_spaces_linter = NULL, # 208
+    trailing_whitespace_linter = NULL, # 168
+    line_length_linter = NULL, # 104
+    spaces_left_parentheses_linter = NULL, # 65
+    object_usage_linter = NULL, # 58
+    no_tab_linter = NULL, # 51
+    commented_code_linter = NULL, # 39
+    commas_linter = NULL, # 37
+    object_length_linter = NULL, # 6
+    NULL
+  )
+exclusions:
+  list(
+    "R/drinner.R",
+    "R/drrobust.R",
+    "R/drstlplus.R",
+    "R/RcppExports.R"
+  )

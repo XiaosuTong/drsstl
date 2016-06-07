@@ -1,21 +1,22 @@
+
 #' @importFrom stats frequency loess median predict quantile weighted.mean time
 #' @importFrom utils head stack tail
 
-drinner <- function(Inner_input, Inner_output, n, n.p, vari, time, seaname, 
+drinner <- function(Inner_input, Inner_output, n, n.p, vari, time, seaname,
   s.window, s.degree, t.window, t.degree, l.window, l.degree, periodic,
   s.jump, t.jump, l.jump, critfreq, s.blend, t.blend, l.blend, crtI, crtO,
   sub.labels, sub.start, infill, Clcontrol) {
 
-  # start and end indices for after adding in extra n.p before and after 
+  # start and end indices for after adding in extra n.p before and after
   st <- n.p + 1
   nd <- n + n.p
 
   # package the parameters into list
   paras <- list(
-    vari = vari, time = time, seaname = seaname, 
+    vari = vari, time = time, seaname = seaname,
     n.p = n.p, n = n, st = st, nd = nd, periodic = periodic,
-    s.window = s.window, s.degree = s.degree, s.jump = s.jump, s.blend = s.blend,  
-    l.window = l.window, l.degree = l.degree, l.jump = l.jump, l.blend = l.blend, 
+    s.window = s.window, s.degree = s.degree, s.jump = s.jump, s.blend = s.blend,
+    l.window = l.window, l.degree = l.degree, l.jump = l.jump, l.blend = l.blend,
     t.window = t.window, t.degree = t.degree, t.jump = t.jump, t.blend = t.blend,
     crtI = crtI, crtO = crtO, Clcontrol=Clcontrol, infill = infill
   )
@@ -31,8 +32,8 @@ drinner <- function(Inner_input, Inner_output, n, n.p, vari, time, seaname,
         value$flag <- 1
         value$flag[Index] <- 0
         value <- subset(value, select=-c(fitted))
-      } 
-      notEnoughData <- sum(!is.na(value[, vari])) < s.window 
+      }
+      notEnoughData <- sum(!is.na(value[, vari])) < s.window
       if (notEnoughData) {
         stop("at least one of subseries does not have enough observations")
       }else {
@@ -41,7 +42,7 @@ drinner <- function(Inner_input, Inner_output, n, n.p, vari, time, seaname,
         if (crtI == 1 & crtO == 1) {
           value$trend <- 0
           value$weight <- 1
-        }  
+        }
         cycleSub.length <- nrow(value)
         cycleSub <- value[, vari]
 
@@ -49,7 +50,7 @@ drinner <- function(Inner_input, Inner_output, n, n.p, vari, time, seaname,
         cycleSub <- cycleSub - value$trend
 
         cs1 <- as.numeric(head(value[, time], 1)) - 12
-        cs2 <- as.numeric(tail(value[, time], 1)) + 12 
+        cs2 <- as.numeric(tail(value[, time], 1)) + 12
 
         if (periodic) {
           C <- rep(weighted.mean(cycleSub, w = value$weight, na.rm = TRUE), cycleSub.length + 2)
@@ -61,7 +62,7 @@ drinner <- function(Inner_input, Inner_output, n, n.p, vari, time, seaname,
             y = cycleSub, span = s.window, degree = s.degree,
             m = cs.ev, weights = value$weight, blend = s.blend,
             jump = s.jump, at = c(0:(cycleSub.length + 1))
-          ) 
+          )
         }
         Cdf <- data.frame(C = C, t = as.numeric(c(cs1, value[, time], cs2)))
         rhcollect(map.keys[[r]][1], list(value, Cdf))
@@ -93,14 +94,14 @@ drinner <- function(Inner_input, Inner_output, n, n.p, vari, time, seaname,
       noNA <- all(y_idx)
       ma3 <- drSpaceTime::c_ma(Ctotal$C, n.p)
       L <- drSpaceTime::.loess_stlplus(
-        y = ma3, span = l.window, degree = l.degree, m = l.ev, weights = combined$weight, 
+        y = ma3, span = l.window, degree = l.degree, m = l.ev, weights = combined$weight,
         y_idx = y_idx, noNA = noNA, blend = l.blend, jump = l.jump, at = c(1:n)
       )
       combined$seasonal <- Ctotal$C[st:nd] - L
       # Deseasonalize
       D <- combined[, vari] - combined$seasonal
       combined$trend <- drSpaceTime::.loess_stlplus(
-        y = D, span = t.window, degree = t.degree, m = t.ev, weights = combined$weight, 
+        y = D, span = t.window, degree = t.degree, m = t.ev, weights = combined$weight,
         y_idx = y_idx, noNA = noNA, blend = t.blend, jump = t.jump, at = c(1:n)
       )
       rhcollect(reduce.key, combined)
@@ -127,7 +128,7 @@ drinner <- function(Inner_input, Inner_output, n, n.p, vari, time, seaname,
     mapred.tasktimeout = 0,
     rhipe_reduce_buff_size = 10000,
     io.sort.mb = Clcontrol$io.sort,
-    io.sort.spill.percent = Clcontrol$spill.percent 
+    io.sort.spill.percent = Clcontrol$spill.percent
   )
   jobIn$readback <- FALSE
   jobIn$jobname <- Inner_output

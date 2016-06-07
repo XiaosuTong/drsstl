@@ -21,7 +21,7 @@ copy the RData of station_info to HDFS first using rhput.}
 The list including all necessary smoothing parameters of nonparametric fitting.}
 
 \item{cluster_control}{Should be a list object generated from \code{mapreduce.control} function.
-The list including all necessary Rhipe parameters and also user tunable 
+The list including all necessary Rhipe parameters and also user tunable
 MapReduce parameters. It is only necessary for data on HDFS situation. If data
 is data.frame in memory, this parameter should be kept as default NULL.}
 }
@@ -36,7 +36,7 @@ sstl routine is applied to a spatial-temporal dataset either in memory or on HDF
     )
     ccontrol <- mapreduce.control(
       libLoc=lib.loc, reduceTask=169, io_sort=128, slow_starts = 0.5,
-      map_jvm = "-Xmx200m", reduce_jvm = "-Xmx200m", 
+      map_jvm = "-Xmx200m", reduce_jvm = "-Xmx200m",
       map_memory = 1024, reduce_memory = 1024,
       reduce_input_buffer_percent=0.4, reduce_parallelcopies=10,
       reduce_merge_inmem=0, task_io_sort_factor=100,
@@ -46,8 +46,8 @@ sstl routine is applied to a spatial-temporal dataset either in memory or on HDF
 
     #If the data is on HDFS
     drsstl(
-      data = "/tmp/tmax.txt", output = "/tmp/output", 
-      stat_info = "/tmp/station_info.RData", model_control = mcontrol, 
+      data = "/tmp/tmax.txt", output = "/tmp/output",
+      stat_info = "/tmp/station_info.RData", model_control = mcontrol,
       cluster_control=ccontrol
     )
 

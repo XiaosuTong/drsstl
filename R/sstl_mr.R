@@ -11,10 +11,10 @@
 #'     The list including all necessary smoothing parameters of nonparametric fitting.
 #' @param clcontrol
 #'     Should be a list object generated from \code{mapreduce.control} function.
-#'     The list including all necessary Rhipe parameters and also user tunable 
+#'     The list including all necessary Rhipe parameters and also user tunable
 #'     MapReduce parameters.
-#' @author 
-#'     Xiaosu Tong 
+#' @author
+#'     Xiaosu Tong
 #' @export
 #' @examples
 #'     mcontrol <- spacetime.control(
@@ -23,7 +23,7 @@
 #'     )
 #'     ccontrol <- mapreduce.control(
 #'       libLoc=lib.loc, reduceTask=169, io_sort=512, BLK=128, slow_starts = 0.5,
-#'       map_jvm = "-Xmx200m", reduce_jvm = "-Xmx200m", 
+#'       map_jvm = "-Xmx200m", reduce_jvm = "-Xmx200m",
 #'       map_memory = 1024, reduce_memory = 1024,
 #'       reduce_input_buffer_percent=0.4, reduce_parallelcopies=10,
 #'       reduce_merge_inmem=0, task_io_sort_factor=100,
@@ -31,8 +31,8 @@
 #'       reduce_shuffle_merge_percent = 0.4
 #'     )
 #'     sstl_mr(
-#'       input = "/tmp/tmax.txt", output = "/tmp/output", 
-#'       stat_info = "/tmp/station_info.RData", mlcontrol = mcontrol, 
+#'       input = "/tmp/tmax.txt", output = "/tmp/output",
+#'       stat_info = "/tmp/station_info.RData", mlcontrol = mcontrol,
 #'       clcontrol = clcontrol
 #'     )
 
@@ -43,9 +43,9 @@ sstl_mr <- function(input, output, stat_info, mlcontrol=spacetime.control(), clc
   FileOutput <- file.path(output, "bymth")
 
   readIn(
-  	input = FileInput, 
-  	output = FileOutput, 
-  	info   = stat_info, 
+  	input = FileInput,
+  	output = FileOutput,
+  	info   = stat_info,
   	cluster_control = clcontrol
   )
 
@@ -53,10 +53,10 @@ sstl_mr <- function(input, output, stat_info, mlcontrol=spacetime.control(), clc
   FileOutput <- file.path(output, "bymthfit")
   clcontrol$reduceTask <- 0
   spaofit(
-  	input  = FileInput, 
-  	output = FileOutput, 
-  	info   = stat_info, 
-  	model_control   = mlcontrol, 
+  	input  = FileInput,
+  	output = FileOutput,
+  	info   = stat_info,
+  	model_control   = mlcontrol,
   	cluster_control = clcontrol
   )
 
@@ -64,8 +64,8 @@ sstl_mr <- function(input, output, stat_info, mlcontrol=spacetime.control(), clc
   FileOutput <- file.path(output, "bystat")
   clcontrol$reduceTask <- RTSK
   swaptoLoc(
-  	input = FileInput, 
-  	output = FileOutput, 
+  	input = FileInput,
+  	output = FileOutput,
   	cluster_control = clcontrol,
     model_control = mlcontrol
   )
@@ -75,20 +75,20 @@ sstl_mr <- function(input, output, stat_info, mlcontrol=spacetime.control(), clc
   FileOutput <- file.path(output, "bystatfit")
   clcontrol$reduceTask <- 0
   stlfit(
-  	input  = FileInput, 
-  	output = FileOutput, 
-  	model_control = mlcontrol, 
+  	input  = FileInput,
+  	output = FileOutput,
+  	model_control = mlcontrol,
   	cluster_control = clcontrol
   )
 
-  
+
   FileInput <- FileOutput
   FileOutput <- file.path(output, "bymthse")
   clcontrol$reduceTask <- RTSK
   swaptoTime(
-  	input  = FileInput, 
-  	output = FileOutput, 
-  	cluster_control = clcontrol, 
+  	input  = FileInput,
+  	output = FileOutput,
+  	cluster_control = clcontrol,
   	model_control   = mlcontrol
   )
 
@@ -97,21 +97,21 @@ sstl_mr <- function(input, output, stat_info, mlcontrol=spacetime.control(), clc
   FileOutput <- file.path(output, "output_bymth")
   clcontrol$reduceTask <- 0
   sparfit(
-  	input  = FileInput, 
+  	input  = FileInput,
   	output = FileOutput,
     info   = stat_info,
-    model_control = mlcontrol, 
+    model_control = mlcontrol,
     cluster_control = clcontrol
-  )  
+  )
 
 
   FileInput <- FileOutput
   FileOutput <- file.path(output, "output_bystat")
   clcontrol$reduceTask <- RTSK
   swaptoLoc(
-  	input  = FileInput, 
-  	output = FileOutput, 
-  	final = TRUE, 
+  	input  = FileInput,
+  	output = FileOutput,
+  	final = TRUE,
   	cluster_control = clcontrol,
     model_control   = mlcontrol
   )

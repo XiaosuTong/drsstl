@@ -13,13 +13,13 @@ swaptoLoc(input, output, final = FALSE,
 
 \item{output}{The path of output file on HDFS. It is by-location division.}
 
-\item{final}{There two steps of switching to by-location division in the routine. In the 
+\item{final}{There two steps of switching to by-location division in the routine. In the
 first one, which final is set to be FALSE, the intermediate value is vectorized
 to minimize the size. In the second one, which final is set to be TRUE, the output
 value is saved as data.frame.}
 
 \item{cluster_control}{Should be a list object generated from \code{mapreduce.control} function.
-The list including all necessary Rhipe parameters and also user tunable 
+The list including all necessary Rhipe parameters and also user tunable
 MapReduce parameters.}
 
 \item{model_control}{Should be a list object generated from \code{spacetime.control} function.

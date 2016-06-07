@@ -27,7 +27,7 @@ drstlplus <- function(input, output, model_control=spacetime.control()) {
   get.t.window <- function(t.dg, s.dg, n.s, n.p, omega) {
     if(t.dg == 0) t.dg <- 1
     if(s.dg == 0) s.dg <- 1
-    
+
     coefs_a <- data.frame(
       a = c(0.000103350651767650, 3.81086166990428e-6),
       b = c(-0.000216653946625270, 0.000708495976681902))
@@ -39,20 +39,20 @@ drstlplus <- function(input, output, model_control=spacetime.control()) {
       a = c(1.66534145060448, 2.33114333880815),
       b = c(-3.87719398039131, -1.8314816166323),
       c = c(6.46952900183769, 1.85431548427732))
-    
+
     # estimate critical frequency for seasonal
     betac0 <- coefs_a$a[s.dg] + coefs_a$b[s.dg] * omega
     betac1 <- coefs_b$a[s.dg] + coefs_b$b[s.dg] * omega + coefs_b$c[s.dg] * omega^2
     betac2 <- coefs_c$a[s.dg] + coefs_c$b[s.dg] * omega + coefs_c$c[s.dg] * omega^2
     f_c <- (1 - (betac0 + betac1 / n.s + betac2 / n.s^2)) / n.p
-    
+
     # choose
     betat0 <- coefs_a$a[t.dg] + coefs_a$b[t.dg] * omega
     betat1 <- coefs_b$a[t.dg] + coefs_b$b[t.dg] * omega + coefs_b$c[t.dg] * omega^2
     betat2 <- coefs_c$a[t.dg] + coefs_c$b[t.dg] * omega + coefs_c$c[t.dg] * omega^2
-    
+
     betat00 <- betat0 - f_c
-    
+
     n.t <- nextodd((-betat1 - sqrt(betat1^2 - 4 * betat00 * betat2)) / (2 * betat00))
     n.t
   }
@@ -99,29 +99,29 @@ drstlplus <- function(input, output, model_control=spacetime.control()) {
 
   for (o in 1:model_control$outer) {
     for (i in 1:model_control$inner) {
-      
+
       FileOutput <- paste(input, "byseason", sep = ".")
       cluster_control <- mapreduce.control(reduceTask=72, libLoc = .libPaths())
-      
+
       drSpaceTime::swaptoSeason(input=FileInput, output=FileOutput, Clcontrol=cluster_control)
-      
+
       FileInput <- FileOutput
       FileOutput <- output
       cluster_control <- mapreduce.control(reduceTask=72, libLoc = .libPaths())
 
       drSpaceTime::drinner(
-        Inner_input=FileInput, Inner_output=FileOutput, 
-        n=model_control$n, n.p=model_control$n.p, vari=model_control$vari, 
-        time=model_control$time, seaname=model_control$seaname, 
-        s.window = s.window, s.degree = s.degree, 
+        Inner_input=FileInput, Inner_output=FileOutput,
+        n=model_control$n, n.p=model_control$n.p, vari=model_control$vari,
+        time=model_control$time, seaname=model_control$seaname,
+        s.window = s.window, s.degree = s.degree,
         t.window = t.window, t.degree = t.degree,
         l.window = l.window, l.degree = l.degree,
         periodic = periodic, s.jump = s.jump, t.jump = t.jump, l.jump = l.jump, critfreq = 0.05,
-        s.blend = model_control$s.blend, t.blend = model_control$t.blend, l.blend = model_control$l.blend,  
-        crtI = i, crtO = o, sub.labels = model_control$sub.labels, sub.start = model_control$sub.start, 
+        s.blend = model_control$s.blend, t.blend = model_control$t.blend, l.blend = model_control$l.blend,
+        crtI = i, crtO = o, sub.labels = model_control$sub.labels, sub.start = model_control$sub.start,
         infill= model_control$infill, Clcontrol=cluster_control
       )
-      
+
       FileInput <- FileOutput
 
     }
@@ -131,7 +131,7 @@ drstlplus <- function(input, output, model_control=spacetime.control()) {
     	FileOutput <- paste(input, "outer", sep = ".")
     	cluster_control <- mapreduce.control(reduceTask=72, libLoc = .libPaths())
       drSpaceTime::drrobust(input=FileInput, output=FileOutput, vari=model_control$vari, Clcontrol=cluster_control)
-    
+
       FileInput <- FileOutput
 
     }

@@ -12,8 +12,8 @@
 #' @param mlcontrol
 #'     Should be a list object generated from \code{spacetime.control} function.
 #'     The list including all necessary smoothing parameters of nonparametric fitting.
-#' @author 
-#'     Xiaosu Tong 
+#' @author
+#'     Xiaosu Tong
 #' @export
 #' @seealso
 #'     \code{\link{spacetime.control}}, \code{\link{mapreduce.control}}
@@ -22,24 +22,24 @@
 #'     mlcontrol <- spacetime.control(
 #'       vari="resp", time="date", n=576, n.p=12, stat_n=7738,
 #'       s.window="periodic", t.window = 241, degree=2, span=0.015, Edeg=2
-#'     ) 
+#'     )
 #'
 #'     new.grid <- expand.grid(
 #'       lon = seq(-126, -67, by = 0.5),
 #'       lat = seq(25, 49, by = 0.5)
 #'     )
 #'     instate <- !is.na(map.where("state", new.grid$lon, new.grid$lat))
-#'     new.grid <- new.grid[instate, ] 
+#'     new.grid <- new.grid[instate, ]
 #'
 #'     elev.fit <- spaloess( elev ~ lon + lat,
 #'       data = station_info,
-#'       degree = 2, 
+#'       degree = 2,
 #'       span = 0.015,
 #'       distance = "Latlong",
 #'       normalize = FALSE,
 #'       napred = FALSE,
 #'       alltree = FALSE,
-#'       family="symmetric", 
+#'       family="symmetric",
 #'       control=loess.control(surface = "direct")
 #'     )
 #'     grid.fit <- predloess(
@@ -49,10 +49,10 @@
 #'         lat = new.grid$lat
 #'       )
 #'     )
-#'     new.grid$elev2 <- log2(grid.fit + 128) 
+#'     new.grid$elev2 <- log2(grid.fit + 128)
 #'     fitted <- drsstl(
-#'       data=tmax_all, 
-#'       output=NULL, 
+#'       data=tmax_all,
+#'       output=NULL,
 #'       stat_info="station_info",
 #'       model_control=mlcontrol
 #'     )
@@ -79,7 +79,7 @@ predNew_local <- function(original, newdata, mlcontrol=spacetime.control()) {
     dropSq <- FALSE
     condParam <- FALSE
   }
-  
+
   N <- nrow(newdata)
 
   message("First spatial smoothing...")
@@ -88,9 +88,9 @@ predNew_local <- function(original, newdata, mlcontrol=spacetime.control()) {
     , .fun = function(v) {
         value <- cbind(data.frame(station.id = 1:N), newdata)
         NApred <- any(is.na(v[, mlcontrol$vari]))
-        lo.fit <- spaloess( fml, 
-          data      = v, 
-          degree    = mlcontrol$degree, 
+        lo.fit <- spaloess( fml,
+          data      = v,
+          degree    = mlcontrol$degree,
           span      = mlcontrol$span,
           para      = condParam,
           drop      = dropSq,
@@ -127,8 +127,12 @@ predNew_local <- function(original, newdata, mlcontrol=spacetime.control()) {
   rst <- do.call("rbind", rst)
   time <- strsplit(rownames(rst),"[.]")
   rownames(rst) <- NULL
-  rst$year <- as.numeric(unlist(lapply(time, function(r) {r[1]})))
-  rst$month <- unlist(lapply(time, function(r) {r[2]}))
+  rst$year <- as.numeric(unlist(lapply(time, function(r) {
+    r[1]
+  })))
+  rst$month <- unlist(lapply(time, function(r) {
+    r[2]
+  }))
 
   message("Temporal fitting...")
   rst <- ddply(.data = rst
@@ -136,16 +140,16 @@ predNew_local <- function(original, newdata, mlcontrol=spacetime.control()) {
     , .fun = function(v) {
         v <- arrange(v, year, match(month, month.abb))
         fit <- stlplus::stlplus(
-          x        = v$spaofit, 
-          t        = 1:nrow(v), 
-          n.p      = mlcontrol$n.p, 
-          s.window = mlcontrol$s.window, 
-          s.degree = mlcontrol$s.degree, 
-          t.window = mlcontrol$t.window, 
-          t.degree = mlcontrol$t.degree, 
-          inner    = mlcontrol$inner, 
+          x        = v$spaofit,
+          t        = 1:nrow(v),
+          n.p      = mlcontrol$n.p,
+          s.window = mlcontrol$s.window,
+          s.degree = mlcontrol$s.degree,
+          t.window = mlcontrol$t.window,
+          t.degree = mlcontrol$t.degree,
+          inner    = mlcontrol$inner,
           outer    = mlcontrol$outer
-        )$data        
+        )$data
         v <- cbind(v, fit[, c("seasonal", "trend", "remainder")])
         v
     }
@@ -162,7 +166,7 @@ predNew_local <- function(original, newdata, mlcontrol=spacetime.control()) {
     tmp <- rbind(
       subset(original, select = c(station.id, lon, lat, elev2, year, month, spaofit, seasonal, trend)),
       subset(rst, select = c(station.id, lon, lat, elev2, year, month, spaofit, seasonal, trend))
-    )    
+    )
   }
 
   message("Second spatial smoothing...")
@@ -170,9 +174,9 @@ predNew_local <- function(original, newdata, mlcontrol=spacetime.control()) {
     , .vari = c("year", "month")
     , .fun = function(v) {
         v$remainder <- with(v, spaofit - trend - seasonal)
-        lo.fit <- spaloess( fml, 
-          data      = v, 
-          degree    = mlcontrol$degree, 
+        lo.fit <- spaloess( fml,
+          data      = v,
+          degree    = mlcontrol$degree,
           span      = mlcontrol$span,
           para      = condParam,
           drop      = dropSq,

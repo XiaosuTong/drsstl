@@ -13,7 +13,7 @@ swaptoTime(input, output, cluster_control = mapreduce.control(),
 \item{output}{The path of output file on HDFS. It is by-month division.}
 
 \item{cluster_control}{Should be a list object generated from \code{mapreduce.control} function.
-The list including all necessary Rhipe parameters and also user tunable 
+The list including all necessary Rhipe parameters and also user tunable
 MapReduce parameters.}
 
 \item{model_control}{Should be a list object generated from \code{spacetime.control} function.
@@ -25,10 +25,10 @@ to the key-value pairs which is division by-month.
 }
 \details{
 \code{swaptoTime} is used for switching division by-location to division by-month.
-    The input key is location index, and input value is a vectorized matrix with 
-    \code{Mlcontrol$n} rows and 3 columns in order of smoothed, seasonal, trend. For each row 
+    The input key is location index, and input value is a vectorized matrix with
+    \code{Mlcontrol$n} rows and 3 columns in order of smoothed, seasonal, trend. For each row
     of matrix, a new key-value pair is generated. Since the matrix is vectorized
-    by column, the trend in ith row is \code{i+Mlcontrol$n}. Index \code{j} controls the index 
+    by column, the trend in ith row is \code{i+Mlcontrol$n}. Index \code{j} controls the index
     of multiple location in one time point.
 }
 \examples{
@@ -43,8 +43,8 @@ to the key-value pairs which is division by-month.
       reduce_shuffle_merge_percent = 0.5
     )
     mcontrol <- spacetime.control(
-      vari = "resp", time = "date", n = 576, stat_n=7738, n.p = 12, 
-      s.window = "periodic", t.window = 241, 
+      vari = "resp", time = "date", n = 576, stat_n=7738, n.p = 12,
+      s.window = "periodic", t.window = 241,
       degree = 2, span = 0.015, Edeg = 2
     )
 

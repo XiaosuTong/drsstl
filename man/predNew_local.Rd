@@ -24,24 +24,24 @@ saved in memory based on the original dataset.
     mlcontrol <- spacetime.control(
       vari="resp", time="date", n=576, n.p=12, stat_n=7738,
       s.window="periodic", t.window = 241, degree=2, span=0.015, Edeg=2
-    ) 
+    )
 
     new.grid <- expand.grid(
       lon = seq(-126, -67, by = 0.5),
       lat = seq(25, 49, by = 0.5)
     )
     instate <- !is.na(map.where("state", new.grid$lon, new.grid$lat))
-    new.grid <- new.grid[instate, ] 
+    new.grid <- new.grid[instate, ]
 
     elev.fit <- spaloess( elev ~ lon + lat,
       data = station_info,
-      degree = 2, 
+      degree = 2,
       span = 0.015,
       distance = "Latlong",
       normalize = FALSE,
       napred = FALSE,
       alltree = FALSE,
-      family="symmetric", 
+      family="symmetric",
       control=loess.control(surface = "direct")
     )
     grid.fit <- predloess(
@@ -51,10 +51,10 @@ saved in memory based on the original dataset.
         lat = new.grid$lat
       )
     )
-    new.grid$elev2 <- log2(grid.fit + 128) 
+    new.grid$elev2 <- log2(grid.fit + 128)
     fitted <- drsstl(
-      data=tmax_all, 
-      output=NULL, 
+      data=tmax_all,
+      output=NULL,
       stat_info="station_info",
       model_control=mlcontrol
     )
