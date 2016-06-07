@@ -2,3 +2,5 @@
 .Rhistory
 .RData
 inst/doc
+.lintr_cache
+.lintr_cache/*
