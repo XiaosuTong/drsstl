@@ -15,7 +15,8 @@ Imports:
     Rcpp,
     yaImpute,
     stlplus,
-    testthat
+    testthat,
+    maps
 License: MIT + file LICENSE
 LazyData: true
 RoxygenNote: 5.0.1
