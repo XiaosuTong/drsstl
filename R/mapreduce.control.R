@@ -5,7 +5,7 @@
 #' @param reduceTask
 #'     The reduce task number, also the number of output files. If set to be 0, then there is no shuffle and sort stage after map.
 #' @param spill_percent
-#'     For mapreduce.sort.spill.percent parameter, 
+#'     For mapreduce.sort.spill.percent parameter,
 #' @param io_sort
 #'     For mapreduce.task.io.sort.mb, the size, in megabytes, of the memory buffer to use while sorting map output.
 #' @param task_io_sort_factor
@@ -22,8 +22,8 @@
 #'     For mapreduce.reduce.input.buffer.percent
 #' @return
 #'     A list with mapreduce tuning parameters.
-#' @author 
-#'     Xiaosu Tong 
+#' @author
+#'     Xiaosu Tong
 #' @export
 #' @examples
 #'     mapreduce.control()
@@ -36,10 +36,10 @@ mapreduce.control <- function(
   reduce_shuffle_merge_percent = 0.66, reduce_merge_inmem = 0,
   reduce_input_buffer_percent = 0, reduce_buffer_read = 150, map_buffer_read = 150,
   reduce_buffer_size = 10000, map_buffer_size= 10000) {
-  
+
   list(
     reduceTask = reduceTask, libLoc=libLoc,
-    # three parameters control the map spill stage 
+    # three parameters control the map spill stage
     spill_percent = spill_percent, io_sort = io_sort, task_io_sort_factor = task_io_sort_factor,
     # mapreduce.reduce.shuffle.parallelcopies
     reduce_parallelcopies = reduce_parallelcopies,

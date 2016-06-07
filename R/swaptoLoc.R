@@ -9,18 +9,18 @@
 #'     The path of output file on HDFS. It is by-location division.
 #' @param cluster_control
 #'     Should be a list object generated from \code{mapreduce.control} function.
-#'     The list including all necessary Rhipe parameters and also user tunable 
+#'     The list including all necessary Rhipe parameters and also user tunable
 #'     MapReduce parameters.
 #' @param model_control
 #'     Should be a list object generated from \code{spacetime.control} function.
 #'     The list including all necessary smoothing parameters of nonparametric fitting.
 #' @param final
-#'     There two steps of switching to by-location division in the routine. In the 
+#'     There two steps of switching to by-location division in the routine. In the
 #'     first one, which final is set to be FALSE, the intermediate value is vectorized
 #'     to minimize the size. In the second one, which final is set to be TRUE, the output
 #'     value is saved as data.frame.
-#' @author 
-#'     Xiaosu Tong 
+#' @author
+#'     Xiaosu Tong
 #' @export
 #' @seealso
 #'     \code{\link{spacetime.control}}, \code{\link{mapreduce.control}}
@@ -46,7 +46,7 @@ swaptoLoc <- function(input, output, final=FALSE, cluster_control=mapreduce.cont
   job <- list()
   job$map <- expression({
     lapply(seq_along(map.values), function(r) {
-      
+
       if(!final) {
         date <- (as.numeric(map.keys[[r]][1]) - 1)*Mlcontrol$n.p + as.numeric(match(map.keys[[r]][2], month.abb))
         lapply(1:length(map.values[[r]]), function(i){
@@ -109,7 +109,7 @@ swaptoLoc <- function(input, output, final=FALSE, cluster_control=mapreduce.cont
   job$output <- rhfmt(output, type = "sequence")
   job$mapred <- list(
     mapreduce.map.java.opts = cluster_control$map_jvm,
-    mapreduce.map.memory.mb = cluster_control$map_memory, 
+    mapreduce.map.memory.mb = cluster_control$map_memory,
     mapreduce.reduce.java.opts = cluster_control$reduce_jvm,
     mapreduce.reduce.memory.mb = cluster_control$reduce_memory,
     mapreduce.job.reduces = cluster_control$reduceTask,  #cdh5
@@ -127,16 +127,15 @@ swaptoLoc <- function(input, output, final=FALSE, cluster_control=mapreduce.cont
     mapreduce.job.reduce.slowstart.completedmaps = cluster_control$slow_starts,
     rhipe_reduce_buff_size = cluster_control$reduce_buffer_size,
     rhipe_reduce_bytes_read = cluster_control$reduce_buffer_read,
-    rhipe_map_buff_size = cluster_control$map_buffer_size, 
+    rhipe_map_buff_size = cluster_control$map_buffer_size,
     rhipe_map_bytes_read = cluster_control$map_buffer_read
   )
   job$mon.sec <- 10
-  job$jobname <- output  
-  job$readback <- FALSE  
+  job$jobname <- output
+  job$readback <- FALSE
 
   job.mr <- do.call("rhwatch", job)
 
   #return(job.mr[[1]]$jobid)
 
 }
-

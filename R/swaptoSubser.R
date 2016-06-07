@@ -19,17 +19,19 @@ swaptoSubser <- function(input, output, cluster_control, model_control) {
     Mlcontrol = model_control
   )
   job$setup <- expression(
-    map = {library(plyr, lib.loc=Clcontrol$libLoc)}
+    map = {
+      library(plyr, lib.loc=Clcontrol$libLoc)
+    }
   )
   job$mapred <- list(
     mapreduce.task.timeout = 0,
     mapreduce.job.reduces = cluster_control$reduceTask,  #cdh5
     mapreduce.map.java.opts = cluster_control$map_jvm,
-    mapreduce.map.memory.mb = cluster_control$map_memory,     
+    mapreduce.map.memory.mb = cluster_control$map_memory,
     dfs.blocksize = cluster_control$BLK,
     rhipe_reduce_buff_size = cluster_control$reduce_buffer_size,
     rhipe_reduce_bytes_read = cluster_control$reduce_buffer_read,
-    rhipe_map_buff_size = cluster_control$map_buffer_size, 
+    rhipe_map_buff_size = cluster_control$map_buffer_size,
     rhipe_map_bytes_read = cluster_control$map_buffer_read,
     mapreduce.map.output.compress = TRUE,
     mapreduce.output.fileoutputformat.compress.type = "BLOCK"
@@ -39,9 +41,8 @@ swaptoSubser <- function(input, output, cluster_control, model_control) {
   job$output <- rhfmt(output, type="sequence")
   job$mon.sec <- 20
   job$jobname <- output
-  job$readback <- FALSE  
+  job$readback <- FALSE
 
-  job.mr <- do.call("rhwatch", job)  
+  job.mr <- do.call("rhwatch", job)
 
 }
-

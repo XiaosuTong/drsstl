@@ -4,8 +4,8 @@
 #'     A data.frame includes all locations' longitude, latitude, and elevation,
 #'     where the prediction is to be calculated.
 #' @param fitted
-#'     Can be either a data.frame in memory or HDFS path which contains all fitting results 
-#'     of original dataset. 
+#'     Can be either a data.frame in memory or HDFS path which contains all fitting results
+#'     of original dataset.
 #' @param output
 #'     The output path of fitting results on HDFS. If data is a data.frame object,
 #'     the output should be set as default NULL. Since the function will return
@@ -18,11 +18,11 @@
 #'     The list including all necessary smoothing parameters of nonparametric fitting.
 #' @param cluster_control
 #'     Should be a list object generated from \code{mapreduce.control} function.
-#'     The list including all necessary Rhipe parameters and also user tunable 
+#'     The list including all necessary Rhipe parameters and also user tunable
 #'     MapReduce parameters. It is only necessary for data on HDFS situation. If data
 #'     is data.frame in memory, this parameter should be kept as default NULL.
-#' @author 
-#'     Xiaosu Tong 
+#' @author
+#'     Xiaosu Tong
 #' @export
 #' @seealso
 #'     \code{\link{spacetime.control}}, \code{\link{mapreduce.control}}
@@ -31,10 +31,10 @@
 #'     mcontrol <- spacetime.control(
 #'       vari="resp", time="date", n=576, n.p=12, stat_n=7738, surf = "interpolate"
 #'       s.window="periodic", t.window = 241, degree=2, span=0.015, Edeg=2
-#'     ) 
+#'     )
 #'     ccontrol <- mapreduce.control(
 #'       libLoc=lib.loc, reduceTask=169, io_sort=128, slow_starts = 0.5,
-#'       map_jvm = "-Xmx200m", reduce_jvm = "-Xmx200m", 
+#'       map_jvm = "-Xmx200m", reduce_jvm = "-Xmx200m",
 #'       map_memory = 1024, reduce_memory = 1024,
 #'       reduce_input_buffer_percent=0.4, reduce_parallelcopies=10,
 #'       reduce_merge_inmem=0, task_io_sort_factor=100,
@@ -46,17 +46,17 @@
 #'       lat = seq(25, 49, by = 0.5)
 #'     )
 #'     instate <- !is.na(map.where("state", new.grid$lon, new.grid$lat))
-#'     new.grid <- new.grid[instate, ] 
+#'     new.grid <- new.grid[instate, ]
 #'
 #'     elev.fit <- spaloess( elev ~ lon + lat,
 #'       data = station_info,
-#'       degree = 2, 
+#'       degree = 2,
 #'       span = 0.015,
 #'       distance = "Latlong",
 #'       normalize = FALSE,
 #'       napred = FALSE,
 #'       alltree = FALSE,
-#'       family="symmetric", 
+#'       family="symmetric",
 #'       control=loess.control(surface = "direct")
 #'     )
 #'     grid.fit <- predloess(
@@ -66,12 +66,12 @@
 #'         lat = new.grid$lat
 #'       )
 #'     )
-#'     new.grid$elev2 <- log2(grid.fit + 128) 
+#'     new.grid$elev2 <- log2(grid.fit + 128)
 #'
 #'     #if the original fitting results are in memory
 #'     fitted <- drsstl(
-#'       data=tmax_all, 
-#'       output=NULL, 
+#'       data=tmax_all,
+#'       output=NULL,
 #'       stat_info="station_info",
 #'       model_control=mcontrol
 #'     )
@@ -81,17 +81,17 @@
 #'
 #'     #if the fitting results are on HDFS
 #'     predNewLocs(
-#'       fitted="/tmp/output/output_bymth", newdata=new.grid, output = "/tmp", 
-#'       station_info="/tmp/station_info.RData", model_control = mcontrol, 
+#'       fitted="/tmp/output/output_bymth", newdata=new.grid, output = "/tmp",
+#'       station_info="/tmp/station_info.RData", model_control = mcontrol,
 #'       cluster_control = ccontrol
-#'     ) 
+#'     )
 predNewLocs <- function(fitted, newdata, output = NULL, stat_info=NULL, model_control=spacetime.control(), cluster_control=NULL) {
-	
+
   if(class(fitted) == "data.frame") {
 
     rst <- predNew_local(original=fitted, newdata=newdata, mlcontrol=model_control)
     return(rst)
-    
+
   } else if (class(fitted) == "character") {
 
     if(is.null(output)) {

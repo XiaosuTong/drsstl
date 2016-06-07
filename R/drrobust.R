@@ -29,7 +29,7 @@ drrobust <- function(input, output, vari, Clcontrol, zero.weight=1e-6) {
     mapreduce.job.reduces = Clcontrol$reduceTask,  #cdh5
     io.sort.mb = Clcontrol$io.sort,
     rhipe_reduce_buff_size = 10000,
-    io.sort.spill.percent = Clcontrol$spill.percent 
+    io.sort.spill.percent = Clcontrol$spill.percent
   )
   jobW$readback <- FALSE
   jobW$jobname <- output

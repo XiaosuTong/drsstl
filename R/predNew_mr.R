@@ -15,13 +15,13 @@
 #'     The RData path on HDFS which contains all station metadata of original dataset
 #' @param clcontrol
 #'     Should be a list object generated from \code{mapreduce.control} function.
-#'     The list including all necessary Rhipe parameters and also user tunable 
+#'     The list including all necessary Rhipe parameters and also user tunable
 #'     MapReduce parameters.
 #' @param mlcontrol
 #'     Should be a list object generated from \code{spacetime.control} function.
 #'     The list including all necessary smoothing parameters of nonparametric fitting.
-#' @author 
-#'     Xiaosu Tong 
+#' @author
+#'     Xiaosu Tong
 #' @export
 #' @seealso
 #'     \code{\link{spacetime.control}}, \code{\link{mapreduce.control}}
@@ -31,24 +31,24 @@
 #'     mlcontrol <- spacetime.control(
 #'       vari="resp", time="date", n=576, n.p=12, stat_n=7738,
 #'       s.window="periodic", t.window = 241, degree=2, span=0.015, Edeg=2
-#'     ) 
+#'     )
 #'
 #'     new.grid <- expand.grid(
 #'       lon = seq(-126, -67, by = 0.1),
 #'       lat = seq(25, 49, by = 0.1)
 #'     )
 #'     instate <- !is.na(map.where("state", new.grid$lon, new.grid$lat))
-#'     new.grid <- new.grid[instate, ] 
+#'     new.grid <- new.grid[instate, ]
 #'
 #'     elev.fit <- spaloess( elev ~ lon + lat,
 #'       data = station_info,
-#'       degree = 2, 
+#'       degree = 2,
 #'       span = 0.015,
 #'       distance = "Latlong",
 #'       normalize = FALSE,
 #'       napred = FALSE,
 #'       alltree = FALSE,
-#'       family="symmetric", 
+#'       family="symmetric",
 #'       control=loess.control(surface = "direct")
 #'     )
 #'     grid.fit <- predloess(
@@ -58,16 +58,16 @@
 #'         lat = new.grid$lat
 #'       )
 #'     )
-#'     new.grid$elev2 <- log2(grid.fit + 128) 
+#'     new.grid$elev2 <- log2(grid.fit + 128)
 #'
 #'     predNew_mr(
-#'       newdata=new.grid, input="/tmp/output_bymth", output = "/tmp", 
+#'       newdata=new.grid, input="/tmp/output_bymth", output = "/tmp",
 #'       info="/tmp/station_info.RData", mlcontrol=mlcontrol, clcontrol=clcontrol
 #'     )
 
 
 predNew_mr <- function(newdata, input, output, info, mlcontrol=spacetime.control(), clcontrol=mapreduce.control()) {
-	
+
 	if(!is.data.frame(newdata)) {
 		stop("new locations must be a data.frame")
 	}
@@ -127,9 +127,9 @@ predNew_mr <- function(newdata, input, output, info, mlcontrol=spacetime.control
       value <- subset(value, select = -c(station.id))
       value$elev2 <- log2(value$elev + 128)
 
-      lo.fit <- spaloess( fml, 
-        data    = value, 
-        degree  = Mlcontrol$degree, 
+      lo.fit <- spaloess( fml,
+        data    = value,
+        degree  = Mlcontrol$degree,
         span    = Mlcontrol$span,
         para    = condParam,
         drop    = dropSq,
@@ -184,7 +184,7 @@ predNew_mr <- function(newdata, input, output, info, mlcontrol=spacetime.control
     mapreduce.task.timeout = 0,
     mapreduce.job.reduces = clcontrol$reduceTask,  #cdh5
     mapreduce.map.java.opts = clcontrol$map_jvm,
-    mapreduce.map.memory.mb = clcontrol$map_memory,     
+    mapreduce.map.memory.mb = clcontrol$map_memory,
     dfs.blocksize = clcontrol$BLK,
     rhipe_map_bytes_read = clcontrol$map_buffer_read,
     rhipe_map_buffer_size = clcontrol$map_buffer_size,
@@ -195,8 +195,8 @@ predNew_mr <- function(newdata, input, output, info, mlcontrol=spacetime.control
   job1$output <- rhfmt(FileOutput, type="sequence")
   job1$mon.sec <- 10
   job1$jobname <- FileOutput
-  job1$readback <- FALSE  
-  job.mr <- do.call("rhwatch", job1)  
+  job1$readback <- FALSE
+  job.mr <- do.call("rhwatch", job1)
 
   FileInput <- FileOutput
   FileOutput <- file.path(output, "newpred/stlfit")
@@ -207,20 +207,20 @@ predNew_mr <- function(newdata, input, output, info, mlcontrol=spacetime.control
       value <- arrange(data.frame(matrix(map.values[[r]], ncol=2, byrow=TRUE)), X1)
 
       fit <- stlplus::stlplus(
-        x=value$X2, t=value$X1, n.p=Mlcontrol$n.p, 
-        s.window=Mlcontrol$s.window, s.degree=Mlcontrol$s.degree, 
-        t.window=Mlcontrol$t.window, t.degree=Mlcontrol$t.degree, 
+        x=value$X2, t=value$X1, n.p=Mlcontrol$n.p,
+        s.window=Mlcontrol$s.window, s.degree=Mlcontrol$s.degree,
+        t.window=Mlcontrol$t.window, t.degree=Mlcontrol$t.degree,
         inner=Mlcontrol$inner, outer=Mlcontrol$outer
       )$data
-      # value originally is a data.frame with 3 columns, vectorize it 
+      # value originally is a data.frame with 3 columns, vectorize it
       names(value) <- c(Mlcontrol$time, Mlcontrol$vari)
       value <- unname(unlist(cbind(subset(value, select = -c(date)), subset(fit, select = c(seasonal, trend)))))
-      
+
       lapply((1:Mlcontrol$n), function(i) {
         rhcollect(i, c(value[c(i, i+Mlcontrol$n, i+Mlcontrol$n*2)], i, map.keys[[r]]))
       })
 
-    })      
+    })
   })
   job2$reduce <- expression(
   	pre = {
@@ -249,11 +249,11 @@ predNew_mr <- function(newdata, input, output, info, mlcontrol=spacetime.control
     mapreduce.task.timeout = 0,
     mapreduce.job.reduces = clcontrol$reduceTask,  #cdh5
     mapreduce.map.java.opts = clcontrol$map_jvm,
-    mapreduce.map.memory.mb = clcontrol$map_memory,     
+    mapreduce.map.memory.mb = clcontrol$map_memory,
     dfs.blocksize = clcontrol$BLK,
     rhipe_reduce_buff_size = clcontrol$reduce_buffer_size,
     rhipe_reduce_bytes_read = clcontrol$reduce_buffer_read,
-    rhipe_map_buff_size = clcontrol$map_buffer_size, 
+    rhipe_map_buff_size = clcontrol$map_buffer_size,
     rhipe_map_bytes_read = clcontrol$map_buffer_read,
     mapreduce.map.output.compress = TRUE,
     mapreduce.output.fileoutputformat.compress.type = "BLOCK"
@@ -262,8 +262,8 @@ predNew_mr <- function(newdata, input, output, info, mlcontrol=spacetime.control
   job2$readback <- FALSE
   job2$jobname <- FileOutput
   job.mr <- do.call("rhwatch", job2)
-  
-  
+
+
   prefix <- strsplit(input, "/")[[1]][1:(length(strsplit(input, "/")[[1]])-1)]
   FileInput <- c(file.path(do.call("file.path", as.list(prefix)), "bymthse"), FileOutput)
   FileOutput <- file.path(output, "newpred/merge")
@@ -314,7 +314,7 @@ predNew_mr <- function(newdata, input, output, info, mlcontrol=spacetime.control
     mapreduce.task.timeout = 0,
     mapreduce.job.reduces = clcontrol$reduceTask,  #cdh5
     mapreduce.map.java.opts = clcontrol$map_jvm,
-    mapreduce.map.memory.mb = clcontrol$map_memory,     
+    mapreduce.map.memory.mb = clcontrol$map_memory,
     dfs.blocksize = clcontrol$BLK,
     rhipe_map_bytes_read = clcontrol$map_buffer_read,
     rhipe_map_buffer_size = clcontrol$map_buffer_size,
@@ -325,8 +325,8 @@ predNew_mr <- function(newdata, input, output, info, mlcontrol=spacetime.control
   job3$output <- rhfmt(FileOutput, type="sequence")
   job3$mon.sec <- 10
   job3$jobname <- FileOutput
-  job3$readback <- FALSE  
-  job.mr <- do.call("rhwatch", job3)  
+  job3$readback <- FALSE
+  job.mr <- do.call("rhwatch", job3)
 
 
   FileInput <- FileOutput
@@ -353,16 +353,16 @@ predNew_mr <- function(newdata, input, output, info, mlcontrol=spacetime.control
         dropSq <- FALSE
         condParam <- FALSE
       }
-      
+
       value <- arrange(map.values[[r]], new, station.id)
       if (Mlcontrol$Edeg != 0) {
         value <- cbind(value, rbind(station_info[, c("lon","lat","elev2")], newdata[, c("lon","lat","elev2")]))
       } else {
         value <- cbind(value, rbind(station_info[, c("lon","lat")], newdata[, c("lon","lat")]))
       }
-      lo.fit <- spaloess( fml, 
-        data    = value, 
-        degree  = Mlcontrol$degree, 
+      lo.fit <- spaloess( fml,
+        data    = value,
+        degree  = Mlcontrol$degree,
         span    = Mlcontrol$span,
         para    = condParam,
         drop    = dropSq,
@@ -399,7 +399,7 @@ predNew_mr <- function(newdata, input, output, info, mlcontrol=spacetime.control
     mapreduce.task.timeout = 0,
     mapreduce.job.reduces = 0,  #cdh5
     mapreduce.map.java.opts = clcontrol$map_jvm,
-    mapreduce.map.memory.mb = clcontrol$map_memory,     
+    mapreduce.map.memory.mb = clcontrol$map_memory,
     dfs.blocksize = clcontrol$BLK,
     rhipe_map_bytes_read = clcontrol$map_buffer_read,
     rhipe_map_buffer_size = clcontrol$map_buffer_size,
@@ -410,10 +410,10 @@ predNew_mr <- function(newdata, input, output, info, mlcontrol=spacetime.control
   job4$output <- rhfmt(FileOutput, type="sequence")
   job4$mon.sec <- 10
   job4$jobname <- FileOutput
-  job4$readback <- FALSE  
-  job.mr <- do.call("rhwatch", job4)  
+  job4$readback <- FALSE
+  job.mr <- do.call("rhwatch", job4)
 
-  
+
   FileInput <- FileOutput
   FileOutput <- file.path(output, "newpred/result_bystat")
 
@@ -450,7 +450,7 @@ predNew_mr <- function(newdata, input, output, info, mlcontrol=spacetime.control
   )
   job5$mapred <- list(
     mapreduce.map.java.opts = clcontrol$map_jvm,
-    mapreduce.map.memory.mb = clcontrol$map_memory, 
+    mapreduce.map.memory.mb = clcontrol$map_memory,
     mapreduce.reduce.java.opts = clcontrol$reduce_jvm,
     mapreduce.reduce.memory.mb = clcontrol$reduce_memory,
     mapreduce.job.reduces = clcontrol$reduceTask,  #cdh5
@@ -468,7 +468,7 @@ predNew_mr <- function(newdata, input, output, info, mlcontrol=spacetime.control
     mapreduce.job.reduce.slowstart.completedmaps = clcontrol$slow_starts,
     rhipe_reduce_buff_size = clcontrol$reduce_buffer_size,
     rhipe_reduce_bytes_read = clcontrol$reduce_buffer_read,
-    rhipe_map_buff_size = clcontrol$map_buffer_size, 
+    rhipe_map_buff_size = clcontrol$map_buffer_size,
     rhipe_map_bytes_read = clcontrol$map_buffer_read
   )
   job5$combiner <- TRUE
@@ -476,8 +476,7 @@ predNew_mr <- function(newdata, input, output, info, mlcontrol=spacetime.control
   job5$output <- rhfmt(FileOutput, type="sequence")
   job5$mon.sec <- 10
   job5$jobname <- FileOutput
-  job5$readback <- FALSE  
-  job.mr <- do.call("rhwatch", job5)  
+  job5$readback <- FALSE
+  job.mr <- do.call("rhwatch", job5)
 
 }
-
