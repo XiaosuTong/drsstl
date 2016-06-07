@@ -131,17 +131,17 @@ predNew_mr <- function(newdata, input, output, info, mlcontrol=spacetime.control
       NApred <- any(is.na(value[, Mlcontrol$vari]))
 
       lo.fit <- spaloess( fml,
-        data    = value,
-        degree  = Mlcontrol$degree,
-        span    = Mlcontrol$span,
-        para    = condParam,
-        drop    = dropSq,
-        family  = Mlcontrol$family,
-        normalize = FALSE,
-        distance = "Latlong",
-        control = loess.control(surface = Mlcontrol$surf, iterations = Mlcontrol$siter, cell = Mlcontrol$cell),
-        napred = NApred,
-        alltree = match.arg(Mlcontrol$surf, c("interpolate", "direct")) == "interpolate"
+        data        = value,
+        degree      = Mlcontrol$degree,
+        span        = Mlcontrol$span,
+        parametric  = condParam,
+        drop_square = dropSq,
+        family      = Mlcontrol$family,
+        normalize   = FALSE,
+        distance    = "Latlong",
+        control     = loess.control(surface = Mlcontrol$surf, iterations = Mlcontrol$siter, cell = Mlcontrol$cell),
+        napred      = NApred,
+        alltree     = match.arg(Mlcontrol$surf, c("interpolate", "direct")) == "interpolate"
       )
       if (Mlcontrol$Edeg != 0) {
         newPred <- unname(predloess(
@@ -378,7 +378,7 @@ predNew_mr <- function(newdata, input, output, info, mlcontrol=spacetime.control
         degree      = Mlcontrol$degree,
         span        = Mlcontrol$span,
         parametric  = condParam,
-        drop.square = dropSq,
+        drop_square = dropSq,
         family      = Mlcontrol$family,
         normalize   = FALSE,
         distance    = "Latlong",
