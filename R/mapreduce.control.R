@@ -29,7 +29,7 @@
 #'     mapreduce.control()
 
 mapreduce.control <- function(
-  reduceTask=0, libLoc = NULL, BLK = 128, map_jvm = "-Xmx200m", reduce_jvm = "-Xmx200m",
+  reduceTask = 0, libLoc = NULL, BLK = 128, map_jvm = "-Xmx200m", reduce_jvm = "-Xmx200m",
   map_memory = 1024, reduce_memory = 1024, slow_starts = 0.5,
   spill_percent = 0.8, io_sort = 128, task_io_sort_factor = 100,
   reduce_parallelcopies = 5, reduce_shuffle_input_buffer_percent = 0.70,

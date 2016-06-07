@@ -32,6 +32,7 @@ to the key-value pairs which is division by-month.
     of multiple location in one time point.
 }
 \examples{
+\dontrun{
     FileInput <- "/tmp/bystatfit"
     FileOutput <- "/tmp/bymthse"
 
@@ -49,6 +50,7 @@ to the key-value pairs which is division by-month.
     )
 
     swaptoTime(FileInput, FileOutput, cluster_control=ccontrol, model_control=mcontrol)
+}
 }
 \author{
 Xiaosu Tong

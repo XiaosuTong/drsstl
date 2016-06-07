@@ -19,6 +19,7 @@
 #'     \code{\link{spacetime.control}}, \code{\link{mapreduce.control}}
 #'
 #' @examples
+#'     library(maps)
 #'     mlcontrol <- spacetime.control(
 #'       vari="resp", time="date", n=576, n.p=12, stat_n=7738,
 #'       s.window="periodic", t.window = 241, degree=2, span=0.015, Edeg=2

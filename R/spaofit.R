@@ -1,4 +1,6 @@
-#' Apply the spatial loess fitting to the original observations at 
+utils::globalVariables(c("rhfmt"))
+
+#' Apply the spatial loess fitting to the original observations at
 #' all locations in each month in parallel
 #'
 #' Call \code{spaloess} function on the spatial domain in each month in parallel.
@@ -8,22 +10,23 @@
 #' @param input
 #'     The path of input sequence file on HDFS. It should be by-month division.
 #' @param output
-#'     The path of output sequence file on HDFS. It is also by-month division but with 
+#'     The path of output sequence file on HDFS. It is also by-month division but with
 #'     seasonal and trend components
 #' @param info
 #'     The RData on HDFS which contains all station metadata. Make sure
 #'     copy the RData of station_info to HDFS first using rhput.
 #' @param cluster_control
 #'     Should be a list object generated from \code{mapreduce.control} function.
-#'     The list including all necessary Rhipe parameters and also user tunable 
+#'     The list including all necessary Rhipe parameters and also user tunable
 #'     MapReduce parameters.
 #' @param model_control
 #'     Should be a list object generated from \code{spacetime.control} function.
 #'     The list including all necessary smoothing parameters of nonparametric fitting.
-#' @author 
-#'     Xiaosu Tong 
+#' @author
+#'     Xiaosu Tong
 #' @export
 #' @examples
+#' \dontrun{
 #'     FileInput <- "/tmp/bymth"
 #'     FileOutput <- "/tmp/bymthfit"
 #'     ccontrol <- mapreduce.control(libLoc=NULL, reduceTask=0)
@@ -34,10 +37,10 @@
 #'
 #'     spaofit(
 #'       FileInput, FileOutput,
-#'       info="/tmp/station_info.RData", 
+#'       info="/tmp/station_info.RData",
 #'       model_control=mcontrol, cluster_control=ccontrol
 #'     )
-
+#' }
 spaofit <- function(input, output, info, model_control=spacetime.control(), cluster_control=mapreduce.control()) {
 
   job <- list()
@@ -62,9 +65,9 @@ spaofit <- function(input, output, info, model_control=spacetime.control(), clus
       value$elev2 <- log2(value$elev + 128)
       NApred <- any(is.na(value$resp))
 
-      lo.fit <- spaloess( fml, 
-        data    = value, 
-        degree  = Mlcontrol$degree, 
+      lo.fit <- spaloess( fml,
+        data    = value,
+        degree  = Mlcontrol$degree,
         span    = Mlcontrol$span,
         para    = condParam,
         drop    = dropSq,
@@ -79,7 +82,7 @@ spaofit <- function(input, output, info, model_control=spacetime.control(), clus
       if(NApred) {
         indx <- which(!is.na(value$resp))
         rst <- rbind(
-          cbind(indx, fitted=lo.fit$fitted), 
+          cbind(indx, fitted=lo.fit$fitted),
           cbind(which(is.na(value$resp)), fitted=lo.fit$pred$fitted)
         )
         rst <- arrange(as.data.frame(rst), indx)
@@ -87,7 +90,7 @@ spaofit <- function(input, output, info, model_control=spacetime.control(), clus
       } else {
         rhcollect(map.keys[[r]], lo.fit$fitted)
       }
-      
+
     })
   })
   job$parameters <- list(
@@ -107,7 +110,7 @@ spaofit <- function(input, output, info, model_control=spacetime.control(), clus
     mapreduce.task.timeout = 0,
     mapreduce.job.reduces = cluster_control$reduceTask,  #cdh5
     mapreduce.map.java.opts = cluster_control$map_jvm,
-    mapreduce.map.memory.mb = cluster_control$map_memory,     
+    mapreduce.map.memory.mb = cluster_control$map_memory,
     dfs.blocksize = cluster_control$BLK,
     rhipe_map_bytes_read = cluster_control$map_buffer_read,
     rhipe_map_buffer_size = cluster_control$map_buffer_size,
@@ -118,9 +121,9 @@ spaofit <- function(input, output, info, model_control=spacetime.control(), clus
   job$output <- rhfmt(output, type="sequence")
   job$mon.sec <- 10
   job$jobname <- output
-  job$readback <- FALSE  
+  job$readback <- FALSE
 
-  job.mr <- do.call("rhwatch", job)  
+  job.mr <- do.call("rhwatch", job)
 
   #return(job.mr[[1]]$jobid)
 

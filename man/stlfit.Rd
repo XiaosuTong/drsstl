@@ -17,19 +17,21 @@ stlfit(input, output, model_control = spacetime.control(),
 \item{cluster_control}{A list contains all mapreduce tuning parameters.}
 }
 \description{
-Calling \code{stlplus} function from Ryan Hafen's \code{stlplus} 
+Calling \code{stlplus} function from Ryan Hafen's \code{stlplus}
 package on time series at each location in parallel.
 Every station uses the same smoothing parameter
 }
 \examples{
+\dontrun{
     FileInput <- "/tmp/bystat"
     FileOutput <- "/tmp/bystatfit"
     ccontrol <- mapreduce.control(libLoc=NULL, reduceTask=0)
     mcontrol <- spacetime.control(
-      vari = "resp", time = "date", n = 576, stat_n=7738, n.p = 12, s.window = "periodic", 
+      vari = "resp", time = "date", n = 576, stat_n=7738, n.p = 12, s.window = "periodic",
       t.window = 241, degree = 2, span = 0.015, Edeg = 2
     )
     stlfit(FileInput, FileOutput, model_control=mcontrol, cluster_control=ccontrol)
+}
 }
 \author{
 Xiaosu Tong

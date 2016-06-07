@@ -17,6 +17,8 @@ copy the RData of station_info.RData, which is also available in the drSpaceTime
 package, to HDFS first using rhput.}
 
 \item{cluster_control}{all parameters that are needed for mapreduce job}
+
+\item{cshift}{number of columns to be shifted when reading raw text file}
 }
 \description{
 Input raw text data file is download from NCDC, and is available in the
@@ -24,9 +26,8 @@ drSpaceTime package in ./inst/extdata. It is read in and divided into by-month
 division saved on HDFS
 }
 \examples{
-    \dontrun{
-      rhput("./station_info.RData", "/tmp/station_info.RData")
-    }
+\dontrun{
+    rhput("./station_info.RData", "/tmp/station_info.RData")
     FileInput <- "/tmp/tmax.txt"
     FileOutput <- "/tmp/bymth"
     ccontrol <- mapreduce.control(
@@ -38,6 +39,7 @@ division saved on HDFS
     readIn(
       FileInput, FileOutput, info="/tmp/station_info.RData", cluster_control=ccontrol
     )
+}
 }
 \author{
 Xiaosu Tong

@@ -14,8 +14,9 @@ Imports:
     plyr,
     Rcpp,
     yaImpute,
-    stlplus
-License: MIT
+    stlplus,
+    testthat
+License: MIT + file LICENSE
 LazyData: true
 RoxygenNote: 5.0.1
 Suggests: knitr,
@@ -23,4 +24,4 @@ Suggests: knitr,
 VignetteBuilder: knitr
 LinkingTo: Rcpp
 Remotes:
-  "xiaosutong/Spaloess"
+  xiaosutong/Spaloess

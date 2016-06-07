@@ -36,7 +36,7 @@
 #' @param surf
 #'     should the fitted surface be computed exactly or via interpolation from a kd tree.
 #' @param family
-#'     if ‘"gaussian"’ fitting is by least-squares, and if '"symmetric"' a re-descending M estimator
+#'     if '"gaussian"' fitting is by least-squares, and if '"symmetric"' a re-descending M estimator
 #'     is used with Tukey's biweight function.
 #' @param siter
 #'     the number of iterations used for the spatial smoothing procedure if family is set to be
@@ -44,11 +44,11 @@
 #' @param cell
 #'     if interpolation is used this controls the accuracy of the
 #'     approximation via the maximum number of points in a cell in
-#'     the kd-tree. Cells with more than ‘floor(n*span*cell)’ points
+#'     the kd-tree. Cells with more than 'floor(n*span*cell)' points
 #'     are subdivided.
 #' @param s.jump, t.jump
 #'     integers at least one to increase speed of the respective smoother. Linear interpolation
-#'     happens between every ‘*.jump’th value.
+#'     happens between every '*.jump'th value.
 #' @return
 #'     A list with space-time fitting parameters.
 #' @author

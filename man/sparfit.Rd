@@ -10,7 +10,7 @@ sparfit(input, output, info, model_control = spacetime.control(),
 \arguments{
 \item{input}{The path of input file on HDFS. It should be by-month division with temporal fitting results.}
 
-\item{output}{The path of output file on HDFS. It is by-month division but with added spatial fitted value for 
+\item{output}{The path of output file on HDFS. It is by-month division but with added spatial fitted value for
 remainder, named Rspa.}
 
 \item{info}{The RData path on HDFS which contains all station metadata}
@@ -19,7 +19,7 @@ remainder, named Rspa.}
 The list including all necessary smoothing parameters of nonparametric fitting.}
 
 \item{cluster_control}{Should be a list object generated from \code{mapreduce.control} function.
-The list including all necessary Rhipe parameters and also user tunable 
+The list including all necessary Rhipe parameters and also user tunable
 MapReduce parameters.}
 }
 \description{
@@ -27,18 +27,20 @@ Call \code{spaloess} function on the spatial domain at each time point in parall
 Every spatial domain uses the same smoothing parameters
 }
 \examples{
+\dontrun{
     FileInput <- "/tmp/bymthse"
     FileOutput <- "/tmp/bymthfitse"
     ccontrol <- mapreduce.control(libLoc=NULL, reduceTask=0, BLK=128)
     mcontrol <- spacetime.control(
-      vari="remainder", time="date", seaname="month", n=786432, n.p=12, 
+      vari="remainder", time="date", seaname="month", n=786432, n.p=12,
       s.window=13, t.window = 241, degree=2, span=0.015, Edeg=2
     )
 
     sparfit(
-      FileInput, FileOutput, info="/tmp/station_info.RData", 
+      FileInput, FileOutput, info="/tmp/station_info.RData",
       model_control=mcontrol, cluster_control=ccontrol
     )
+}
 }
 \author{
 Xiaosu Tong

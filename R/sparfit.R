@@ -6,33 +6,35 @@
 #' @param input
 #'     The path of input file on HDFS. It should be by-month division with temporal fitting results.
 #' @param output
-#'     The path of output file on HDFS. It is by-month division but with added spatial fitted value for 
-#'     remainder, named Rspa. 
+#'     The path of output file on HDFS. It is by-month division but with added spatial fitted value for
+#'     remainder, named Rspa.
 #' @param info
 #'     The RData path on HDFS which contains all station metadata
 #' @param cluster_control
 #'     Should be a list object generated from \code{mapreduce.control} function.
-#'     The list including all necessary Rhipe parameters and also user tunable 
+#'     The list including all necessary Rhipe parameters and also user tunable
 #'     MapReduce parameters.
 #' @param model_control
 #'     Should be a list object generated from \code{spacetime.control} function.
 #'     The list including all necessary smoothing parameters of nonparametric fitting.
-#' @author 
-#'     Xiaosu Tong 
+#' @author
+#'     Xiaosu Tong
 #' @export
 #' @examples
+#' \dontrun{
 #'     FileInput <- "/tmp/bymthse"
 #'     FileOutput <- "/tmp/bymthfitse"
 #'     ccontrol <- mapreduce.control(libLoc=NULL, reduceTask=0, BLK=128)
 #'     mcontrol <- spacetime.control(
-#'       vari="remainder", time="date", seaname="month", n=786432, n.p=12, 
+#'       vari="remainder", time="date", seaname="month", n=786432, n.p=12,
 #'       s.window=13, t.window = 241, degree=2, span=0.015, Edeg=2
 #'     )
 #'
 #'     sparfit(
-#'       FileInput, FileOutput, info="/tmp/station_info.RData", 
+#'       FileInput, FileOutput, info="/tmp/station_info.RData",
 #'       model_control=mcontrol, cluster_control=ccontrol
 #'     )
+#' }
 
 sparfit <- function(input, output, info, model_control=spacetime.control(), cluster_control=mapreduce.control()) {
 
@@ -63,9 +65,9 @@ sparfit <- function(input, output, info, model_control=spacetime.control(), clus
         .fun = function(S) {
           S <- cbind(S, station_info[, c("lon","lat","elev")])
           S$elev2 <- log2(S$elev + 128)
-          lo.fit <- spaloess( fml, 
-            data    = S, 
-            degree  = Mlcontrol$degree, 
+          lo.fit <- spaloess( fml,
+            data    = S,
+            degree  = Mlcontrol$degree,
             span    = Mlcontrol$span,
             para    = condParam,
             drop    = dropSq,
@@ -102,7 +104,7 @@ sparfit <- function(input, output, info, model_control=spacetime.control(), clus
     mapreduce.task.timeout = 0,
     mapreduce.job.reduces = cluster_control$reduceTask,  #cdh5
     mapreduce.map.java.opts = cluster_control$map_jvm,
-    mapreduce.map.memory.mb = cluster_control$map_memory,     
+    mapreduce.map.memory.mb = cluster_control$map_memory,
     dfs.blocksize = cluster_control$BLK,
     rhipe_map_bytes_read = cluster_control$map_buffer_read,
     rhipe_map_buffer_size = cluster_control$map_buffer_size,
@@ -113,9 +115,9 @@ sparfit <- function(input, output, info, model_control=spacetime.control(), clus
   job$output <- rhfmt(output, type="sequence")
   job$mon.sec <- 10
   job$jobname <- output
-  job$readback <- FALSE  
+  job$readback <- FALSE
 
-  job.mr <- do.call("rhwatch", job)  
+  job.mr <- do.call("rhwatch", job)
 
   #return(job.mr[[1]]$jobid)
 

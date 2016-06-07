@@ -39,7 +39,7 @@ is extremely long, it can be set to be 2.}
 
 \item{s.jump, }{t.jump
 integers at least one to increase speed of the respective smoother. Linear interpolation
-happens between every ‘*.jump’th value.}
+happens between every '*.jump'th value.}
 
 \item{cell}{if interpolation is used this controls the accuracy of the
 approximation via the maximum number of points in a cell in

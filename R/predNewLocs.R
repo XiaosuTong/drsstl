@@ -28,12 +28,13 @@
 #'     \code{\link{spacetime.control}}, \code{\link{mapreduce.control}}
 #'
 #' @examples
+#' \dontrun{
 #'     mcontrol <- spacetime.control(
-#'       vari="resp", time="date", n=576, n.p=12, stat_n=7738, surf = "interpolate"
+#'       vari="resp", time="date", n=576, n.p=12, stat_n=7738, surf = "interpolate",
 #'       s.window="periodic", t.window = 241, degree=2, span=0.015, Edeg=2
 #'     )
 #'     ccontrol <- mapreduce.control(
-#'       libLoc=lib.loc, reduceTask=169, io_sort=128, slow_starts = 0.5,
+#'       libLoc= NULL, reduceTask=169, io_sort=128, slow_starts = 0.5,
 #'       map_jvm = "-Xmx200m", reduce_jvm = "-Xmx200m",
 #'       map_memory = 1024, reduce_memory = 1024,
 #'       reduce_input_buffer_percent=0.4, reduce_parallelcopies=10,
@@ -85,6 +86,7 @@
 #'       station_info="/tmp/station_info.RData", model_control = mcontrol,
 #'       cluster_control = ccontrol
 #'     )
+#' }
 predNewLocs <- function(fitted, newdata, output = NULL, stat_info=NULL, model_control=spacetime.control(), cluster_control=NULL) {
 
   if(class(fitted) == "data.frame") {

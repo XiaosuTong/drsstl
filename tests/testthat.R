@@ -1,4 +1,4 @@
 library(testthat)
 library(drSpaceTime)
 
-test_check("drSpaceTime")
+# test_check("drSpaceTime")

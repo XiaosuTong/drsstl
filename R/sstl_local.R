@@ -1,3 +1,5 @@
+utils::globalVariables(c("year"))
+
 #' Apply sstl routine to a data.frame of spatial-temporal dataset in the memory.
 #'
 #' Assuming data has been read into the memory as a data.frame. Each row of the data.frame
