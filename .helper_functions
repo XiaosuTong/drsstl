@@ -22,3 +22,7 @@ test_file:
     testthat::test_file(file.path(package, "tests", "testthat", paste0("test-", file, ".R")))
   }
   tf("zzz_ggpairs")
+lint_info:
+  exclude - a regex pattern for lines to exclude from linting. Default is "# nolint"
+  exclude_start - a regex pattern to start exclusion range. Default is "# nolint start"
+  exclude_end - a regex pattern to end exclusion range. Default is "# nolint end"
