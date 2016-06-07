@@ -1,4 +1,4 @@
-#
+# nolint start
 # #' @importFrom stats frequency loess median predict quantile weighted.mean time
 # #' @importFrom utils head stack tail
 #
@@ -135,3 +135,4 @@
 #   job.mr <- do.call("rhwatch", jobIn)
 #
 # }
+# nolint end

@@ -1,3 +1,4 @@
+# nolint start
 ##' @importFrom yaImpute ann
 ##' @importFrom Rcpp sourceCpp
 ##' @useDynLib drSpaceTime#
@@ -132,3 +133,4 @@
 #
 #  res1
 #}
+# nolint end

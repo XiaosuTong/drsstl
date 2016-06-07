@@ -1,3 +1,4 @@
+# nolint start
 # drrobust <- function(input, output, vari, Clcontrol, zero.weight=1e-6) {
 #
 #   jobW <- list()
@@ -36,3 +37,4 @@
 #   job.mr <- do.call("rhwatch", jobW)
 #
 # }
+# nolint end

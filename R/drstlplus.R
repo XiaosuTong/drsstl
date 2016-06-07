@@ -1,3 +1,4 @@
+# nolint start
 # # ' @export
 #
 # drstlplus <- function(input, output, model_control=spacetime.control()) {
@@ -138,3 +139,4 @@
 #   }
 #
 # }
+# nolint end
