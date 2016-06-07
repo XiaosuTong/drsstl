@@ -3,15 +3,16 @@
 
 library(Spaloess)
 library(maps)
+library(plyr)
 
 
 test_that("local fit and pred", {
 
-  expect_true(FALSE)
+#  expect_true(FALSE)
 
   new.grid <- expand.grid(
-   lon = seq(-126, -67, by = 0.5),
-   lat = seq(25, 49, by = 0.5)
+   lon = seq(-126, -67, by = 1),
+   lat = seq(25, 49, by = 1)
   )
   instate <- ! is.na(map.where("state", new.grid$lon, new.grid$lat))
   new.grid <- new.grid[instate, ]
@@ -19,7 +20,7 @@ test_that("local fit and pred", {
   elev.fit <- spaloess( elev ~ lon + lat,
    data = station_info,
    degree = 2,
-   span = 0.015,
+   span = 0.05,
    distance = "Latlong",
    normalize = FALSE,
    napred = FALSE,
@@ -39,23 +40,24 @@ test_that("local fit and pred", {
 
   #if the fitting results are in memory#
 
-  n <- length(unique(tmax_all$station.id)
-  # n <- 1000
+  #n <- length(unique(tmax_all$station.id)
+  n <- 1000
 
   mcontrol <- spacetime.control(
-   vari = "tmax", time = "date", n = 576, n.p = 12, stat_n = n, surf = "direct",
-   s.window = 13, t.window = 241, degree = 2, span = 0.1, Edeg = 0,
+   vari = "tmax", time = "date", n = 576, n.p = 12, stat_n = n, surf = "interpolate",
+   s.window = 13, t.window = 241, degree = 2, span = 0.25, Edeg = 0,
    statbytime = 1
   )
 
-  first_stations <- unique(tmax_all$station.id)[1:n]
+  set.seed(99)
+  first_stations <- sample(unique(tmax_all$station.id), n)
   small_dt <- subset(tmax_all, station.id %in% first_stations)
   small_dt$station.id <- as.character(small_dt$station.id)
   small_dt$month <- as.character(small_dt$month)
+
   fitted <- drsstl(
    data = small_dt,
    output = NULL,
-   stat_info = "station_info",
    model_control = mcontrol
   )
   we <- predNewLocs(
@@ -63,8 +65,7 @@ test_that("local fit and pred", {
   )
 
   # prove it here!
-  expect_true(TRUE)
-  expect_equivalent(we$fit, c(1,2,3,4))
+  expect_equivalent(sum(is.na(we)), 0)
 
 })
 
