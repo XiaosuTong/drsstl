@@ -1,7 +1,8 @@
-#' @import Spaloess plyr Rcpp yaImpute stlplus
+#' @import Spaloess plyr Rcpp yaImpute stlplus roxygen2 testthat
 #' @importFrom stats as.formula loess.control
 #' @importFrom stats median
 #' @importFrom utils head tail
+#' @importFrom maps map.where
 NULL
 
 
