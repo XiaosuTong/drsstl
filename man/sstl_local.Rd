@@ -14,7 +14,7 @@ The list including all necessary smoothing parameters of nonparametric fitting.}
 }
 \description{
 Assuming data has been read into the memory as a data.frame. Each row of the data.frame
-contains the observation in a given month at given location. Month index and station 
+contains the observation in a given month at given location. Month index and station
 location information are saved in 5 columns of the data.frame. The name of these columns
 should be "lon", "lat", "elev", "year", and "month".
 }

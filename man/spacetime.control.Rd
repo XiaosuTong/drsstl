@@ -21,7 +21,7 @@ instead of year and month.}
 
 \item{n.p}{the number of observations in each subseries. It should be 12 for monthly data for example.}
 
-\item{s.window}{either the character string \code{"periodic"} or the span (in lags) of 
+\item{s.window}{either the character string \code{"periodic"} or the span (in lags) of
 the loess window for seasonal extraction, which should be odd. This has no default.}
 
 \item{s.degree}{degree of locally-fitted polynomial in seasonal extraction. Should be 0, 1, or 2.}
@@ -34,10 +34,10 @@ the loess window for seasonal extraction, which should be odd. This has no defau
 The parameter is only used for \code{swaptoTime}. Since there may be to many time
 point in each location, the \code{swaptoTime} looping all time point will add to much
 overhead caused by \code{rhcollect}. So every \code{statbytime} time point are collect
-into one key-value pair. It is save to leave it as default 1. If the time series 
+into one key-value pair. It is save to leave it as default 1. If the time series
 is extremely long, it can be set to be 2.}
 
-\item{s.jump, }{t.jump 
+\item{s.jump, }{t.jump
 integers at least one to increase speed of the respective smoother. Linear interpolation
 happens between every ‘*.jump’th value.}
 
@@ -54,10 +54,10 @@ are subdivided.}
 
 \item{surf}{should the fitted surface be computed exactly or via interpolation from a kd tree.}
 
-\item{family}{if ‘"gaussian"’ fitting is by least-squares, and if '"symmetric"' a re-descending M estimator 
+\item{family}{if ‘"gaussian"’ fitting is by least-squares, and if '"symmetric"' a re-descending M estimator
 is used with Tukey's biweight function.}
 
-\item{siter}{the number of iterations used for the spatial smoothing procedure if family is set to be 
+\item{siter}{the number of iterations used for the spatial smoothing procedure if family is set to be
 '"symmetric"', which is for robust fitting.}
 }
 \value{
@@ -68,7 +68,7 @@ Set control parameters for the smoothing fit of stl and spatial smoothing
 }
 \examples{
     spacetime.control(
-     n = 576, stat_n = 7738, n.p = 12, s.window = 21, s.degree = 1, t.window = 241, 
+     n = 576, stat_n = 7738, n.p = 12, s.window = 21, s.degree = 1, t.window = 241,
       t.degree = 1, degree = 2, span = 0.015, Edeg = 2, surf = "interpolate"
     )
 }

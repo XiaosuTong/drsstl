@@ -14,7 +14,7 @@ sstl_mr(input, output, stat_info, mlcontrol = spacetime.control(),
 The list including all necessary smoothing parameters of nonparametric fitting.}
 
 \item{clcontrol}{Should be a list object generated from \code{mapreduce.control} function.
-The list including all necessary Rhipe parameters and also user tunable 
+The list including all necessary Rhipe parameters and also user tunable
 MapReduce parameters.}
 }
 \description{
@@ -29,7 +29,7 @@ inside of output path on HDFS.
     )
     ccontrol <- mapreduce.control(
       libLoc=lib.loc, reduceTask=169, io_sort=512, BLK=128, slow_starts = 0.5,
-      map_jvm = "-Xmx200m", reduce_jvm = "-Xmx200m", 
+      map_jvm = "-Xmx200m", reduce_jvm = "-Xmx200m",
       map_memory = 1024, reduce_memory = 1024,
       reduce_input_buffer_percent=0.4, reduce_parallelcopies=10,
       reduce_merge_inmem=0, task_io_sort_factor=100,
@@ -37,8 +37,8 @@ inside of output path on HDFS.
       reduce_shuffle_merge_percent = 0.4
     )
     sstl_mr(
-      input = "/tmp/tmax.txt", output = "/tmp/output", 
-      stat_info = "/tmp/station_info.RData", mlcontrol = mcontrol, 
+      input = "/tmp/tmax.txt", output = "/tmp/output",
+      stat_info = "/tmp/station_info.RData", mlcontrol = mcontrol,
       clcontrol = clcontrol
     )
 }
