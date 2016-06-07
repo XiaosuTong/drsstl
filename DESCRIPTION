@@ -16,7 +16,7 @@ Imports:
     yaImpute,
     stlplus,
     testthat
-License: MIT + LICENSE
+License: MIT + file LICENSE
 LazyData: true
 RoxygenNote: 5.0.1
 Suggests: knitr,
