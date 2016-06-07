@@ -23,12 +23,13 @@ jobs, the final fitting results are saved as output_bymth and output_bystat subd
 inside of output path on HDFS.
 }
 \examples{
+\dontrun{
     mcontrol <- spacetime.control(
       vari="tmax", n=576, n.p=12, stat_n=7738,
       s.window=13, t.window = 241, degree=2, span=0.015, Edeg=2
     )
     ccontrol <- mapreduce.control(
-      libLoc=lib.loc, reduceTask=169, io_sort=512, BLK=128, slow_starts = 0.5,
+      libLoc= NULL, reduceTask=169, io_sort=512, BLK=128, slow_starts = 0.5,
       map_jvm = "-Xmx200m", reduce_jvm = "-Xmx200m",
       map_memory = 1024, reduce_memory = 1024,
       reduce_input_buffer_percent=0.4, reduce_parallelcopies=10,
@@ -41,6 +42,7 @@ inside of output path on HDFS.
       stat_info = "/tmp/station_info.RData", mlcontrol = mcontrol,
       clcontrol = clcontrol
     )
+}
 }
 \author{
 Xiaosu Tong

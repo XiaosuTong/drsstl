@@ -30,6 +30,7 @@ Switch input key-value pairs which is division by-month
 to the key-value pairs which is division by-location.
 }
 \examples{
+\dontrun{
     FileInput <- "/tmp/bymthfit"
     FileOutput <- "/tmp/bystat"
     ccontrol <- mapreduce.control(
@@ -44,6 +45,7 @@ to the key-value pairs which is division by-location.
       s.window=13, t.window = 241, degree=2, span=0.015, Edeg=2
     )
     swaptoLoc(FileInput, FileOutput, cluster_control=ccontrol, model_control=mcontrol)
+}
 }
 \author{
 Xiaosu Tong

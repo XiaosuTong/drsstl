@@ -2,7 +2,7 @@
 % Please edit documentation in R/spaofit.R
 \name{spaofit}
 \alias{spaofit}
-\title{Apply the spatial loess fitting to the original observations at 
+\title{Apply the spatial loess fitting to the original observations at
 all locations in each month in parallel}
 \usage{
 spaofit(input, output, info, model_control = spacetime.control(),
@@ -11,7 +11,7 @@ spaofit(input, output, info, model_control = spacetime.control(),
 \arguments{
 \item{input}{The path of input sequence file on HDFS. It should be by-month division.}
 
-\item{output}{The path of output sequence file on HDFS. It is also by-month division but with 
+\item{output}{The path of output sequence file on HDFS. It is also by-month division but with
 seasonal and trend components}
 
 \item{info}{The RData on HDFS which contains all station metadata. Make sure
@@ -21,7 +21,7 @@ copy the RData of station_info to HDFS first using rhput.}
 The list including all necessary smoothing parameters of nonparametric fitting.}
 
 \item{cluster_control}{Should be a list object generated from \code{mapreduce.control} function.
-The list including all necessary Rhipe parameters and also user tunable 
+The list including all necessary Rhipe parameters and also user tunable
 MapReduce parameters.}
 }
 \description{
@@ -30,6 +30,7 @@ Every spatial domain uses the same smoothing parameters. NA observations will be
 imputed.
 }
 \examples{
+\dontrun{
     FileInput <- "/tmp/bymth"
     FileOutput <- "/tmp/bymthfit"
     ccontrol <- mapreduce.control(libLoc=NULL, reduceTask=0)
@@ -40,9 +41,10 @@ imputed.
 
     spaofit(
       FileInput, FileOutput,
-      info="/tmp/station_info.RData", 
+      info="/tmp/station_info.RData",
       model_control=mcontrol, cluster_control=ccontrol
     )
+}
 }
 \author{
 Xiaosu Tong

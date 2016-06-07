@@ -30,6 +30,7 @@ The prediction at new locations are calculated based on the fitting results
 saved on HDFS based on the original dataset.
 }
 \examples{
+\dontrun{
     clcontrol <- mapreduce.control(libLoc=NULL, reduceTask=95, io_sort=100, slow_starts = 0.5)
     mlcontrol <- spacetime.control(
       vari="resp", time="date", n=576, n.p=12, stat_n=7738,
@@ -67,6 +68,7 @@ saved on HDFS based on the original dataset.
       newdata=new.grid, input="/tmp/output_bymth", output = "/tmp",
       info="/tmp/station_info.RData", mlcontrol=mlcontrol, clcontrol=clcontrol
     )
+}
 }
 \author{
 Xiaosu Tong
