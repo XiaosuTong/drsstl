@@ -32,7 +32,7 @@ should be "lon", "lat", "elev", "year", and "month".
       s.window=13, t.window = 241, degree=2, span=0.15, Edeg=0
     )
 
-    sstl_local(small_dt, mlcontrol=mcontrol)
+    rst <- sstl_local(small_dt, mlcontrol=mcontrol)
 }
 \author{
 Xiaosu Tong
