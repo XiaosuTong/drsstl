@@ -4,6 +4,8 @@ language: r
 sudo: false
 cache: packages
 
+warnings_are_errors: false
+
 # install locally to avoid rev dep
 r_github_packages:
   - schloerke/RHIPE_dummy # fake the RHIPE requirement
