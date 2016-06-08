@@ -67,7 +67,7 @@ utils::globalVariables(c("year", "month", "station.id", "lon", "lat", "elev2"))
 #'       output=NULL,
 #'       model_control=mlcontrol
 #'     )
-#'     predNew_local(
+#'     rst <- predNew_local(
 #'       original = fitted, newdata = new.grid, mlcontrol = mlcontrol
 #'     )
 

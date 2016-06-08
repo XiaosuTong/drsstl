@@ -29,7 +29,7 @@ utils::globalVariables(c("year", "month"))
 #'       s.window=13, t.window = 241, degree=2, span=0.15, Edeg=0
 #'     )
 #'
-#'     sstl_local(small_dt, mlcontrol=mcontrol)
+#'     rst <- sstl_local(small_dt, mlcontrol=mcontrol)
 
 sstl_local <- function(data, mlcontrol=spacetime.control()) {
 
