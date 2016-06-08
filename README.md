@@ -1,5 +1,7 @@
 # drSpaceTime: Divide and Recombined for Spatial-Temporal Data
 
+[![Build Status](https://travis-ci.org/XiaosuTong/drSpaceTime.svg?branch=master)](https://travis-ci.org/XiaosuTong/drSpaceTime)
+
 This is an R package that provide a way to analyze spatial-temporal data based 
 on SSTL (Spatial Seasonal Trend decomposition using Loess) routine under the 
 divide and recombined framework.
