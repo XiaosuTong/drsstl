@@ -69,7 +69,7 @@
 #'     )
 
 spacetime.control <- function(vari="resp", time="date", n, stat_n, n.p=12, s.window, s.degree = 1,
-  t.window = NULL, t.degree = 1, inner=2, outer=1, statbytime = 2, s.jump=10, t.jump=10, cell=0.2,
+  t.window = NULL, t.degree = 1, inner=2, outer=1, statbytime = 1, s.jump=10, t.jump=10, cell=0.2,
   degree, span, Edeg, surf = c("direct", "interpolate"), family = c("symmetric", "gaussian"), siter = 2) {
 
   list(
