@@ -24,6 +24,7 @@ utils::globalVariables(c("year", "month", "station.id", "lon", "lat", "elev2"))
 #'     library(maps)
 #'     library(Spaloess)
 #'
+#' \dontrun{
 #'     new.grid <- expand.grid(
 #'       lon = seq(-126, -67, by = 1),
 #'       lat = seq(25, 49, by = 1)
@@ -70,6 +71,7 @@ utils::globalVariables(c("year", "month", "station.id", "lon", "lat", "elev2"))
 #'     rst <- predNew_local(
 #'       original = fitted, newdata = new.grid, mlcontrol = mlcontrol
 #'     )
+#' }
 
 predNew_local <- function(original, newdata, mlcontrol=spacetime.control()) {
 
