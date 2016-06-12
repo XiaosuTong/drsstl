@@ -92,6 +92,9 @@ predNew_local <- function(original, newdata, mlcontrol=spacetime.control()) {
   }
 
   N <- nrow(newdata)
+  if (class(original$station.id) != "character") {
+    original$station.id <- as.character(original$station.id)    
+  }
 
   message("First spatial smoothing...")
   rst <- dlply(.data = original
