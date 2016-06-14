@@ -52,9 +52,9 @@ swaptoTime <- function(input, output, cluster_control=mapreduce.control(), model
   job <- list()
   job$map <- expression({
     lapply(seq_along(map.values), function(r) {
-      lapply(seq(1, Mlcontrol$n, Mlcontrol$statbytime), function(i) {
+      lapply(seq(1, Mlcontrol$n, Mlcontrol$mthbytime), function(i) {
         value <- numeric()
-        for (j in 0:(Mlcontrol$statbytime - 1)){
+        for (j in 0:(Mlcontrol$mthbytime - 1)){
           # j is the station (index - 1) in each time point, 2 here since we have two components, seasonal and trend
           value <- c(value, map.values[[r]][c(i + j, i + Mlcontrol$n + j, i + Mlcontrol$n * 2 + j)], i + j, map.keys[[r]] )
         }

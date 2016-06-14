@@ -27,11 +27,11 @@
 #'     The iteration time for inner loop of stlplus for time dimension fitting
 #' @param outer
 #'     The iteration time for outer loop of stlplus for time dimension fitting
-#' @param statbytime
-#'     The number of locations will be grouped together in the by time division after stlfit.
+#' @param mthbytime
+#'     The number of months will be grouped together in the by time division after \code{swaptoTime}.
 #'     The parameter is only used for \code{swaptoTime}. Since there may be to many time
 #'     point in each location, the \code{swaptoTime} looping all time point will add to much
-#'     overhead caused by \code{rhcollect}. So every \code{statbytime} time point are collect
+#'     overhead caused by \code{rhcollect}. So every \code{mthbytime} time point are collect
 #'     into one key-value pair. It is save to leave it as default 1. If the time series
 #'     is extremely long, it can be set to be 2.
 #' @param degree
@@ -69,11 +69,11 @@
 #'     )
 
 spacetime.control <- function(vari="resp", time="date", n, stat_n, n.p=12, s.window, s.degree = 1,
-  t.window = NULL, t.degree = 1, inner=2, outer=1, statbytime = 1, s.jump=10, t.jump=10, cell=0.2,
+  t.window = NULL, t.degree = 1, inner=2, outer=1, mthbytime = 1, s.jump=10, t.jump=10, cell=0.2,
   degree, span, Edeg, surf = c("direct", "interpolate"), family = c("symmetric", "gaussian"), siter = 2) {
 
   list(
-    vari=vari, time=time, statbytime=statbytime, s.jump = s.jump, t.jump = t.jump, cell = cell,
+    vari=vari, time=time, mthbytime=mthbytime, s.jump = s.jump, t.jump = t.jump, cell = cell,
     n=n, n.p=n.p, inner=inner, outer=outer, s.window=s.window, s.degree=s.degree, t.window=t.window, t.degree= t.degree,
     degree=degree, span=span, Edeg=Edeg, stat_n = stat_n, surf=match.arg(surf), family=match.arg(family), siter=siter
   )
