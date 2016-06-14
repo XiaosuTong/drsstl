@@ -49,7 +49,7 @@ utils::globalVariables(c("year", "month", "station.id", "lon", "lat", "elev2"))
 #'         lat = new.grid$lat
 #'       )
 #'     )
-#'     new.grid$elev <- log2(grid.fit + 128)
+#'     new.grid$elev <- grid.fit
 #'
 #'     n <- 1000 # just use 1000 stations as example
 #'     set.seed(99)
@@ -182,7 +182,7 @@ predNew_local <- function(original, newdata, mlcontrol=spacetime.control()) {
       subset(rst, select = c(station.id, lon, lat, year, month, spaofit, seasonal, trend))
     )
   }
-
+  
   message("Second spatial smoothing...")
   rst <- ddply(.data = tmp
     , .variables = c("year", "month")
