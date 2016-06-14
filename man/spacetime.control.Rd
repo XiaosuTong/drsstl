@@ -6,7 +6,7 @@
 \usage{
 spacetime.control(vari = "resp", time = "date", n, stat_n, n.p = 12,
   s.window, s.degree = 1, t.window = NULL, t.degree = 1, inner = 2,
-  outer = 1, statbytime = 1, s.jump = 10, t.jump = 10, cell = 0.2,
+  outer = 1, mthbytime = 1, s.jump = 10, t.jump = 10, cell = 0.2,
   degree, span, Edeg, surf = c("direct", "interpolate"),
   family = c("symmetric", "gaussian"), siter = 2)
 }
@@ -37,10 +37,10 @@ the default, \code{nextodd(ceiling((1.5*period) / (1-(1.5/s.window))))}, is take
 
 \item{outer}{The iteration time for outer loop of stlplus for time dimension fitting}
 
-\item{statbytime}{The number of locations will be grouped together in the by time division after stlfit.
+\item{mthbytime}{The number of months will be grouped together in the by time division after \code{swaptoTime}.
 The parameter is only used for \code{swaptoTime}. Since there may be to many time
 point in each location, the \code{swaptoTime} looping all time point will add to much
-overhead caused by \code{rhcollect}. So every \code{statbytime} time point are collect
+overhead caused by \code{rhcollect}. So every \code{mthbytime} time point are collect
 into one key-value pair. It is save to leave it as default 1. If the time series
 is extremely long, it can be set to be 2.}
 

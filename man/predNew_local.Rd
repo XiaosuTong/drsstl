@@ -49,7 +49,7 @@ saved in memory based on the original dataset.
         lat = new.grid$lat
       )
     )
-    new.grid$elev <- log2(grid.fit + 128)
+    new.grid$elev <- grid.fit
 
     n <- 1000 # just use 1000 stations as example
     set.seed(99)
