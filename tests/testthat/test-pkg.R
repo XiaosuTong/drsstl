@@ -41,7 +41,7 @@ test_that("local fit and pred", {
   mcontrol <- spacetime.control(
    vari = "tmax", time = "date", n = 576, n.p = 12, stat_n = n, surf = "interpolate",
    s.window = 13, t.window = 241, degree = 2, span = 0.25, Edeg = 0,
-   statbytime = 1
+   mthbytime = 1
   )
 
   set.seed(99)
@@ -84,7 +84,7 @@ test_that("local fit and pred", {
 # mcontrol <- spacetime.control(
 #  vari="resp", time="date", n=576, n.p=12, stat_n=7738, surf="interpolate",
 #  s.window=13, t.window = 241, degree=2, span=0.015, Edeg=2,
-#  statbytime = 1
+#  mthbytime = 1
 # )
 # fitted <- drsstl(
 #  data = "/user/tongx/spatem/tmax.txt",
