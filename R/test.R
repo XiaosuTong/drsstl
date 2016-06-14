@@ -13,15 +13,6 @@
 #load("Projects/Spatial/NCAR/RData/info.RData") ##gacrux#
 #
 
-#ccontrol <- mapreduce.control(
-#  libLoc=.libPaths(), reduceTask=95, io_sort=128, slow_starts = 0.5,
-#  map_jvm = "-Xmx200m", reduce_jvm = "-Xmx200m",
-#  map_memory = 1024, reduce_memory = 1024,
-#  reduce_input_buffer_percent=0.4, reduce_parallelcopies=10,
-#  reduce_merge_inmem=0, task_io_sort_factor=100,
-#  spill_percent=0.9, reduce_shuffle_input_buffer_percent = 0.8,
-#  reduce_shuffle_merge_percent = 0.4
-#)
 #new.grid <- expand.grid(
 #  lon = seq(-126, -67, by = 0.5),
 #  lat = seq(25, 49, by = 0.5)
@@ -68,10 +59,18 @@
 #
 
 ##if the fitting results are on HDFS#
-
+#ccontrol <- mapreduce.control(
+#  libLoc=.libPaths(), reduceTask=95, io_sort=128, slow_starts = 0.5,
+#  map_jvm = "-Xmx200m", reduce_jvm = "-Xmx200m",
+#  map_memory = 1024, reduce_memory = 1024,
+#  reduce_input_buffer_percent=0.4, reduce_parallelcopies=10,
+#  reduce_merge_inmem=0, task_io_sort_factor=100,
+#  spill_percent=0.9, reduce_shuffle_input_buffer_percent = 0.8,
+#  reduce_shuffle_merge_percent = 0.4
+#)
 #mcontrol <- spacetime.control(
-#  vari="resp", time="date", n=576, n.p=12, stat_n=7738, surf="interpolate",
-#  s.window=13, t.window = 241, degree=2, span=0.015, Edeg=2,
+#  vari="resp", time="date", n=576, n.p=12, stat_n=7738, surf="direct",
+#  s.window="periodic", t.window = 241, degree=2, span=0.015, Edeg=2,
 #  statbytime = 1
 #)
 #fitted <- drsstl(
@@ -79,8 +78,7 @@
 #  output = "/user/tongx/spatem/output",
 #  stat_info="/user/tongx/spatem/station_info.RData",
 #  model_control=mcontrol, cluster_control=ccontrol
-#)#
-
+#)
 #predNewLocs(
 #  fitted="/user/tongx/spatem/output/output_bymth", newdata=new.grid, output = "/user/tongx/spatem",
 #  stat_info="/user/tongx/spatem/station_info.RData", model_control = mcontrol, cluster_control = ccontrol
