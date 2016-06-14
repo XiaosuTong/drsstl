@@ -76,7 +76,7 @@ sparfit <- function(input, output, info, model_control=spacetime.control(), clus
             distance    = "Latlong",
             control     = loess.control(surface = Mlcontrol$surf, iterations = Mlcontrol$siter, cell=Mlcontrol$cell),
             napred      = FALSE,
-            alltree     = match.arg(mlcontrol$surf, c("interpolate", "direct")) == "interpolate"
+            alltree     = match.arg(Mlcontrol$surf, c("interpolate", "direct")) == "interpolate"
           )
           S$Rspa <- lo.fit$fitted
           key <- unique(S[, Mlcontrol$time])
