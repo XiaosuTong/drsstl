@@ -32,7 +32,7 @@ Every spatial domain uses the same smoothing parameters
     FileOutput <- "/tmp/bymthfitse"
     ccontrol <- mapreduce.control(libLoc=NULL, reduceTask=0, BLK=128)
     mcontrol <- spacetime.control(
-      vari="remainder", time="date", seaname="month", n=786432, n.p=12,
+      vari="remainder", time="date", n=786432, n.p=12,
       s.window=13, t.window = 241, degree=2, span=0.015, Edeg=2
     )
 

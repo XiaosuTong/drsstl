@@ -24,7 +24,6 @@ saved in memory based on the original dataset.
     library(maps)
     library(Spaloess)
 
-\dontrun{
     new.grid <- expand.grid(
       lon = seq(-126, -67, by = 1),
       lat = seq(25, 49, by = 1)
@@ -71,7 +70,6 @@ saved in memory based on the original dataset.
     rst <- predNew_local(
       original = fitted, newdata = new.grid, mlcontrol = mlcontrol
     )
-}
 }
 \author{
 Xiaosu Tong
