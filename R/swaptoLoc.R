@@ -89,6 +89,7 @@ swaptoLoc <- function(input, output, final=FALSE, cluster_control=mapreduce.cont
       post = {
         combine <- arrange(combine, date)
         rownames(combine) <- NULL
+        names(combine)[1] <- Mlcontrol$time
         rhcollect(reduce.key, combine)
       }
     )

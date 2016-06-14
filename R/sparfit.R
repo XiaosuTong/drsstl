@@ -26,7 +26,7 @@
 #'     FileOutput <- "/tmp/bymthfitse"
 #'     ccontrol <- mapreduce.control(libLoc=NULL, reduceTask=0, BLK=128)
 #'     mcontrol <- spacetime.control(
-#'       vari="remainder", time="date", seaname="month", n=786432, n.p=12,
+#'       vari="remainder", time="date", n=786432, n.p=12,
 #'       s.window=13, t.window = 241, degree=2, span=0.015, Edeg=2
 #'     )
 #'
@@ -61,7 +61,7 @@ sparfit <- function(input, output, info, model_control=spacetime.control(), clus
 
       d_ply(
         .data = value,
-        .variables = "date",
+        .variables = Mlcontrol$time,
         .fun = function(S) {
           S <- cbind(S, station_info[, c("lon","lat","elev")])
           S$elev2 <- log2(S$elev + 128)
@@ -79,8 +79,9 @@ sparfit <- function(input, output, info, model_control=spacetime.control(), clus
             alltree     = match.arg(mlcontrol$surf, c("interpolate", "direct")) == "interpolate"
           )
           S$Rspa <- lo.fit$fitted
-          key <- unique(S$date)
-          S <- subset(S, select = -c(remainder, lon, lat, elev2, elev, date))[,c(4,1,2,3,5)]
+          key <- unique(S[, Mlcontrol$time])
+          #S <- subset(S, select = -c(remainder, lon, lat, elev2, elev, date))[,c(4,1,2,3,5)]
+          S <- S[, c("station.id", "smoothed", "seasonal", "trend", "Rspa")]
           rownames(S) <- NULL
           rhcollect(key, S)
           NULL

@@ -47,15 +47,15 @@ spaofit <- function(input, output, info, model_control=spacetime.control(), clus
   job$map <- expression({
     lapply(seq_along(map.values), function(r) {
       if(Mlcontrol$Edeg == 2) {
-        fml <- as.formula("resp ~ lon + lat + elev2")
+        fml <- as.formula(paste(Mlcontrol$vari, "~ lon + lat + elev2"))
         dropSq <- FALSE
         condParam <- "elev2"
       } else if(Mlcontrol$Edeg == 1) {
-        fml <- as.formula("resp ~ lon + lat + elev2")
+        fml <- as.formula(paste(Mlcontrol$vari, "~ lon + lat + elev2"))
         dropSq <- "elev2"
         condParam <- "elev2"
       } else if (Mlcontrol$Edeg == 0) {
-        fml <- as.formula("resp ~ lon + lat")
+        fml <- as.formula(paste(Mlcontrol$vari, "~ lon + lat"))
         dropSq <- FALSE
         condParam <- FALSE
       }
@@ -63,7 +63,7 @@ spaofit <- function(input, output, info, model_control=spacetime.control(), clus
       value <- arrange(as.data.frame(map.values[[r]]), station.id)
       value <- cbind(value, station_info[, c("lon","lat","elev")])
       value$elev2 <- log2(value$elev + 128)
-      NApred <- any(is.na(value$resp))
+      NApred <- any(is.na(value[, Mlcontrol$vari]))
 
       lo.fit <- spaloess( fml,
         data        = value,
@@ -80,10 +80,10 @@ spaofit <- function(input, output, info, model_control=spacetime.control(), clus
       )
 
       if(NApred) {
-        indx <- which(!is.na(value$resp))
+        indx <- which(!is.na(value[, Mlcontrol$vari]))
         rst <- rbind(
           cbind(indx, fitted=lo.fit$fitted),
-          cbind(which(is.na(value$resp)), fitted=lo.fit$pred$fitted)
+          cbind(which(is.na(value[, Mlcontrol$vari])), fitted=lo.fit$pred$fitted)
         )
         rst <- arrange(as.data.frame(rst), indx)
         rhcollect(map.keys[[r]], rst$fitted)

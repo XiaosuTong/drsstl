@@ -48,7 +48,7 @@ stlfit <- function(input, output, model_control=spacetime.control(), cluster_con
       )$data
       # value originally is a data.frame with 3 columns, vectorize it
       names(value) <- c(Mlcontrol$time, Mlcontrol$vari)
-      value <- cbind(subset(value, select = -c(date)), subset(fit, select = c(seasonal, trend)))
+      value <- cbind(value[, Mlcontrol$vari, drop=FALSE], subset(fit, select = c(seasonal, trend)))
       rhcollect(map.keys[[r]], unname(unlist(value)))
     })
   })
