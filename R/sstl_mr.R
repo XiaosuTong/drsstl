@@ -53,7 +53,8 @@ sstl_mr <- function(input, output, stat_info, mlcontrol=spacetime.control(), clc
     input = FileInput,
     output = FileOutput,
     info   = stat_info,
-    cluster_control = clcontrol
+    cluster_control = clcontrol,
+    model_control = mlcontrol
   )
 
   FileInput <- FileOutput
