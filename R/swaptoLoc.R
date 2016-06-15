@@ -56,8 +56,9 @@ swaptoLoc <- function(input, output, final=FALSE, cluster_control=mapreduce.cont
           NULL
         })
       } else {
+        N <- Mlcontrol$stat_n
         value <- unname(unlist(map.values[[r]]))
-        lapply(1:Mlcontrol$stat_n, function(i) {
+        lapply(1:N, function(i) {
           rhcollect(i, data.frame(date=map.keys[[r]], smoothed=value[i + N], seasonal=value[i + N * 2], trend=value[i + N * 3], Rspa=value[i + N * 4]))
           NULL
         })
