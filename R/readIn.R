@@ -35,7 +35,7 @@
 #'     )
 #' }
 
-readIn <- function(input, output, info, cluster_control = mapreduce.control(), cshift=1) {
+readIn <- function(input, output, info, cluster_control = mapreduce.control(), model_control = spacetime.control(), cshift=1) {
 
   job <- list()
   job$map <- expression({
@@ -80,6 +80,7 @@ readIn <- function(input, output, info, cluster_control = mapreduce.control(), c
       ),
       stringsAsFactors = FALSE
     )
+    names(value)[4] <- Mlcontrol$vari
     value <- subset(value, !is.na(station.id))
     d_ply(
       .data = value,
@@ -108,6 +109,7 @@ readIn <- function(input, output, info, cluster_control = mapreduce.control(), c
   )
   job$shared <- c(info)
   job$parameters <- list(
+    Mlcontrol = model_control,
     Clcontrol = cluster_control,
     info = info,
     cshift = cshift
