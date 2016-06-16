@@ -98,16 +98,16 @@ predNew_mr <- function(newdata, input, output, info, mlcontrol=spacetime.control
     lapply(seq_along(map.values), function(r) {
       if(Mlcontrol$Edeg == 2) {
         newdata$elev2 <- log2(newdata$elev + 128)
-        fml <- as.formula("smoothed ~ lon + lat + elev2")
+        fml <- as.formula(paste(Mlcontrol$vari, "~ lon + lat + elev2"))
         dropSq <- FALSE
         condParam <- "elev2"
       } else if(Mlcontrol$Edeg == 1) {
         newdata$elev2 <- log2(newdata$elev + 128)
-        fml <- as.formula("smoothed ~ lon + lat + elev2")
+        fml <- as.formula(paste(Mlcontrol$vari, "~ lon + lat + elev2"))
         dropSq <- "elev2"
         condParam <- "elev2"
       } else if (Mlcontrol$Edeg == 0) {
-        fml <- as.formula("smoothed ~ lon + lat")
+        fml <- as.formula(paste(Mlcontrol$vari, "~ lon + lat"))
         dropSq <- FALSE
         condParam <- FALSE
       }
