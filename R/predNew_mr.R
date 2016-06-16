@@ -496,4 +496,6 @@ predNew_mr <- function(newdata, input, output, info, mlcontrol=spacetime.control
   job5$readback <- FALSE
   do.call("rhwatch", job5)
 
+  return(NULL)
+
 }
