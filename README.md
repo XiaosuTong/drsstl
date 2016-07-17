@@ -1,4 +1,4 @@
-# drSpaceTime: Divide and Recombined for Spatial-Temporal Data
+# drsstl: Divide and Recombined for Spatial Seasonal Trend Loess
 
 [![Build Status](https://travis-ci.org/XiaosuTong/drSpaceTime.svg?branch=master)](https://travis-ci.org/XiaosuTong/drSpaceTime)
 

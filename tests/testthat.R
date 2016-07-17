@@ -1,4 +1,4 @@
 library(testthat)
-library(drSpaceTime)
+library(drsstl)
 
-test_check("drSpaceTime")
+test_check("drsstl")

@@ -5,7 +5,7 @@
 \title{Readin Raw text data files and save it as by time division on HDFS.}
 \usage{
 readIn(input, output, info, cluster_control = mapreduce.control(),
-  cshift = 1)
+  model_control = spacetime.control(), cshift = 1)
 }
 \arguments{
 \item{input}{The path of input file on HDFS. It should be raw text file.}

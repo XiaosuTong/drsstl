@@ -1,7 +1,7 @@
 # nolint start
 ##install_github("XiaosuTong/Spaloess")
 #source("Rhipe/hathi.initial.R")
-#library(drSpaceTime)
+#library(drsstl)
 #library(Spaloess)
 #library(plyr)
 #library(stlplus)

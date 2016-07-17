@@ -111,12 +111,12 @@
 #     map = {
 #       library(plyr, lib.loc=Clcontrol$libLoc)
 #       library(yaImpute, lib.loc=Clcontrol$libLoc)
-#       library(drSpaceTime, lib.loc=Clcontrol$libLoc)
+#       library(drsstl, lib.loc=Clcontrol$libLoc)
 #     },
 #     reduce = {
 #       library(plyr, lib.loc=Clcontrol$libLoc)
 #       library(yaImpute, lib.loc=Clcontrol$libLoc)
-#       library(drSpaceTime, lib.loc=Clcontrol$libLoc)
+#       library(drsstl, lib.loc=Clcontrol$libLoc)
 #     }
 #   )
 #   jobIn$parameters <- paras

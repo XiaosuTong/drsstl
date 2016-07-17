@@ -7,7 +7,7 @@ using namespace Rcpp;
 
 // c_interp
 NumericVector c_interp(NumericVector m, NumericVector fits, NumericVector slopes, NumericVector at);
-RcppExport SEXP drSpaceTime_c_interp(SEXP mSEXP, SEXP fitsSEXP, SEXP slopesSEXP, SEXP atSEXP) {
+RcppExport SEXP drsstl_c_interp(SEXP mSEXP, SEXP fitsSEXP, SEXP slopesSEXP, SEXP atSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
@@ -21,7 +21,7 @@ END_RCPP
 }
 // c_loess
 List c_loess(NumericVector xx, NumericVector yy, int degree, int span, NumericVector ww, IntegerVector m, IntegerVector l_idx, NumericVector max_dist);
-RcppExport SEXP drSpaceTime_c_loess(SEXP xxSEXP, SEXP yySEXP, SEXP degreeSEXP, SEXP spanSEXP, SEXP wwSEXP, SEXP mSEXP, SEXP l_idxSEXP, SEXP max_distSEXP) {
+RcppExport SEXP drsstl_c_loess(SEXP xxSEXP, SEXP yySEXP, SEXP degreeSEXP, SEXP spanSEXP, SEXP wwSEXP, SEXP mSEXP, SEXP l_idxSEXP, SEXP max_distSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
@@ -39,7 +39,7 @@ END_RCPP
 }
 // c_ma
 NumericVector c_ma(NumericVector x, int n_p);
-RcppExport SEXP drSpaceTime_c_ma(SEXP xSEXP, SEXP n_pSEXP) {
+RcppExport SEXP drsstl_c_ma(SEXP xSEXP, SEXP n_pSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;

@@ -2,14 +2,14 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 c_interp <- function(m, fits, slopes, at) {
-    .Call('drSpaceTime_c_interp', PACKAGE = 'drSpaceTime', m, fits, slopes, at)
+    .Call('drsstl_c_interp', PACKAGE = 'drsstl', m, fits, slopes, at)
 }
 
 c_loess <- function(xx, yy, degree, span, ww, m, l_idx, max_dist) {
-    .Call('drSpaceTime_c_loess', PACKAGE = 'drSpaceTime', xx, yy, degree, span, ww, m, l_idx, max_dist)
+    .Call('drsstl_c_loess', PACKAGE = 'drsstl', xx, yy, degree, span, ww, m, l_idx, max_dist)
 }
 
 c_ma <- function(x, n_p) {
-    .Call('drSpaceTime_c_ma', PACKAGE = 'drSpaceTime', x, n_p)
+    .Call('drsstl_c_ma', PACKAGE = 'drsstl', x, n_p)
 }
 

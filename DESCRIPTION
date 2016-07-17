@@ -1,5 +1,5 @@
-Package: drSpaceTime
-Title: Spatial-Temporal data analysis using divide and recombined
+Package: drsstl
+Title: Spatial Seasonal Trend Loess analysis routine using divide and recombined
 Version: 1.0
 Authors@R: person("Xiaosu", "Tong", email = "xiaosutong@gmail.com", role = c("aut", "cre"))
 Description: Apply loess smoothing to spatial-temporal data using divide and recombined concept.
