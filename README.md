@@ -1,6 +1,6 @@
 # drsstl: Divide and Recombined for Spatial Seasonal Trend Loess
 
-[![Build Status](https://travis-ci.org/XiaosuTong/drSpaceTime.svg?branch=master)](https://travis-ci.org/XiaosuTong/drSpaceTime)
+[![Build Status](https://travis-ci.org/XiaosuTong/drsstl.svg?branch=master)](https://travis-ci.org/XiaosuTong/drsstl)
 
 This is an R package that provide a way to analyze spatial-temporal data based 
 on SSTL (Spatial Seasonal Trend decomposition using Loess) routine under the 
@@ -11,7 +11,7 @@ divide and recombined framework.
 
 ```r
 # from github
-devtools::install_github("XiaosuTong/drSpaceTime")
+devtools::install_github("XiaosuTong/drsstl")
 ```
 
 ## Fitting
@@ -42,7 +42,7 @@ and recombined framework.
 
 ## Acknowledgment
 
-drSpaceTime development is depended on 
+drsstl development is depended on 
 
 - stlplus package by Ryan Hafen
 - Rhipe package by Saptarshi Guha
