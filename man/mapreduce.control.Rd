@@ -2,7 +2,7 @@
 % Please edit documentation in R/mapreduce.control.R
 \name{mapreduce.control}
 \alias{mapreduce.control}
-\title{Set mapreduce parameter for drSpaceTime fitting}
+\title{Set mapreduce parameter for drsstl fitting}
 \usage{
 mapreduce.control(reduceTask = 0, libLoc = NULL, BLK = 128,
   map_jvm = "-Xmx200m", reduce_jvm = "-Xmx200m", map_memory = 1024,
@@ -50,7 +50,7 @@ parameter as default NULL.}
 A list with mapreduce tuning parameters.
 }
 \description{
-Set control parameters of mapreduce for drSpaceTime fits
+Set control parameters of mapreduce for drsstl fits
 }
 \examples{
     mapreduce.control()

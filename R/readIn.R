@@ -1,7 +1,7 @@
 #' Readin Raw text data files and save it as by time division on HDFS.
 #'
 #' Input raw text data file is download from NCDC, and is available in the
-#' drSpaceTime package in ./inst/extdata. It is read in and divided into by-month
+#' drsstl package in ./inst/extdata. It is read in and divided into by-month
 #' division saved on HDFS
 #'
 #' @param input
@@ -15,7 +15,7 @@
 #'     The list including all necessary smoothing parameters of nonparametric fitting.
 #' @param info
 #'     The RData on HDFS which contains all station metadata. Make sure
-#'     copy the RData of station_info.RData, which is also available in the drSpaceTime
+#'     copy the RData of station_info.RData, which is also available in the drsstl
 #'     package, to HDFS first using rhput.
 #' @param cshift
 #'     number of columns to be shifted when reading raw text file

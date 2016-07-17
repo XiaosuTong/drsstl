@@ -1,6 +1,6 @@
-#' Set mapreduce parameter for drSpaceTime fitting
+#' Set mapreduce parameter for drsstl fitting
 #'
-#'  Set control parameters of mapreduce for drSpaceTime fits
+#'  Set control parameters of mapreduce for drsstl fits
 #'
 #' @param reduceTask
 #'     The reduce task number, also the number of output files. If set to be 0, then there is no shuffle and sort stage after map.

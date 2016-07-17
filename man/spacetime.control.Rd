@@ -2,7 +2,7 @@
 % Please edit documentation in R/spacetime.control.R
 \name{spacetime.control}
 \alias{spacetime.control}
-\title{Set smoothing parameters for the drSpaceTime fitting}
+\title{Set smoothing parameters for the drsstl fitting}
 \usage{
 spacetime.control(vari = "resp", time = "date", n, stat_n, n.p = 12,
   s.window, s.degree = 1, t.window = NULL, t.degree = 1, inner = 2,

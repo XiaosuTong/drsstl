@@ -1,4 +1,4 @@
-#' Set smoothing parameters for the drSpaceTime fitting
+#' Set smoothing parameters for the drsstl fitting
 #'
 #'  Set control parameters for the smoothing fit of stl and spatial smoothing
 #' @param vari

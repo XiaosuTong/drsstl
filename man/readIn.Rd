@@ -13,7 +13,7 @@ readIn(input, output, info, cluster_control = mapreduce.control(),
 \item{output}{The path of output file on HDFS. It is by time division.}
 
 \item{info}{The RData on HDFS which contains all station metadata. Make sure
-copy the RData of station_info.RData, which is also available in the drSpaceTime
+copy the RData of station_info.RData, which is also available in the drsstl
 package, to HDFS first using rhput.}
 
 \item{cluster_control}{all parameters that are needed for mapreduce job}
@@ -25,7 +25,7 @@ The list including all necessary smoothing parameters of nonparametric fitting.}
 }
 \description{
 Input raw text data file is download from NCDC, and is available in the
-drSpaceTime package in ./inst/extdata. It is read in and divided into by-month
+drsstl package in ./inst/extdata. It is read in and divided into by-month
 division saved on HDFS
 }
 \examples{
