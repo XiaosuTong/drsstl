@@ -10,6 +10,9 @@
 #'     The path of output file on HDFS. It is by time division.
 #' @param cluster_control
 #'     all parameters that are needed for mapreduce job
+#' @param model_control
+#'     Should be a list object generated from \code{spacetime.control} function.
+#'     The list including all necessary smoothing parameters of nonparametric fitting.
 #' @param info
 #'     The RData on HDFS which contains all station metadata. Make sure
 #'     copy the RData of station_info.RData, which is also available in the drSpaceTime

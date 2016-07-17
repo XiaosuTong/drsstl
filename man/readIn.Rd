@@ -18,6 +18,9 @@ package, to HDFS first using rhput.}
 
 \item{cluster_control}{all parameters that are needed for mapreduce job}
 
+\item{model_control}{Should be a list object generated from \code{spacetime.control} function.
+The list including all necessary smoothing parameters of nonparametric fitting.}
+
 \item{cshift}{number of columns to be shifted when reading raw text file}
 }
 \description{
