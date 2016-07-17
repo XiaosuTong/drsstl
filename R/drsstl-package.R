@@ -7,30 +7,26 @@ NULL
 
 
 
-#' DATA TITLE
-#'
-#' @name station_info
-#' @docType data
-#' @description
-#' DESCRIPTION
-#'
-#' @source
-#' 0-5 years: \url{http://www.who.int/childgrowth/software/en/}
-#'
-#' 5-15 years: \url{http://www.who.int/growthref/tools/en/}
-#' @keywords data
-NULL
-
-#' DATA TITLE
+#' US Maximum Temperature
 #'
 #' @name tmax_all
 #' @docType data
 #' @description
-#' DESCRIPTION
+#' A data.frame contains maximum temperature data from NCAR weside
 #'
 #' @source
-#' 0-5 years: \url{http://www.who.int/childgrowth/software/en/}
+#' Full data on NCAR: \url{http://www.image.ucar.edu/Data/US.monthly.met/FullData.shtml#temp}
+#' @keywords data
+NULL
+
+#' Metadata of Stations
 #'
-#' 5-15 years: \url{http://www.who.int/growthref/tools/en/}
+#' @name station_info
+#' @docType data
+#' @description
+#' Metadata for all stations including longitude, latitude, elevation, station.id
+#'
+#' @source
+#' All station metadata: \url{http://www.image.ucar.edu/Data/US.monthly.met/FullData.shtml#temp}
 #' @keywords data
 NULL

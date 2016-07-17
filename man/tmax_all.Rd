@@ -3,14 +3,12 @@
 \docType{data}
 \name{tmax_all}
 \alias{tmax_all}
-\title{DATA TITLE}
+\title{US Maximum Temperature}
 \source{
-0-5 years: \url{http://www.who.int/childgrowth/software/en/}
-
-5-15 years: \url{http://www.who.int/growthref/tools/en/}
+Full data on NCAR: \url{http://www.image.ucar.edu/Data/US.monthly.met/FullData.shtml#temp}
 }
 \description{
-DESCRIPTION
+A data.frame contains maximum temperature data from NCAR weside
 }
 \keyword{data}
 

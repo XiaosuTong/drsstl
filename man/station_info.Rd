@@ -3,14 +3,12 @@
 \docType{data}
 \name{station_info}
 \alias{station_info}
-\title{DATA TITLE}
+\title{Metadata of Stations}
 \source{
-0-5 years: \url{http://www.who.int/childgrowth/software/en/}
-
-5-15 years: \url{http://www.who.int/growthref/tools/en/}
+All station metadata: \url{http://www.image.ucar.edu/Data/US.monthly.met/FullData.shtml#temp}
 }
 \description{
-DESCRIPTION
+Metadata for all stations including longitude, latitude, elevation, station.id
 }
 \keyword{data}
 
