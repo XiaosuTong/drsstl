@@ -9,6 +9,7 @@ Date: 2016-06-06
 Depends:
     R (>= 3.1.1)
 Imports:
+    datadr,
     Spaloess,
     roxygen2,
     plyr,
