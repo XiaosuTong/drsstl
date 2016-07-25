@@ -45,6 +45,7 @@ and recombined framework.
 drsstl development is depended on 
 
 - stlplus package by Ryan Hafen
+- datadr package by Ryan Hafen
 - Rhipe package by Saptarshi Guha
 - Spaloess package by Xiaosu Tong
 - loess function in base R by R core Team
