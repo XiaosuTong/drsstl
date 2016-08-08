@@ -7,7 +7,7 @@ Description: Apply loess smoothing to spatial-temporal data using divide and rec
      fit to the by time division or stlplus fit to the by location division.
 Date: 2016-06-06
 Depends:
-    R (>= 3.1.1)
+    R (>= 3.2.1)
 Imports:
     datadr,
     Spaloess,

@@ -3,7 +3,7 @@
 #' @importFrom stats median
 #' @importFrom utils head tail
 #' @importFrom maps map.where
-#' @importFrom datadr divide addTransform
+#' @import datadr
 NULL
 
 
