@@ -89,7 +89,12 @@
 #' }
 predNewLocs <- function(fitted, newdata, output = NULL, stat_info=NULL, model_control=spacetime.control(), cluster_control=NULL) {
 
-  if(class(fitted) == "data.frame") {
+  if ("ddf" %in% class(fitted)) {
+    
+    rst <- predNew_local(original=recombine(fitted, combRbind), newdata=newdata, mlcontrol=model_control)
+    return(rst)
+
+  } else if(class(fitted) == "data.frame") {
 
     rst <- predNew_local(original=fitted, newdata=newdata, mlcontrol=model_control)
     return(rst)

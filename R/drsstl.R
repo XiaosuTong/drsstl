@@ -52,7 +52,7 @@
 
 drsstl <- function(data, output = NULL, stat_info=NULL, model_control=spacetime.control(), cluster_control=NULL) {
   if(class(data) == "data.frame") {
-    rst <- sstl_local(data = data, mlcontrol=model_control)
+    rst <- sstl_local_dr(data = data, mlcontrol=model_control, outdiv="time")
     return(rst)
   } else if (class(data) == "character") {
     if(is.null(output)) {

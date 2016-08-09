@@ -1,9 +1,8 @@
-#' @import Spaloess plyr Rcpp yaImpute stlplus roxygen2 testthat
-#' @importFrom stats as.formula loess.control
-#' @importFrom stats median
+#' @import testthat Spaloess plyr Rcpp yaImpute stlplus roxygen2
+#' @importFrom stats as.formula loess.control median
 #' @importFrom utils head tail
 #' @importFrom maps map.where
-#' @import datadr
+#' @importFrom datadr divide addTransform recombine combRbind
 NULL
 
 

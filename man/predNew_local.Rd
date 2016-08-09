@@ -21,9 +21,10 @@ The prediction at new locations are calculated based on the fitting results
 saved in memory based on the original dataset.
 }
 \examples{
+\dontrun{
     library(maps)
     library(Spaloess)
-
+    library(datadr)
     new.grid <- expand.grid(
       lon = seq(-126, -67, by = 1),
       lat = seq(25, 49, by = 1)
@@ -51,7 +52,7 @@ saved in memory based on the original dataset.
     )
     new.grid$elev <- grid.fit
 
-    n <- 1000 # just use 1000 stations as example
+    n <- 5000 # just use 5000 stations as example
     set.seed(99)
     first_stations <- sample(unique(tmax_all$station.id), n)
     small_dt <- subset(tmax_all, station.id \%in\% first_stations)
@@ -59,7 +60,7 @@ saved in memory based on the original dataset.
     small_dt$month <- as.character(small_dt$month)
     mlcontrol <- spacetime.control(
       vari="tmax", time="date", n=576, n.p=12, stat_n=n, surf = "interpolate",
-      s.window="periodic", t.window = 241, degree=2, span=0.15, Edeg=0
+      s.window="periodic", t.window = 241, degree=2, span=0.75, Edeg=0
     )
 
     fitted <- drsstl(
@@ -68,8 +69,9 @@ saved in memory based on the original dataset.
       model_control=mlcontrol
     )
     rst <- predNew_local(
-      original = fitted, newdata = new.grid, mlcontrol = mlcontrol
+      original = recombine(fitted, combRbind), newdata = new.grid, mlcontrol = mlcontrol
     )
+}
 }
 \author{
 Xiaosu Tong

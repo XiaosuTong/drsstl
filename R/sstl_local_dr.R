@@ -54,9 +54,9 @@ sstl_local_dr <- function(data, mlcontrol=spacetime.control(), outdiv) {
     condParam <- FALSE
   }
 
-  ddf_data <- datadr::divide(data, by=c("year","month"))
+  ddf_data <- divide(data, by=c("year","month"))
 
-  rst <- suppressMessages(datadr::addTransform(ddf_data, function(v) {
+  rst <- suppressMessages(addTransform(ddf_data, function(v) {
     NApred <- any(is.na(v[, mlcontrol$vari]))
     lo.fit <- Spaloess::spaloess( fml,
       data        = v,
@@ -83,11 +83,11 @@ sstl_local_dr <- function(data, mlcontrol=spacetime.control(), outdiv) {
       v$spaofit <- lo.fit$fitted
     }
     v
-  }, params = list(mlcontrol = mlcontrol, fml = fml, dropSq = dropSq, condParam = condParam))) 
+  }, params = list(mlcontrol = mlcontrol, fml = fml, dropSq = dropSq, condParam = condParam), packages = c("datadr"))) 
 
-  bystat_ddf <- suppressMessages(datadr::divide(rst, by="station.id", update=TRUE))
+  bystat_ddf <- suppressMessages(divide(rst, by="station.id", update=TRUE))
 
-  rst <- suppressMessages(datadr::addTransform(bystat_ddf, function(v) {
+  rst <- suppressMessages(addTransform(bystat_ddf, function(v) {
     v <- plyr::arrange(v, year, match(month, month.abb))
     fit <- stlplus::stlplus(
       x        = v$spaofit,
@@ -102,9 +102,9 @@ sstl_local_dr <- function(data, mlcontrol=spacetime.control(), outdiv) {
     )$data
     v <- cbind(v, fit[, c("seasonal", "trend", "remainder")])
     v
-  }, params = list(mlcontrol = mlcontrol, fml = fml, dropSq = dropSq, condParam = condParam)))
+  }, params = list(mlcontrol = mlcontrol, fml = fml, dropSq = dropSq, condParam = condParam), packages = c("datadr")))
 
-  bymth_ddf <- suppressMessages(datadr::divide(rst, by=c("year","month"), update=TRUE))
+  bymth_ddf <- suppressMessages(divide(rst, by=c("year","month"), update=TRUE))
 
   if(mlcontrol$Edeg != 0) {
     fml <- as.formula("remainder ~ lon + lat + elev2")
@@ -112,7 +112,7 @@ sstl_local_dr <- function(data, mlcontrol=spacetime.control(), outdiv) {
     fml <- as.formula("remainder ~ lon + lat")
   }
 
-  rst <- suppressMessages(datadr::addTransform(bymth_ddf, function(v) {
+  rst <- suppressMessages(addTransform(bymth_ddf, function(v) {
     lo.fit <- Spaloess::spaloess(fml,
       data        = v,
       degree      = mlcontrol$degree,
@@ -127,13 +127,13 @@ sstl_local_dr <- function(data, mlcontrol=spacetime.control(), outdiv) {
       alltree     = match.arg(mlcontrol$surf, c("interpolate", "direct")) == "interpolate"
     )
     v$Rspa <- lo.fit$fitted
-    subset(v, select = -c(remainder, elev2))
-  }, params = list(mlcontrol = mlcontrol, fml = fml, dropSq = dropSq, condParam = condParam)))
+    subset(v, select = -c(remainder))
+  }, params = list(mlcontrol = mlcontrol, fml = fml, dropSq = dropSq, condParam = condParam), packages = c("datadr")))
 
   if (outdiv == "time") {
     return(rst)
   } else if (outdiv == "loc") {
-    rst <- suppressMessages(datadr::divide(rst, by=c("station.id"), update=TRUE))
+    rst <- suppressMessages(divide(rst, by=c("station.id"), update=TRUE))
     return(rst)
   }
 
